@@ -9,6 +9,10 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: TimeFlow/timeFlow
+    
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
