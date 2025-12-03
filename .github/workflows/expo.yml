@@ -11,7 +11,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: TimeFlow/timeflow
+        working-directory: timeflow
     
     steps:
       - name: Checkout repository
@@ -22,9 +22,10 @@ jobs:
         with:
           node-version: 18
           cache: npm
+          cache-dependency-path: timeflow/package-lock.json
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: npm ci
 
       - name: Install Expo & EAS
         run: |
