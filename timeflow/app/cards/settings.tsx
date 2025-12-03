@@ -2,6 +2,7 @@ import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
 import { useRouter } from "expo-router";
 import { Button, Card, TextField, useThemeColor } from "heroui-native";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -10,9 +11,47 @@ export default function Settings() {
     const muted = useThemeColor('muted');
 
     const router = useRouter();
+
+    const [rate, setRate] = useState<undefined | string>(undefined);
     
     const handleOnClose = () => {
         router.back();
+    }
+
+    const handleAmountChange = (text: string) => {
+        let cleanText = text.replace(/[^0-9.,]/g, '');
+        
+        cleanText = cleanText.replace(',', '.');
+        
+        const decimalIndex = cleanText.indexOf('.');
+        if (decimalIndex !== -1) {
+            const beforeDecimal = cleanText.substring(0, decimalIndex);
+            const afterDecimal = cleanText.substring(decimalIndex + 1).replace(/\./g, '');
+            cleanText = beforeDecimal + '.' + afterDecimal;
+        }
+        
+        if (cleanText.startsWith('.')) {
+            cleanText = '0' + cleanText;
+        }
+        
+        if (cleanText.includes('.')) {
+            const [integer, decimal] = cleanText.split('.');
+            cleanText = integer + '.' + decimal.slice(0, 2);
+            
+            if (integer.length > 10) {
+                cleanText = integer.slice(0, 10) + '.' + decimal.slice(0, 2);
+            }
+        } else {
+            if (cleanText.length > 10) {
+                cleanText = cleanText.slice(0, 10);
+            }
+        }
+        
+        if (cleanText === '.') {
+            cleanText = '0.';
+        }
+
+        setRate(cleanText);
     }
     
     return <SafeAreaView style={[styles.container]}>
@@ -41,6 +80,8 @@ export default function Settings() {
                                 returnKeyType="done"
                                 submitBehavior='blurAndSubmit'
                                 className="rounded-full"
+                                onChangeText={handleAmountChange}
+                                value={rate}
                                 style={{
                                     fontWeight: '900',
                                     fontSize: 24,
