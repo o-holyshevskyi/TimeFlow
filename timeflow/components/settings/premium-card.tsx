@@ -1,4 +1,5 @@
 import { Layout } from "@/constants/layout";
+import { LinearGradient } from "expo-linear-gradient";
 import { Button, Card, useThemeColor } from "heroui-native";
 import { StyleSheet, Text, View } from "react-native";
 import { Icon } from "../ui/icon";
@@ -34,18 +35,37 @@ const PremiumCard = () => {
             </View>
         </Card.Body>
         <Card.Footer style={{ paddingHorizontal: Layout.spacing }}>
-            <Button 
-                feedbackVariant="ripple" 
-                size="lg"
-                animation={{
-                    ripple: {
-                        backgroundColor: { value: 'black' },
-                        opacity: { value: [0, 0.3, 0] },
-                    },
+            <LinearGradient
+                colors={["#f7f455ff", "#22cea9ff"]}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+                style={{
+                    borderRadius: 9999,
+                    padding: 2,
                 }}
             >
-                <Button.Label style={{ fontSize: 24, fontWeight: 600, color: 'black' }}>Unlock Pro for $4.99</Button.Label>
-            </Button>
+                <Button
+                    feedbackVariant="ripple"
+                    size="lg"
+                    style={{
+                        borderRadius: 9999,
+                        backgroundColor: "transparent",
+                    }}
+                    animation={{
+                        ripple: {
+                            backgroundColor: { value: "black" },
+                            opacity: { value: [0, 0.3, 0] },
+                        },
+                        scale: {
+                            value: 1.1
+                        }
+                    }}
+                >
+                    <Button.Label style={{ fontSize: 24, fontWeight: 600, color: "black" }}>
+                        Unlock Pro for $4.99
+                    </Button.Label>
+                </Button>
+            </LinearGradient>
         </Card.Footer>
     </Card>
 }

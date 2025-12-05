@@ -138,9 +138,12 @@ const SettingsCard = () => {
                 size="lg"
                 animation={{
                     ripple: {
-                        backgroundColor: { value: 'black' },
+                        backgroundColor: { value: "black" },
                         opacity: { value: [0, 0.3, 0] },
                     },
+                    scale: {
+                        value: 1.1
+                    }
                 }}
             >
                 <Button.Label style={{ fontSize: 24, fontWeight: 600, color: 'black' }}>Save Rate</Button.Label>

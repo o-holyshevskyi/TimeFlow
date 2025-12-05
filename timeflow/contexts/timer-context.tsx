@@ -1,3 +1,4 @@
+import { Session, SESSIONS_STORAGE_KEY } from '@/hooks/use-sessions';
 import { useSettings } from '@/hooks/use-settings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -8,22 +9,6 @@ const MAX_TIME_MS = 16 * 60 * 60 * 1000; // 16 годин у мілісекун�
 const START_TIME_KEY = 'timerStartTime';
 const ELAPSED_TIME_KEY = 'timerElapsedTime';
 const IS_TRACKING_KEY = 'timerIsTracking';
-const SESSIONS_STORAGE_KEY = 'timerSessions';
-
-// --- Інтерфейси ---
-export type Settings = {
-    currency?: string;
-    rate?: string; // Погодинна ставка (як рядок)
-}
-
-export interface Session {
-    id: string; // Унікальний ID сесії
-    startTime: number; // Timestamp початку
-    endTime: number; // Timestamp кінця
-    elapsedTime: number; // Тривалість у мілісекундах
-    rate: string;
-    currency: string;
-}
 
 interface TimerContextType {
     isTracking: boolean;
@@ -192,13 +177,13 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         await AsyncStorage.removeItem(IS_TRACKING_KEY);
         await AsyncStorage.removeItem(START_TIME_KEY);
         
-        // 🛑 FIX: Видаляємо ELAPSED_TIME_KEY з AsyncStorage 
-        // і скидаємо стан, щоб при перезавантаженні програми таймер показував 00:00:00.
-        await AsyncStorage.removeItem(ELAPSED_TIME_KEY);
-        
-        // Скидаємо стан дисплея до 0
-        setElapsedTime(0);
-        setSessionStoppedByLimit(false);
+        if (!isAutoStop) {
+            await AsyncStorage.removeItem(ELAPSED_TIME_KEY); // Видаляємо, щоб на старті бачити 00:00:00
+            setElapsedTime(0);
+            setSessionStoppedByLimit(false);
+        } else {
+            await AsyncStorage.setItem(ELAPSED_TIME_KEY, String(MAX_TIME_MS)); 
+        }
 
     }, [elapsedTime, settings, startTime]); // Removed [elapsedTime]
     
