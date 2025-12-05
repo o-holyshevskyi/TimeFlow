@@ -56,7 +56,7 @@ export default function SessionsList() {
     return <SafeAreaView style={[styles.container]}>
         <View style={[styles.headerContainer]}>
             <Button isIconOnly variant="ghost" onPress={handleOnClose}>
-                <Icon name="close-outline" />
+                <Icon name="chevron-back-outline" />
             </Button>
             <View style={{ flex: 1, alignItems: 'center' }}>
                 <Text style={[styles.titleText, { color: foreground }]}>Sessions List</Text>
