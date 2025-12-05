@@ -42,11 +42,11 @@ jobs:
           echo "VERSION_REVISION=$VERSION_REVISION"
 
           # Update package.json
-          jq --arg ver "0.1.$VERSION_REVISION" '.version = $ver' package.json > package.tmp.json
+          jq --arg ver "0.2.$VERSION_REVISION" '.version = $ver' package.json > package.tmp.json
           mv package.tmp.json package.json
 
           # Update app.json
-          jq --arg ver "0.1.$VERSION_REVISION" '.expo.version = $ver' app.json > app.tmp.json
+          jq --arg ver "0.2.$VERSION_REVISION" '.expo.version = $ver' app.json > app.tmp.json
           mv app.tmp.json app.json
 
           echo "Updated versions:"

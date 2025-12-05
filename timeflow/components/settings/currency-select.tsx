@@ -57,7 +57,11 @@ const CurrencySelect = ({ initialCurrency, onCurrencySelect }: CurrencySelectPro
 
     useEffect(() => {
         isOpen && Keyboard.dismiss();
-        !initialCurrency && onCurrencySelect(selectedCurrency.code);
+        if (initialCurrency) {
+            setSelectedCurrency({ code: initialCurrency, name: initialCurrency });
+        } else {
+            onCurrencySelect(selectedCurrency.code);
+        }
     }, [isOpen, initialCurrency, onCurrencySelect, selectedCurrency.code]);
 
     const handleSelectedCurrency = useCallback((option: { value: string, label: string }) => {
