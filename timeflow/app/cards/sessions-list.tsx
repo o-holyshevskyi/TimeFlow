@@ -1,88 +1,115 @@
+import SessionHeader from "@/components/sessions/header";
+import SessionCard from "@/components/sessions/session-card";
+import PremiumCard from "@/components/settings/premium-card";
 import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
-import { useRouter } from "expo-router";
-import { Button, Card, useThemeColor } from "heroui-native";
+import { Session, useSessions } from "@/hooks/use-sessions";
+import { Spinner, useThemeColor } from "heroui-native";
+import { useEffect, useMemo, useRef } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const data = [
-    {
-        id: 1,
-        amount: "$400.00",
-        startDate: "09:00 AM",
-        endDate: "05:00 PM",
-        rate: "$50/hr",
-    },
-    {
-        id: 2,
-        amount: "$150.00",
-        startDate: "06:00 PM",
-        endDate: "09:00 PM",
-        rate: "$50/hr",
-    },
-    {
-        id: 3,
-        amount: "$225.00",
-        startDate: "10:30 AM",
-        endDate: "03:00 PM",
-        rate: "$50/hr",
-    },
-    {
-        id: 4,
-        amount: "$345.00",
-        startDate: "12:00 PM",
-        endDate: "05:00 PM",
-        rate: "$50/hr",
-    },
-    {
-        id: 5,
-        amount: "$600.00",
-        startDate: "05:00 PM",
-        endDate: "09:00 PM",
-        rate: "$50/hr",
-    }
-]
+const groupSessionsByDate = (sessions: Session[]) => {
+    const dateFormatter = new Intl.DateTimeFormat('en-US', { 
+        weekday: 'long', 
+        month: 'short', 
+        day: 'numeric' 
+    });
+
+    const today = new Date().toDateString();
+
+    return sessions.reduce((acc, session) => {
+        const sessionDate = new Date(session.startTime);
+        const dateKey = sessionDate.toDateString();
+        
+        let displayDate = dateFormatter.format(sessionDate);
+        if (dateKey === today) {
+            displayDate = `Today, ${displayDate.split(' ')[1]} ${displayDate.split(' ')[2]}`;
+        }
+        
+        let group = acc.find(g => g.date === dateKey);
+        if (!group) {
+            group = {
+                date: dateKey,
+                displayDate,
+                data: [],
+            };
+            acc.unshift(group); 
+        }
+
+        group.data.push(session);
+        return acc;
+    }, [] as { date: string; displayDate: string; data: Session[] }[]);
+};
 
 export default function SessionsList() {
+    const { sessions, isLoading } = useSessions();
+    
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
-    
-    const router = useRouter();
 
-    const handleOnClose = () => {
-        router.back();
+    const limitedSessions = useMemo(() => sessions.slice(0, 5), [sessions]);
+    const groupedSessions = useMemo(() => groupSessionsByDate(limitedSessions), [limitedSessions]);
+
+    let globalSessionIndexRef = useRef(-1);
+
+    useEffect(() => {
+        globalSessionIndexRef.current = -1;
+    }, [limitedSessions]);
+
+    const renderGroup = ({ item }: { item: { date: string; displayDate: string; data: Session[] } }) => (
+        <View key={item.date} style={styles.groupContainer}>
+            <Text style={[styles.date, { color: foreground }]}>
+                {item.displayDate}
+            </Text>
+            {item.data.map((session, index) => {
+                globalSessionIndexRef.current++;
+                const isFifthSession = globalSessionIndexRef.current === 4 && limitedSessions.length === 5;
+                
+                return <SessionCard 
+                    key={session.id} 
+                    item={session} 
+                    foreground={foreground} 
+                    muted={muted}
+                    isFading={isFifthSession} 
+                />
+            })}
+        </View>
+    );
+
+    if (isLoading) {
+        return (
+            <SafeAreaView style={[styles.container, { justifyContent: 'center', alignItems: 'center' }]}>
+                <Spinner size="lg" color={foreground} />
+            </SafeAreaView>
+        );
+    }
+
+    if (groupedSessions.length === 0) {
+        return (
+             <SafeAreaView style={[styles.container]}>
+                <SessionHeader />
+                <View style={[styles.scrollContainer, { flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
+                    <Icon name="timer-outline" color={muted} />
+                    <Text style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
+                        No saved session. Start the timer to save the first session.
+                    </Text>
+                    <PremiumCard />
+                </View>
+             </SafeAreaView>
+        );
     }
 
     return <SafeAreaView style={[styles.container]}>
-        <View style={[styles.headerContainer]}>
-            <Button isIconOnly variant="ghost" onPress={handleOnClose}>
-                <Icon name="chevron-back-outline" />
-            </Button>
-            <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={[styles.titleText, { color: foreground }]}>Sessions List</Text>
-            </View>
-            <View style={{ width: 40 }} />
-        </View>
-        <View style={[styles.scrollContainer]}>
-            <Text style={[styles.date, { color: foreground }]}>
-                Today, Nov 26
-            </Text>
-            <FlatList
-                data={data}
-                keyExtractor={item => item.id.toString()}
-                showsVerticalScrollIndicator={false}
-                scrollEventThrottle={16}
-                renderItem={({ item, index }) => {
-                    return <Card key={index} style={[styles.card]}>
-                        <Card.Body style={{ flexDirection: 'column', gap: Layout.spacing * 2 }}>
-                            <Text style={[styles.amount, { color: foreground }]}>{item.amount}</Text>
-                            <Text style={[styles.time, { color: muted }]}>{item.startDate} - {item.endDate} (8h 0m)</Text>
-                            <Text style={[styles.rate, { color: muted }]}>{item.rate}</Text>
-                        </Card.Body>
-                    </Card>
-                }}
-            />
-        </View>
+        <SessionHeader />
+        <FlatList
+            data={groupedSessions}
+            keyExtractor={item => item.date}
+            renderItem={renderGroup}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContainer}
+            ListFooterComponent={<PremiumCard />}
+        />
     </SafeAreaView>
 }
 
@@ -91,37 +118,15 @@ const styles = StyleSheet.create({
         flex: 1, 
         paddingHorizontal: Layout.spacing * 3
     },
-    headerContainer: {
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: Layout.spacing * 3,
-    },
-    titleText: {
-        fontSize: 28,
-        fontWeight: 800,
-    },
     scrollContainer: {
         paddingVertical: Layout.spacing * 2,
+    },
+    groupContainer: {
+        marginBottom: Layout.spacing * 4,
     },
     date: {
         fontSize: 30,
         fontWeight: 600,
         paddingHorizontal: Layout.spacing * 3
-    },
-    card: {
-        marginTop: Layout.spacing * 2,
-        backgroundColor: '#1C2D23',
-        borderRadius: Layout.borderRadius
-    },
-    amount: {
-        fontSize: 35,
-        fontWeight: 800
-    },
-    time: {
-        fontSize: 24
-    },
-    rate: {
-        fontSize: 22
     }
 })

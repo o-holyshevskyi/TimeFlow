@@ -18,8 +18,8 @@ const EarnedAmount = () => {
     const amount = useMemo(() => {
         if (!settings?.rate || elapsedTime === 0) return 0;
 
-        const rate = Number(settings.rate); // Погодинна ставка
-        const timeInHours = elapsedTime / (1000 * 60 * 60); // Переведення мс у години
+        const rate = Number(settings.rate);
+        const timeInHours = elapsedTime / (1000 * 60 * 60);
         
         return rate * timeInHours;
     }, [elapsedTime, settings?.rate]);
@@ -63,7 +63,7 @@ const EarnedAmount = () => {
             </Card.Body>
             <Card.Footer>
                 <Text style={{ color: muted, fontSize: 18 }}>
-                    {formattedRate}/hour
+                    Rate: {formattedRate} / hour
                 </Text>
             </Card.Footer>
         </Card>
