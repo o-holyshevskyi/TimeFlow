@@ -1,5 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useCallback, useEffect, useState } from "react";
+import { useFocusEffect } from "expo-router";
+import { useCallback, useState } from "react";
 
 export type Settings = {
     currency?: string;
@@ -22,9 +23,11 @@ export const useSettings = () => {
         setSettings(settings);
     }, []);
 
-    useEffect(() => {
-        loadSettings();
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            loadSettings();
+        }, [loadSettings])
+    );
     
     return {
         settings,
