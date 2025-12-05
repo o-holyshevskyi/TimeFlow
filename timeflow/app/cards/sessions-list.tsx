@@ -2,10 +2,8 @@ import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
 import { useRouter } from "expo-router";
 import { Button, Card, useThemeColor } from "heroui-native";
-import { Dimensions, FlatList, StyleSheet, Text, View } from "react-native";
+import { FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-
-const MIN_WEIGHT_SCROLL_VIEW = Dimensions.get('screen').height * .85
 
 const data = [
     {
@@ -35,6 +33,13 @@ const data = [
         startDate: "12:00 PM",
         endDate: "05:00 PM",
         rate: "$50/hr",
+    },
+    {
+        id: 5,
+        amount: "$600.00",
+        startDate: "05:00 PM",
+        endDate: "09:00 PM",
+        rate: "$50/hr",
     }
 ]
 
@@ -49,9 +54,15 @@ export default function SessionsList() {
     }
 
     return <SafeAreaView style={[styles.container]}>
-        <Button isIconOnly variant="ghost" onPress={handleOnClose}>
-            <Icon name="close-outline" />
-        </Button>
+        <View style={[styles.headerContainer]}>
+            <Button isIconOnly variant="ghost" onPress={handleOnClose}>
+                <Icon name="chevron-back-outline" />
+            </Button>
+            <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={[styles.titleText, { color: foreground }]}>Sessions List</Text>
+            </View>
+            <View style={{ width: 40 }} />
+        </View>
         <View style={[styles.scrollContainer]}>
             <Text style={[styles.date, { color: foreground }]}>
                 Today, Nov 26
@@ -79,6 +90,16 @@ const styles = StyleSheet.create({
     container: { 
         flex: 1, 
         paddingHorizontal: Layout.spacing * 3
+    },
+    headerContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        gap: Layout.spacing * 3,
+    },
+    titleText: {
+        fontSize: 28,
+        fontWeight: 800,
     },
     scrollContainer: {
         paddingVertical: Layout.spacing * 2,

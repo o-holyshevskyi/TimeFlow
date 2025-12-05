@@ -7,11 +7,32 @@ const CARD_WIDTH = Dimensions.get('screen').width * .9;
 
 const Actions = () => {
     return <View style={[styles.container]}>
-        <Button variant="secondary" size="lg" style={{ minWidth: CARD_WIDTH }}>
+        <Button 
+            variant="secondary" 
+            size="lg" 
+            style={{ minWidth: CARD_WIDTH }}
+            feedbackVariant="ripple"
+            animation={{
+                ripple: {
+                    backgroundColor: { value: 'white' },
+                    opacity: { value: [0, 0.3, 0] },
+                },
+            }}    
+        >
             <Icon name="stop-outline" />
             <Button.Label style={{ fontSize: 24, fontWeight: 600, color: 'white' }}>Stop</Button.Label>
         </Button>
-        <Button size="lg" style={{ minWidth: CARD_WIDTH }}>
+        <Button 
+            size="lg" 
+            style={{ minWidth: CARD_WIDTH }}
+            feedbackVariant="ripple"
+            animation={{
+                ripple: {
+                    backgroundColor: { value: 'black' },
+                    opacity: { value: [0, 0.3, 0] },
+                },
+            }}    
+        >
             <Icon name="play-outline" color="black" />
             <Button.Label style={{ fontSize: 24, fontWeight: 600, color: 'black' }}>Start</Button.Label>
         </Button>

@@ -13,6 +13,10 @@ const Header = () => {
         router.push('/cards/sessions-list');
     }
 
+    const handleOnSettingsPress = () => {
+        router.push('/cards/settings');
+    }
+
     return <View style={[styles.container]}>
         <Button isIconOnly variant="ghost" onPress={handleOnListPress}>
             <Icon name="calendar-outline"/>
@@ -22,7 +26,7 @@ const Header = () => {
         >
             Time Tracker
         </Text>
-        <Button isIconOnly variant="ghost">
+        <Button isIconOnly variant="ghost" onPress={handleOnSettingsPress}>
             <Icon name='settings-outline'/>
         </Button>
     </View>;

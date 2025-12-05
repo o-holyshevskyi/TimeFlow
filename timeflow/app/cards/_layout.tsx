@@ -14,7 +14,14 @@ export default function CardsLayout() {
             name="sessions-list"
             options={{
                 presentation: 'card',
-                headerShown: false
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen 
+            name="settings"
+            options={{
+                presentation: 'card',
+                headerShown: false,
             }}
         />
     </Stack>
