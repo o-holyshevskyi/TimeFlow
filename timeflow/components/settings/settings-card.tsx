@@ -1,6 +1,7 @@
 import { Layout } from "@/constants/layout";
+import { useSettings } from "@/hooks/use-settings";
 import { Button, Card, TextField, useThemeColor } from "heroui-native";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Keyboard, StyleSheet, Text, View } from "react-native";
 import CurrencySelect from "./currency-select";
 
@@ -10,6 +11,15 @@ const SettingsCard = () => {
     
     const [rate, setRate] = useState<undefined | string>(undefined);
     const [currency, setCurrency] = useState<undefined | string>(undefined);
+
+    const { settings, saveSettings } = useSettings();
+
+    useEffect(() => {
+        if (settings) {
+            setRate(settings.rate);
+            setCurrency(settings.currency);
+        }
+    }, [settings]);
 
     const handleAmountChange = (text: string) => {
         let cleanText = text.replace(/[^0-9.,]/g, '');
@@ -47,11 +57,11 @@ const SettingsCard = () => {
         setRate(cleanText);
     }
 
-    const handleSaveRate = () => {
-        //save logic
+    const handleSaveRate = useCallback(async () => {
+        await saveSettings({ currency, rate })
 
         Keyboard.dismiss();
-    }
+    }, [currency, rate, saveSettings]);
 
     return <Card style={[styles.settingsCard]}>
         <Card.Header style={[styles.settingsCardHeader]}>
