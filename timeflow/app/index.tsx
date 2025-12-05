@@ -12,6 +12,7 @@ export default function HomeScreen() {
   return <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
     <Header />
     <MainContent />
+    {/* <AdBanner isPremiumUser={false} /> */}
     <Actions />
   </SafeAreaView>;
 }
