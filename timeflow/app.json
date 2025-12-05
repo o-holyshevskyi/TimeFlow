@@ -2,7 +2,7 @@
   "expo": {
     "name": "timeflow",
     "slug": "timeflow",
-    "version": "0.2.37",
+    "version": "0.2.42",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "timeflow",
