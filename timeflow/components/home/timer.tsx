@@ -1,4 +1,5 @@
 import { Layout } from "@/constants/layout";
+import { useTimer } from "@/contexts/timer-context";
 import { Card, useThemeColor } from "heroui-native";
 import { StyleSheet, Text, View } from "react-native";
 
@@ -7,12 +8,14 @@ const TEXT_SIZE = 45;
 const Timer = () => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+
+    const { hours, minutes, seconds } = useTimer();
     
     return <View style={[styles.timerContainer]}>
         <View style={[styles.timeItem]}>
             <Card style={[styles.card]}>
                 <Card.Body>
-                    <Text style={[{ color: foreground }, styles.cardBodyText]}>00</Text>
+                    <Text style={[{ color: foreground }, styles.cardBodyText]}>{hours}</Text>
                 </Card.Body>
             </Card>
             <Text style={[{ color: muted }, styles.timeItemDescription]}>
@@ -22,7 +25,7 @@ const Timer = () => {
         <View style={[styles.timeItem]}>
             <Card style={[styles.card]}>
                 <Card.Body>
-                    <Text style={[{ color: foreground }, styles.cardBodyText]}>25</Text>
+                    <Text style={[{ color: foreground }, styles.cardBodyText]}>{minutes}</Text>
                 </Card.Body>
             </Card>
             <Text style={[{ color: muted }, styles.timeItemDescription]}>
@@ -32,7 +35,7 @@ const Timer = () => {
         <View style={[styles.timeItem]}>
             <Card style={[styles.card]}>
                 <Card.Body>
-                    <Text style={[{ color: foreground }, styles.cardBodyText]}>47</Text>
+                    <Text style={[{ color: foreground }, styles.cardBodyText]}>{seconds}</Text>
                 </Card.Body>
             </Card>
             <Text style={[{ color: muted }, styles.timeItemDescription]}>

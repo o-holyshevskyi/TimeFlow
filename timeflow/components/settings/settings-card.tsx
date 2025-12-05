@@ -1,4 +1,5 @@
 import { Layout } from "@/constants/layout";
+import { useTimer } from "@/contexts/timer-context";
 import { useSettings } from "@/hooks/use-settings";
 import { Button, Card, TextField, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
@@ -14,6 +15,7 @@ const SettingsCard = () => {
 
     const { settings, saveSettings } = useSettings();
     const { toast } = useToast();
+    const { isTracking } = useTimer();
 
     useEffect(() => {
         if (settings) {
@@ -130,6 +132,7 @@ const SettingsCard = () => {
         </Card.Body>
         <Card.Footer style={{ paddingHorizontal: Layout.spacing }}>
             <Button 
+                isDisabled={isTracking}
                 onPress={handleSaveRate}
                 feedbackVariant="ripple" 
                 size="lg"
