@@ -1,6 +1,6 @@
 import { Layout } from "@/constants/layout";
 import { useSettings } from "@/hooks/use-settings";
-import { Button, Card, TextField, useThemeColor } from "heroui-native";
+import { Button, Card, TextField, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
 import { Keyboard, StyleSheet, Text, View } from "react-native";
 import CurrencySelect from "./currency-select";
@@ -13,6 +13,7 @@ const SettingsCard = () => {
     const [currency, setCurrency] = useState<undefined | string>(undefined);
 
     const { settings, saveSettings } = useSettings();
+    const { toast } = useToast();
 
     useEffect(() => {
         if (settings) {
@@ -57,11 +58,28 @@ const SettingsCard = () => {
         setRate(cleanText);
     }
 
+    const showToast = useCallback(() => {
+        toast.show({
+            component: (props) => (
+                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <View>
+                            <Toast.Label style={{ fontSize: 22 }}>Settings saved!</Toast.Label>
+                            <Toast.Description style={{ fontSize: 16 }}>Your preferences were updated</Toast.Description>
+                        </View>                       
+                        <Toast.Close />
+                    </View>
+                </Toast>
+            ),
+        });
+    }, [toast]);
+
     const handleSaveRate = useCallback(async () => {
-        await saveSettings({ currency, rate })
+        await saveSettings({ currency, rate });
+        showToast();
 
         Keyboard.dismiss();
-    }, [currency, rate, saveSettings]);
+    }, [currency, rate, saveSettings, showToast]);
 
     return <Card style={[styles.settingsCard]}>
         <Card.Header style={[styles.settingsCardHeader]}>
