@@ -24,7 +24,7 @@ export const useSessions = () => {
             if (stored) {
                 const parsed = JSON.parse(stored) as Session[];
                 
-                const sortedSessions = parsed.sort((a, b) => b.startTime - a.startTime);
+                const sortedSessions = parsed.sort((a, b) => a.startTime - b.startTime);
                 setSessions(sortedSessions);
             } else {
                 setSessions([]);
