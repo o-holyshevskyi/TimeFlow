@@ -7,20 +7,20 @@ import { StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function HomeScreen() {
-  const background = useThemeColor('background');
+    const background = useThemeColor('background');
 
-  return <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
-    <Header />
-    <MainContent />
-    <AdBanner isPremiumUser={false} />
-    <Actions />
-  </SafeAreaView>;
+    return <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
+        <Header />
+        <MainContent />
+        <AdBanner isPremiumUser={false} />
+        <Actions />
+    </SafeAreaView>;
 }
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    flexDirection: 'column',
-    justifyContent: 'space-between'
-  },
+    container: {
+        flex: 1,
+        flexDirection: 'column',
+        justifyContent: 'space-between'
+    },
 });
