@@ -4,6 +4,7 @@ import PremiumCard from "@/components/settings/premium-card";
 import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
 import { Session, useSessions } from "@/hooks/use-sessions";
+import { useUserStatus } from "@/hooks/user-status";
 import { Spinner, useThemeColor } from "heroui-native";
 import { useEffect, useMemo, useRef } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
@@ -44,18 +45,21 @@ const groupSessionsByDate = (sessions: Session[]) => {
 
 export default function SessionsList() {
     const { sessions, isLoading } = useSessions();
+    const { isPro, isChecking } = useUserStatus();
     
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
 
-    const limitedSessions = useMemo(() => sessions.slice(0, 5), [sessions]);
-    const groupedSessions = useMemo(() => groupSessionsByDate(limitedSessions), [limitedSessions]);
+    const visibleSessions = useMemo(() => {
+        return isPro ? sessions : sessions.slice(0, 5);
+    }, [sessions, isPro]);
+    const groupedSessions = useMemo(() => groupSessionsByDate(visibleSessions), [visibleSessions]);
 
     let globalSessionIndexRef = useRef(-1);
 
     useEffect(() => {
         globalSessionIndexRef.current = -1;
-    }, [limitedSessions]);
+    }, [visibleSessions]);
 
     const renderGroup = ({ item }: { item: { date: string; displayDate: string; data: Session[] } }) => (
         <View key={item.date} style={styles.groupContainer}>
@@ -64,7 +68,7 @@ export default function SessionsList() {
             </Text>
             {item.data.map((session, index) => {
                 globalSessionIndexRef.current++;
-                const isFifthSession = globalSessionIndexRef.current === 4 && limitedSessions.length === 5;
+                const isFifthSession = globalSessionIndexRef.current === 4 && visibleSessions.length === 5;
                 
                 return <SessionCard 
                     key={session.id} 
@@ -94,7 +98,7 @@ export default function SessionsList() {
                     <Text style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
                         No saved session. Start the timer to save the first session.
                     </Text>
-                    <PremiumCard />
+                    {!isChecking && !isPro && <PremiumCard />}
                 </View>
              </SafeAreaView>
         );
@@ -108,7 +112,7 @@ export default function SessionsList() {
             renderItem={renderGroup}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContainer}
-            ListFooterComponent={<PremiumCard />}
+            ListFooterComponent={!isChecking && !isPro ? <PremiumCard /> : <></>}
         />
     </SafeAreaView>
 }

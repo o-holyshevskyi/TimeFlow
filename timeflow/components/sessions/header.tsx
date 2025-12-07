@@ -1,3 +1,4 @@
+import { useUserStatus } from "@/hooks/user-status";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -7,6 +8,7 @@ import { Icon } from "../ui/icon";
 
 const SessionHeader = () => {
     const foreground = useThemeColor('foreground');
+    const { isPro, isChecking } = useUserStatus();
         
     const router = useRouter();
 
@@ -28,6 +30,9 @@ const SessionHeader = () => {
                 justifyContent: "center",
             }}
         >
+            {!isChecking && isPro ? <Button variant="ghost" isIconOnly onPress={() => {}}>
+                <Icon name="share-outline" />
+            </Button> :
             <LinearGradient
                 colors={["#f7f455ff", "#22cea9ff"]}
                 start={{ x: 0, y: 0 }}
@@ -43,14 +48,11 @@ const SessionHeader = () => {
                     style={{ backgroundColor: "transparent" }}
                 >
                     <Chip.Label style={{ color: "black", fontWeight: "600" }}>
-                        Go PRE
+                        Go PRO
                     </Chip.Label>
                     <Ionicons name="star-outline" color='black' size={15} />
                 </Chip>
-            </LinearGradient>
-            {/* <Button variant="ghost" isIconOnly onPress={() => {}}>
-                <Icon name="share-outline" />
-            </Button> */}
+            </LinearGradient>}
         </View>
 
     </View>

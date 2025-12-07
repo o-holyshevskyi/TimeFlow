@@ -5,14 +5,14 @@ import { BannerAd, BannerAdSize, TestIds, useForeground } from 'react-native-goo
 const adUnitId = TestIds.BANNER;
 const AD_WIDTH = Dimensions.get('window').width * .80;
 
-const AdBanner = ({ isPremiumUser = false }: { isPremiumUser: boolean }) => {
+const AdBanner = ({ isPro = false }: { isPro: boolean }) => {
     const bannerRef = useRef<BannerAd>(null);
 
     useForeground(() => {
         bannerRef.current?.load();
     });
 
-    if (isPremiumUser) return null;
+    if (isPro) return null;
     
     return (
         <View style={{ width: AD_WIDTH, height: 100, alignItems: 'center', marginVertical: 10 }}>
