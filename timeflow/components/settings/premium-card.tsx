@@ -1,12 +1,91 @@
 import { Layout } from "@/constants/layout";
 import { LinearGradient } from "expo-linear-gradient";
-import { Button, Card, useThemeColor } from "heroui-native";
+import { router } from "expo-router";
+import { Button, Card, Spinner, Toast, useThemeColor, useToast } from "heroui-native";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { formatCurrency } from "react-native-format-currency";
+import Purchases, { PACKAGE_TYPE, PurchasesOfferings, PurchasesPackage } from "react-native-purchases";
 import { Icon } from "../ui/icon";
 
 const PremiumCard = () => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+
+    const [offerings, setOfferings] = useState<PurchasesOfferings | null>();
+    const [price, setPrice] = useState<string | undefined>(undefined);
+    const [availablePackage, setAvailablePackage] = useState<PurchasesPackage>();
+
+    const { toast } = useToast();
+
+    useEffect(() => {
+        getOfferings();
+    });
+
+    const handleSubscribe = async () => {
+        try {
+            if (availablePackage) {
+                const { customerInfo } = await Purchases.purchasePackage(availablePackage);
+                if (
+                    typeof customerInfo.entitlements.active["PROductive"] !== "undefined"
+                ) {
+                    toast.show({
+                        component: (props) => (
+                            <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                                    <View>
+                                        <Toast.Label style={{ fontSize: 22, color: '#4caf50' }}>Subscription Activated</Toast.Label>
+                                        <Toast.Description style={{ fontSize: 16 }}>You now have full access to PROductive features.</Toast.Description>
+                                    </View>
+                                </View>
+                            </Toast>
+                        ),
+                    });
+                    router.push('/');
+                }
+            }  
+        } catch (error) {
+            toast.show({
+                component: (props) => (
+                    <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                            <View>
+                                <Toast.Label style={{ fontSize: 22, color: '#fbc02d' }}>Oops!</Toast.Label>
+                                <Toast.Description style={{ fontSize: 16 }}>We couldn’t complete your purchase. Please try again.</Toast.Description>
+                            </View>
+                        </View>
+                    </Toast>
+                ),
+            })
+        }
+    }
+
+    async function getOfferings() {
+        const offerings = await Purchases.getOfferings();
+
+        if (
+            offerings.current !== null &&
+            offerings.current.availablePackages.length !== 0
+        ) {
+            setOfferings(offerings);
+
+            const availablePackage = offerings.current.availablePackages.find(pck => pck.packageType === PACKAGE_TYPE.LIFETIME)
+            
+            if (availablePackage) {
+                setAvailablePackage(availablePackage);
+            
+                const price = availablePackage.product.price;
+                const currency = availablePackage.product.currencyCode;
+
+                if (price && currency) {
+                    const formattedPrice = formatCurrency({ amount: price, code: currency });
+                    setPrice(formattedPrice[0]);
+                }
+            }
+        }
+    }
+
+    if (offerings?.current?.availablePackages.length === 0) return;
     
     return <Card style={[styles.premiumCard]}>
         <Card.Header style={[styles.premiumCardHeader]}>
@@ -60,11 +139,15 @@ const PremiumCard = () => {
                             value: 1.1
                         }
                     }}
+                    onPress={handleSubscribe}
                 >
-                    <Icon name="sparkles-outline" color="black" />
-                    <Button.Label style={{ fontSize: 24, fontWeight: 600, color: "black" }}>
-                        Unlock Pro for $4.99
-                    </Button.Label>
+                    {price ? (<View style={{ flexDirection: "row", gap: Layout.spacing, alignItems: 'center' }}>
+                        <Icon name="sparkles" color="black" />
+                        <Button.Label style={{ fontSize: 24, fontWeight: 600, color: "black" }}>
+                            Unlock Pro for {price}
+                        </Button.Label>
+                    </View>
+                    ) : <Spinner />}
                 </Button>
             </LinearGradient>
         </Card.Footer>
