@@ -29,8 +29,8 @@ const calculateAmount = (elapsedTimeMs: number, ratePerHour: string, currency: s
     if (isNaN(rate) || rate <= 0) {
         return `${currency} 0.00`;
     }
-    const totalHours = elapsedTimeMs / (1000 * 60 * 60);
-    const amount = totalHours * rate;
+    const totalHours = (elapsedTimeMs / (1000 * 60 * 60)).toFixed(2);
+    const amount = parseFloat(totalHours) * rate;
     return `${currency} ${amount.toFixed(2)}`;
 };
 

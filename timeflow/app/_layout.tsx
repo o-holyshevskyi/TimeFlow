@@ -52,6 +52,7 @@ export default function RootLayout() {
     const colorScheme = useColorScheme();
 
     const [appIsReady, setAppIsReady] = useState(false);
+    const [isConfigured, setIsConfigured] = useState(false);
 
     useEffect(() => {
         initializeAdMobAndATT().then(() => setAppIsReady(true));
@@ -62,11 +63,17 @@ export default function RootLayout() {
             Purchases.setLogLevel(LOG_LEVEL.DEBUG);
             Purchases.configure({ apiKey: REVENUECAT_API_KEY });
         }
+
+        const getConfigured = async () => {
+            const configured = await Purchases.isConfigured();
+            setIsConfigured(configured);
+        }
+
+        getConfigured();
     }, []);
 
-    if (!appIsReady) {
-        return null;
-    }
+    if (!isConfigured) return null;
+    if (!appIsReady) return null;
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
