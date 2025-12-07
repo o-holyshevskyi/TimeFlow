@@ -15,6 +15,7 @@ import {
     requestTrackingPermissionsAsync,
 } from 'expo-tracking-transparency';
 import { useEffect, useState } from 'react';
+import { Platform } from 'react-native';
 import mobileAds from 'react-native-google-mobile-ads';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 
@@ -23,6 +24,11 @@ SplashScreen.preventAutoHideAsync();
 export const unstable_settings = {
   anchor: '(tabs)',
 };
+
+const REVENUECAT_API_KEY = Platform.select({
+    ios: 'appl_lhCnDHLgksLgTozPyXrXEqQHHcd',
+    android: 'test_kQhmpoBQNdkTZEsGYmtSwWUptrS',
+});
 
 async function initializeAdMobAndATT() {
     try {
@@ -52,8 +58,10 @@ export default function RootLayout() {
     }, []);
 
     useEffect(() => {
-        Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
-        Purchases.configure({apiKey: 'test_kQhmpoBQNdkTZEsGYmtSwWUptrS'});
+        if (REVENUECAT_API_KEY) {
+            Purchases.setLogLevel(LOG_LEVEL.DEBUG);
+            Purchases.configure({ apiKey: REVENUECAT_API_KEY });
+        }
     }, []);
 
     if (!appIsReady) {
