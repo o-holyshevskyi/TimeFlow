@@ -1,4 +1,6 @@
+import { useSessions } from "@/hooks/use-sessions";
 import { useUserStatus } from "@/hooks/user-status";
+import { exportSessionsToCSV } from '@/services/export-csv';
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -9,12 +11,17 @@ import { Icon } from "../ui/icon";
 const SessionHeader = () => {
     const foreground = useThemeColor('foreground');
     const { isPro, isChecking } = useUserStatus();
-        
+    const { sessions } = useSessions();
+
     const router = useRouter();
 
     const handleOnClose = () => {
         router.back();
     }
+
+    const handleExport = async () => {
+        await exportSessionsToCSV(sessions);
+    };
     
     return <View style={[styles.headerContainer]}>
         <Button variant="ghost" isIconOnly onPress={handleOnClose}>
@@ -30,7 +37,7 @@ const SessionHeader = () => {
                 justifyContent: "center",
             }}
         >
-            {!isChecking && isPro ? <Button variant="ghost" isIconOnly onPress={() => {}}>
+            {!isChecking && isPro ? <Button variant="ghost" isIconOnly onPress={handleExport}>
                 <Icon name="share-outline" />
             </Button> :
             <LinearGradient
