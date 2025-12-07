@@ -16,6 +16,7 @@ import {
 } from 'expo-tracking-transparency';
 import { useEffect, useState } from 'react';
 import mobileAds from 'react-native-google-mobile-ads';
+import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -50,22 +51,27 @@ export default function RootLayout() {
         initializeAdMobAndATT().then(() => setAppIsReady(true));
     }, []);
 
+    useEffect(() => {
+        Purchases.setLogLevel(LOG_LEVEL.VERBOSE);
+        Purchases.configure({apiKey: 'test_kQhmpoBQNdkTZEsGYmtSwWUptrS'});
+    }, []);
+
     if (!appIsReady) {
         return null;
     }
 
-  return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-        <HeroUINativeProvider>
-            <TimerProvider>
-                <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-                    <Stack screenOptions={{ headerShown: false }}>
-                        <Stack.Screen name="index" options={{ headerShown: false }} />
-                    </Stack>
-                    <StatusBar style="auto" />
-                </ThemeProvider>
-            </TimerProvider>
-        </HeroUINativeProvider>
-    </GestureHandlerRootView>
-  );
+    return (
+        <GestureHandlerRootView style={{ flex: 1 }}>
+            <HeroUINativeProvider>
+                <TimerProvider>
+                    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                        <Stack screenOptions={{ headerShown: false }}>
+                            <Stack.Screen name="index" options={{ headerShown: false }} />
+                        </Stack>
+                        <StatusBar style="auto" />
+                    </ThemeProvider>
+                </TimerProvider>
+            </HeroUINativeProvider>
+        </GestureHandlerRootView>
+    );
 }
