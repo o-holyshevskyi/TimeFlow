@@ -8,7 +8,7 @@ import { Icon } from "../ui/icon";
 
 const SessionHeader = () => {
     const foreground = useThemeColor('foreground');
-    const { isPro } = useUserStatus();
+    const { isPro, isChecking } = useUserStatus();
         
     const router = useRouter();
 
@@ -30,7 +30,7 @@ const SessionHeader = () => {
                 justifyContent: "center",
             }}
         >
-            {isPro ? <Button variant="ghost" isIconOnly onPress={() => {}}>
+            {!isChecking && isPro ? <Button variant="ghost" isIconOnly onPress={() => {}}>
                 <Icon name="share-outline" />
             </Button> :
             <LinearGradient

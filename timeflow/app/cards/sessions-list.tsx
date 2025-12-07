@@ -45,7 +45,7 @@ const groupSessionsByDate = (sessions: Session[]) => {
 
 export default function SessionsList() {
     const { sessions, isLoading } = useSessions();
-    const { isPro } = useUserStatus();
+    const { isPro, isChecking } = useUserStatus();
     
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
@@ -98,7 +98,7 @@ export default function SessionsList() {
                     <Text style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
                         No saved session. Start the timer to save the first session.
                     </Text>
-                    {!isPro && <PremiumCard />}
+                    {!isChecking && !isPro && <PremiumCard />}
                 </View>
              </SafeAreaView>
         );
@@ -112,7 +112,7 @@ export default function SessionsList() {
             renderItem={renderGroup}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContainer}
-            ListFooterComponent={!isPro ? <PremiumCard /> : <></>}
+            ListFooterComponent={!isChecking && !isPro ? <PremiumCard /> : <></>}
         />
     </SafeAreaView>
 }

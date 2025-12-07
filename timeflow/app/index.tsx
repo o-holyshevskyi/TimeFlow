@@ -10,12 +10,12 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 export default function HomeScreen() {
     const background = useThemeColor('background');
 
-    const { isPro } = useUserStatus();
+    const { isPro, isChecking } = useUserStatus();
 
     return <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
         <Header />
         <MainContent />
-        <AdBanner isPro={isPro} />
+        <AdBanner isPro={!isChecking && isPro} />
         <Actions />
     </SafeAreaView>;
 }

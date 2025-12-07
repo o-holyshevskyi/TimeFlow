@@ -14,7 +14,7 @@ export default function Settings() {
     
     const router = useRouter();
 
-    const { isPro } = useUserStatus();
+    const { isPro, isChecking } = useUserStatus();
     
     const handleOnClose = () => {
         router.back();
@@ -32,7 +32,7 @@ export default function Settings() {
         </View>
         <View style={[styles.contentContainer]}>
             <SettingsCard />
-            {!isPro && <PremiumCard />}
+            {!isChecking && !isPro && <PremiumCard />}
         </View>
         <Text style={{ alignSelf: 'center', color: foreground, fontWeight: 500 }}>v. {Constats.expoConfig?.version}</Text>
     </SafeAreaView>

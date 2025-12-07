@@ -3,17 +3,24 @@ import Purchases from "react-native-purchases";
 
 export const useUserStatus = () => {
     const [isPro, setIsPro] = useState<boolean>(false);
+    const [isChecking, setIsChecking] = useState(true);
     
-    async function getCustomerName() {
-        const customerInfo = await Purchases.getCustomerInfo();
-        setIsPro(typeof customerInfo.entitlements.active["PROductive"] !== "undefined");
-    }
-
     useEffect(() => {
-        getCustomerName();
+        async function loadStatus() {
+        try {
+            const customerInfo = await Purchases.getCustomerInfo();
+            const hasPro = !!customerInfo.entitlements.active["PROductive"];
+            setIsPro(hasPro);
+        } finally {
+            setIsChecking(false);
+        }
+        }
+
+        loadStatus();
     });
 
     return {
         isPro,
+        isChecking
     };
 }
