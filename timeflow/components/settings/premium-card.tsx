@@ -12,7 +12,7 @@ const PremiumCard = () => {
         <Card.Header style={[styles.premiumCardHeader]}>
             <View style={[styles.premiumTextContainer]}>
                 <Icon name="star" color="#2bee6c" />
-                <Text style={[{ color: foreground }, styles.premiumCardTitle]}>Go Premium</Text>
+                <Text style={[{ color: foreground }, styles.premiumCardTitle]}>Go PROductive</Text>
             </View>
             <Text style={[{ color: muted }, styles.premiumCardDescription]}>
                 Unlock powerful features to boost your productivity.
@@ -61,6 +61,7 @@ const PremiumCard = () => {
                         }
                     }}
                 >
+                    <Icon name="sparkles-outline" color="black" />
                     <Button.Label style={{ fontSize: 24, fontWeight: 600, color: "black" }}>
                         Unlock Pro for $4.99
                     </Button.Label>

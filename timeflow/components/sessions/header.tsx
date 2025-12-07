@@ -43,7 +43,7 @@ const SessionHeader = () => {
                     style={{ backgroundColor: "transparent" }}
                 >
                     <Chip.Label style={{ color: "black", fontWeight: "600" }}>
-                        Go PRE
+                        Go PRO
                     </Chip.Label>
                     <Ionicons name="star-outline" color='black' size={15} />
                 </Chip>
