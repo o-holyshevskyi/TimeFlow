@@ -1,12 +1,12 @@
 import PremiumCard from "@/components/settings/premium-card";
+import PrivacyLink from "@/components/settings/privacy-link";
 import SettingsCard from "@/components/settings/settings-card";
 import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
 import { useUserStatus } from "@/hooks/user-status";
-import Constats from 'expo-constants';
 import { useRouter } from "expo-router";
 import { Button, useThemeColor } from "heroui-native";
-import { StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Settings() {
@@ -21,20 +21,22 @@ export default function Settings() {
     }
     
     return <SafeAreaView style={[styles.container]}>
-        <View style={[styles.headerContainer]}>
-            <Button isIconOnly variant="ghost" onPress={handleOnClose}>
-                <Icon name="chevron-back-outline" />
-            </Button>
-            <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={[styles.titleText, { color: foreground }]}>Settings</Text>
+        <ScrollView showsVerticalScrollIndicator={false}>
+            <View style={[styles.headerContainer]}>
+                <Button isIconOnly variant="ghost" onPress={handleOnClose}>
+                    <Icon name="chevron-back-outline" />
+                </Button>
+                <View style={{ flex: 1, alignItems: 'center' }}>
+                    <Text style={[styles.titleText, { color: foreground }]}>Settings</Text>
+                </View>
+                <View style={{ width: 40 }} />
             </View>
-            <View style={{ width: 40 }} />
-        </View>
-        <View style={[styles.contentContainer]}>
-            <SettingsCard />
-            {!isChecking && !isPro && <PremiumCard />}
-        </View>
-        <Text style={{ alignSelf: 'center', color: foreground, fontWeight: 500 }}>v. {Constats.expoConfig?.version}</Text>
+            <View style={[styles.contentContainer]}>
+                <SettingsCard />
+                {!isChecking && !isPro && <PremiumCard />}
+            </View>
+            <PrivacyLink />
+        </ScrollView>
     </SafeAreaView>
 }
 

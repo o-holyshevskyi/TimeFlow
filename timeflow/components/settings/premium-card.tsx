@@ -87,7 +87,7 @@ const PremiumCard = () => {
 
     if (offerings?.current?.availablePackages.length === 0) return;
     
-    return <Card style={[styles.premiumCard]}>
+    return offerings ? <Card style={[styles.premiumCard]}>
         <Card.Header style={[styles.premiumCardHeader]}>
             <View style={[styles.premiumTextContainer]}>
                 <Icon name="star" color="#2bee6c" />
@@ -101,7 +101,7 @@ const PremiumCard = () => {
             <View style={{ flexDirection: "column", gap: Layout.spacing * 5 }}>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color="#2bee6c" />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Add-Free Experience</Text>
+                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Ad-Free Experience</Text>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color="#2bee6c" />
@@ -151,7 +151,7 @@ const PremiumCard = () => {
                 </Button>
             </LinearGradient>
         </Card.Footer>
-    </Card>
+    </Card> : <Spinner style={{alignSelf: 'center'}}/>
 }
 
 const styles = StyleSheet.create({
