@@ -1,8 +1,8 @@
 import { useRef } from 'react';
 import { Dimensions, View } from 'react-native';
-import { BannerAd, BannerAdSize, TestIds, useForeground } from 'react-native-google-mobile-ads';
+import { BannerAd, BannerAdSize, useForeground } from 'react-native-google-mobile-ads';
 
-const adUnitId = TestIds.BANNER;
+const adUnitId = 'ca-app-pub-2316339748820874/5655190892';
 const AD_WIDTH = Dimensions.get('window').width * .80;
 
 const AdBanner = ({ isPro = false }: { isPro: boolean }) => {
