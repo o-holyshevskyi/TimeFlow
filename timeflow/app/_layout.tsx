@@ -67,6 +67,7 @@ export default function RootLayout() {
         const getConfigured = async () => {
             const configured = await Purchases.isConfigured();
             setIsConfigured(configured);
+            await SplashScreen.hideAsync();
         }
 
         getConfigured();
