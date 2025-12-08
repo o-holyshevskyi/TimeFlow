@@ -1,24 +1,18 @@
 import Constats from 'expo-constants';
+import { router } from 'expo-router';
 import { useThemeColor } from "heroui-native";
-import { Linking, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function PrivacyLink() {
     const muted = useThemeColor('muted');
 
-    const PRIVACY_URL = 'https://github.com/o-holyshevskyi/TimeFlow/blob/main/public/README.md';
-
-    const openLink = async (url: string) => {
-        const supported = await Linking.canOpenURL(url);
-        if (supported) {
-            await Linking.openURL(url);
-        } else {
-            console.error("Don't know how to open this URL: " + url);
-        }
+    const openLink = async () => {
+        router.push('/cards/privacy-policy');
     };
     
     return <View style={styles.container}>
         <View style={styles.linksRow}>
-            <TouchableOpacity onPress={() => openLink(PRIVACY_URL)}>
+            <TouchableOpacity onPress={openLink}>
                 <Text style={[styles.linkText, { color: muted }]}>Privacy Policy</Text>
             </TouchableOpacity>
             

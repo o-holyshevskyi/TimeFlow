@@ -24,5 +24,12 @@ export default function CardsLayout() {
                 headerShown: false,
             }}
         />
+        <Stack.Screen 
+            name="privacy-policy"
+            options={{
+                presentation: 'card',
+                headerShown: false,
+            }}
+        />
     </Stack>
 }
