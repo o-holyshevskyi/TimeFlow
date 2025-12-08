@@ -12,7 +12,8 @@
       "supportsTablet": true,
       "bundleIdentifier": "com.holyshevskyi.a.timeflow",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads to you."
       }
     },
     "android": {
