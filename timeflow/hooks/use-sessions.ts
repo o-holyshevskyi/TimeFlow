@@ -11,7 +11,7 @@ export interface Session {
     currency: string;
 }
 
-export const SESSIONS_STORAGE_KEY = 'timerSessionsTest';
+export const SESSIONS_STORAGE_KEY = 'timerSessions';
 
 export const useSessions = () => {
     const [sessions, setSessions] = useState<Session[]>([]);
