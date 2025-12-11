@@ -83,22 +83,22 @@ const Actions = () => {
     );
 
     const StopButton = (
-        <Button 
-            key="stop"
-            variant="secondary" 
-            size="lg" 
-            style={{ minWidth: CARD_WIDTH }}
-            feedbackVariant="ripple"
+        <Button
             onPress={handleStop}
-            animation={{
-                ripple: {
-                    backgroundColor: { value: 'white' },
-                    opacity: { value: [0, 0.3, 0] },
-                },
+            size="lg"
+            style={{
+                borderRadius: 9999,
+                borderWidth: 1,
+                borderColor: '#2bee6c',
+                backgroundColor: 'transparent',
+                minWidth: CARD_WIDTH,
+                paddingHorizontal: Layout.spacing * 3,
+                paddingVertical: Layout.spacing / 1.5,
             }}
+            testID="restore-button"
         >
-            <Icon name="stop-outline" />
-            <Button.Label style={{ fontSize: 24, fontWeight: '600' as '600' | 'bold', color: 'white' }}>Stop</Button.Label>
+            <Icon name="stop-outline" color="#2bee6c" />
+            <Button.Label style={{ fontSize: 24, fontWeight: '600' as '600' | 'bold', color: '#2bee6c' }}>Stop</Button.Label>
         </Button>
     );
 
