@@ -1,93 +1,116 @@
 import { Layout } from "@/constants/layout";
+import { useUserStatus } from "@/hooks/user-status";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { Button, Card, Spinner, Toast, useThemeColor, useToast } from "heroui-native";
 import { useEffect, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
-import { formatCurrency } from "react-native-format-currency";
-import Purchases, { PACKAGE_TYPE, PurchasesOfferings, PurchasesPackage } from "react-native-purchases";
+import { Alert, StyleSheet, Text, View } from "react-native";
+import Purchases, { PACKAGE_TYPE, PurchasesPackage } from "react-native-purchases";
 import { Icon } from "../ui/icon";
+import RestorePurchase from "./restore-purchase";
 
 const PremiumCard = () => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
 
-    const [offerings, setOfferings] = useState<PurchasesOfferings | null>();
-    const [price, setPrice] = useState<string | undefined>(undefined);
-    const [availablePackage, setAvailablePackage] = useState<PurchasesPackage>();
+    const [availablePackage, setAvailablePackage] = useState<PurchasesPackage | null>(null);
+    const [isPurchasing, setIsPurchasing] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // Додали стан завантаження
+    const [debugInfo, setDebugInfo] = useState<string>(""); // Для відображення помилки на екрані (тимчасово)
 
     const { toast } = useToast();
+    const { isPro, isChecking } = useUserStatus();
+
+    const priceString = availablePackage ? availablePackage.product.priceString : "";
+    const router = useRouter();
 
     useEffect(() => {
         getOfferings();
-    });
-
-    const handleSubscribe = async () => {
-        try {
-            if (availablePackage) {
-                const { customerInfo } = await Purchases.purchasePackage(availablePackage);
-                if (
-                    typeof customerInfo.entitlements.active["PROductive"] !== "undefined"
-                ) {
-                    toast.show({
-                        component: (props) => (
-                            <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
-                                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                                    <View>
-                                        <Toast.Label style={{ fontSize: 22, color: '#4caf50' }}>Subscription Activated</Toast.Label>
-                                        <Toast.Description style={{ fontSize: 16 }}>You now have full access to PROductive features.</Toast.Description>
-                                    </View>
-                                </View>
-                            </Toast>
-                        ),
-                    });
-                    router.push('/');
-                }
-            }  
-        } catch (error) {
-            toast.show({
-                component: (props) => (
-                    <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <View>
-                                <Toast.Label style={{ fontSize: 22, color: '#fbc02d' }}>Oops!</Toast.Label>
-                                <Toast.Description style={{ fontSize: 16 }}>We couldn’t complete your purchase. Please try again.</Toast.Description>
-                            </View>
-                        </View>
-                    </Toast>
-                ),
-            })
-        }
-    }
+    }, []);
 
     async function getOfferings() {
-        const offerings = await Purchases.getOfferings();
-
-        if (
-            offerings.current !== null &&
-            offerings.current.availablePackages.length !== 0
-        ) {
-            setOfferings(offerings);
-
-            const availablePackage = offerings.current.availablePackages.find(pck => pck.packageType === PACKAGE_TYPE.LIFETIME)
+        try {
+            console.log("--- START FETCHING OFFERINGS ---");
+            const offerings = await Purchases.getOfferings();
             
-            if (availablePackage) {
-                setAvailablePackage(availablePackage);
-            
-                const price = availablePackage.product.price;
-                const currency = availablePackage.product.currencyCode;
+            // Логуємо структуру відповіді
+            console.log("Offerings Raw:", JSON.stringify(offerings, null, 2));
 
-                if (price && currency) {
-                    const formattedPrice = formatCurrency({ amount: price, code: currency });
-                    setPrice(formattedPrice[0]);
-                }
+            let pck: PurchasesPackage | undefined;
+
+            // 1. Спробуємо знайти в Current
+            if (offerings.current && offerings.current.availablePackages.length > 0) {
+                console.log("Found in CURRENT offering");
+                pck = offerings.current.availablePackages.find(p => p.packageType === PACKAGE_TYPE.LIFETIME) 
+                      || offerings.current.availablePackages[0];
+            } 
+            // 2. Якщо Current пустий, шукаємо конкретно 'default' (fallback)
+            else if (offerings.all['default'] && offerings.all['default'].availablePackages.length > 0) {
+                console.log("Found in DEFAULT offering (fallback)");
+                pck = offerings.all['default'].availablePackages.find(p => p.packageType === PACKAGE_TYPE.LIFETIME)
+                      || offerings.all['default'].availablePackages[0];
+            } else {
+                console.log("No offerings found anywhere.");
+                setDebugInfo("No offerings found. Check Console.");
             }
+
+            if (pck) {
+                console.log("✅ Package Selected:", pck.product.identifier, pck.product.priceString);
+                setAvailablePackage(pck);
+            }
+
+        } catch (e: any) {
+            console.error("❌ Error fetching offerings:", e);
+            setDebugInfo(`Error: ${e.message}`);
+        } finally {
+            setIsLoading(false); // Завжди вимикаємо спінер!
+            console.log("--- END FETCHING ---");
         }
     }
 
-    if (offerings?.current?.availablePackages.length === 0) return;
+    const handleSubscribe = async () => {
+        if (!availablePackage) return;
+        
+        setIsPurchasing(true);
+        try {
+            const { customerInfo } = await Purchases.purchasePackage(availablePackage);
+            
+            if (customerInfo.entitlements.active["PROductive"]) { 
+                toast.show({
+                    component: (props) => (
+                        <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                            <View>
+                                <Toast.Label style={{ fontSize: 22, color: '#4caf50' }}>Success!</Toast.Label>
+                                <Toast.Description style={{ fontSize: 16 }}>Premium Activated.</Toast.Description>
+                            </View>
+                        </Toast>
+                    ),
+                });
+            }
+        } catch (error: any) {
+            if (!error.userCancelled) {
+                Alert.alert("Purchase Error", error.message);
+            }
+        } finally {
+            setIsPurchasing(false);
+        }
+            
+        router.push('/');
+    }
+
+    if (!availablePackage) return null;
+    if (isChecking) return null;
+
+    if (isPro) return <Card style={[styles.premiumCard]}>
+        <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
+            <Text style={[{ color: foreground, textAlign: 'center' }, { fontSize: 14, marginBottom: Layout.spacing }]}>
+                Already bought PRO? Tap &quot;Restore Purchases&quot; to recover your subscription on this device.
+            </Text>
+            <RestorePurchase isDisabled={isPurchasing || isLoading} onRestoreSuccess={() => router.push('/')} />
+        </Card.Body>
+    </Card>;
     
-    return offerings ? <Card style={[styles.premiumCard]}>
+    return <Card style={[styles.premiumCard]}>
         <Card.Header style={[styles.premiumCardHeader]}>
             <View style={[styles.premiumTextContainer]}>
                 <Icon name="star" color="#2bee6c" />
@@ -96,16 +119,22 @@ const PremiumCard = () => {
             <Text style={[{ color: muted }, styles.premiumCardDescription]}>
                 Unlock powerful features to boost your productivity.
             </Text>
+            {(!availablePackage && !isLoading) && (
+                <Text style={{color: 'red', textAlign: 'center', marginTop: 10}}>
+                    {debugInfo || "Product Unavailable"}
+                </Text>
+            )}
         </Card.Header>
+        
         <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
-            <View style={{ flexDirection: "column", gap: Layout.spacing * 5 }}>
+             <View style={{ flexDirection: "column", gap: Layout.spacing * 5 }}>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color="#2bee6c" />
                     <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Ad-Free Experience</Text>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color="#2bee6c" />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Full Session History</Text>
+                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Unlimited History</Text>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color="#2bee6c" />
@@ -113,45 +142,42 @@ const PremiumCard = () => {
                 </View>
             </View>
         </Card.Body>
-        <Card.Footer style={{ paddingHorizontal: Layout.spacing }}>
+
+        <Card.Footer style={{ paddingHorizontal: Layout.spacing, flexDirection: "column", gap: Layout.spacing * 2 }}>
             <LinearGradient
                 colors={["#f7f455ff", "#22cea9ff"]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
-                style={{
-                    borderRadius: 9999,
-                    padding: 2,
-                }}
+                style={{ borderRadius: 9999, padding: 2 }}
             >
                 <Button
                     feedbackVariant="ripple"
                     size="lg"
-                    style={{
-                        borderRadius: 9999,
-                        backgroundColor: "transparent",
-                    }}
-                    animation={{
-                        ripple: {
-                            backgroundColor: { value: "black" },
-                            opacity: { value: [0, 0.3, 0] },
-                        },
-                        scale: {
-                            value: 1.1
-                        }
-                    }}
+                    style={{ borderRadius: 9999, backgroundColor: "transparent" }}
                     onPress={handleSubscribe}
+                    isDisabled={isPurchasing || isLoading || !availablePackage}
                 >
-                    {price ? (<View style={{ flexDirection: "row", gap: Layout.spacing, alignItems: 'center' }}>
-                        <Icon name="sparkles" color="black" />
-                        <Button.Label style={{ fontSize: 24, fontWeight: 600, color: "black" }}>
-                            Unlock Pro for {price}
-                        </Button.Label>
-                    </View>
-                    ) : <Spinner />}
+                    {(isPurchasing || isLoading) ? (
+                        <Spinner color="danger" />
+                    ) : (
+                        <View style={{ flexDirection: "row", gap: Layout.spacing, alignItems: 'center' }}>
+                            <Icon name="sparkles" color="black" />
+                            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: "black" }}>
+                                {availablePackage 
+                                    ? `Unlock for ${priceString}` 
+                                    : "Unavailable"}
+                            </Button.Label>
+                        </View>
+                    )}
                 </Button>
             </LinearGradient>
+
+            <Text style={[{ color: muted, textAlign: 'center' }, { fontSize: 14, marginBottom: Layout.spacing }]}>
+                Already bought PRO? Tap &quot;Restore Purchases&quot; to recover your subscription on this device.
+            </Text>
+            <RestorePurchase isDisabled={isPurchasing || isLoading} onRestoreSuccess={() => router.push('/')} />
         </Card.Footer>
-    </Card> : <Spinner style={{alignSelf: 'center'}}/>
+    </Card>
 }
 
 const styles = StyleSheet.create({
@@ -169,11 +195,11 @@ const styles = StyleSheet.create({
     },
     premiumCardTitle: {
         fontSize: 28, 
-        fontWeight: 700
+        fontWeight: '700'
     },
     premiumCardDescription: {
         fontSize: 22, 
-        fontWeight: 500, 
+        fontWeight: '500', 
         textAlign: 'center'
     },
     premiumTextContainer: {

@@ -3,7 +3,6 @@ import PrivacyLink from "@/components/settings/privacy-link";
 import SettingsCard from "@/components/settings/settings-card";
 import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
-import { useUserStatus } from "@/hooks/user-status";
 import { useRouter } from "expo-router";
 import { Button, useThemeColor } from "heroui-native";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
@@ -13,8 +12,6 @@ export default function Settings() {
     const foreground = useThemeColor('foreground');
     
     const router = useRouter();
-
-    const { isPro, isChecking } = useUserStatus();
     
     const handleOnClose = () => {
         router.back();
@@ -33,7 +30,7 @@ export default function Settings() {
             </View>
             <View style={[styles.contentContainer]}>
                 <SettingsCard />
-                {!isChecking && !isPro && <PremiumCard />}
+                <PremiumCard />
             </View>
             <PrivacyLink />
         </ScrollView>
