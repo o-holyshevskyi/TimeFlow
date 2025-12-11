@@ -34,7 +34,7 @@ export const exportSessionsToCSV = async (sessions: Session[]) => {
         const csvContent = headers + rows;
 
         const currentTime = new Date();
-        const fileName = `AccuRate_Report_${currentTime.toISOString().split('T')[0]}_${currentTime.getTime()}.csv`;
+        const fileName = `ClariRate_Report_${currentTime.toISOString().split('T')[0]}_${currentTime.getTime()}.csv`;
         const fileUri = FileSystem.cacheDirectory + fileName;
 
         await FileSystem.writeAsStringAsync(fileUri, csvContent, {

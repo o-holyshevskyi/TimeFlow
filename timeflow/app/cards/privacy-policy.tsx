@@ -39,7 +39,7 @@ export default function PrivacyPolicyScreen() {
             <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
                 <Text style={[styles.sectionTitle, { color: foreground }]}>Privacy Policy</Text>
                 <Text style={[styles.paragraph, { color: muted }]}>
-                    This privacy policy applies to the AccuRate app (hereby referred to as &quot;Application&quot;) for mobile devices that was created by Oleksandr Holyshevskyi (hereby referred to as &quot;Service Provider&quot;) as a Freemium service. This service is intended for use &quot;AS IS&quot;.
+                    This privacy policy applies to the ClariRate app (hereby referred to as &quot;Application&quot;) for mobile devices that was created by Oleksandr Holyshevskyi (hereby referred to as &quot;Service Provider&quot;) as a Freemium service. This service is intended for use &quot;AS IS&quot;.
                 </Text>
 
                 <Text style={[styles.sectionTitle, { color: foreground }]}>Information Collection and Use</Text>
