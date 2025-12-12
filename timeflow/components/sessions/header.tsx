@@ -1,10 +1,9 @@
 import { useSessions } from "@/hooks/use-sessions";
 import { useUserStatus } from "@/hooks/user-status";
 import { exportSessionsToCSV } from '@/services/export-csv';
-import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Button, Chip, useThemeColor } from "heroui-native";
+import { Button, Chip, Toast, useThemeColor, useToast } from "heroui-native";
 import { StyleSheet, Text, View } from "react-native";
 import { Icon } from "../ui/icon";
 
@@ -12,6 +11,7 @@ const SessionHeader = () => {
     const foreground = useThemeColor('foreground');
     const { isPro, isChecking } = useUserStatus();
     const { sessions } = useSessions();
+    const { toast } = useToast();
 
     const router = useRouter();
 
@@ -20,7 +20,22 @@ const SessionHeader = () => {
     }
 
     const handleExport = async () => {
-        await exportSessionsToCSV(sessions);
+        if (!isChecking && !isPro) {
+            toast.show({
+            component: (props) => (
+                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                        <View>
+                            <Toast.Label style={{ fontSize: 22 }}>✨ PRO Feature Locked</Toast.Label>
+                            <Toast.Description style={{ fontSize: 16 }}>Exporting history to CSV is available exclusively for PRO users. Upgrade to unlock!</Toast.Description>
+                        </View>
+                    </View>
+                </Toast>
+            ),
+        });
+        } else {
+            await exportSessionsToCSV(sessions);
+        }    
     };
     
     return <View style={[styles.headerContainer]}>
@@ -34,36 +49,39 @@ const SessionHeader = () => {
             style={{
                 flexDirection: "row",
                 alignItems: "center",
-                justifyContent: "center",
             }}
         >
-            {!isChecking && isPro ? <Button variant="ghost" isIconOnly onPress={handleExport}>
+            {!isChecking && !isPro && <GetProLabel />}
+            <Button variant="ghost" isIconOnly onPress={handleExport}>
                 <Icon name="share-outline" />
-            </Button> :
-            <LinearGradient
-                colors={["#f7f455ff", "#22cea9ff"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
-                style={{
-                    borderRadius: 999,
-                    padding: 2,
-                }}
-            >
-                <Chip
-                    size="sm"
-                    className="bg-transparent"
-                    style={{ backgroundColor: "transparent" }}
-                >
-                    <Chip.Label style={{ color: "black", fontWeight: "600" }}>
-                        Go PRO
-                    </Chip.Label>
-                    <Ionicons name="star-outline" color='black' size={15} />
-                </Chip>
-            </LinearGradient>}
+            </Button>
         </View>
 
     </View>
 }
+
+const GetProLabel = () => <LinearGradient
+    colors={["#f7f455ff", "#22cea9ff"]}
+    start={{ x: 0, y: 0 }}
+    end={{ x: 1, y: 1 }}
+    style={{
+        borderRadius: 999,
+        position: "absolute",
+        left: -25,
+        top: 30,
+        zIndex: 1,
+    }}
+>
+    <Chip
+        size="sm"
+        style={{ backgroundColor: "transparent" }}
+    >
+        <Chip.Label style={{ color: "black", fontWeight: 'bold', fontSize: 12 }}>
+            Go PRO
+        </Chip.Label>
+        {/* <Ionicons name="star-outline" color='black' size={12} /> */}
+    </Chip>
+</LinearGradient>;
 
 const styles = StyleSheet.create({
     headerContainer: {
