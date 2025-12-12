@@ -5,24 +5,33 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useS
 import { AppState } from 'react-native';
 
 // --- Константи ---
-const MAX_TIME_MS = 16 * 60 * 60 * 1000; // 16 годин у мілісекундах
+const MAX_TIME_MS = 16 * 60 * 60 * 1000; // 16 годин
 const START_TIME_KEY = 'timerStartTime';
 const ELAPSED_TIME_KEY = 'timerElapsedTime';
 const IS_TRACKING_KEY = 'timerIsTracking';
+const PAUSE_START_KEY = 'timerPauseStartTime';
+const TOTAL_PAUSED_KEY = 'timerTotalPausedDuration';
+
+// Мінімальний час для збереження сесії (в мілісекундах)
+// 1000 = 1 секунда. Якщо хочете зберігати ВСЕ, поставте 0.
+const MIN_SAVE_TIME_MS = 1000; 
 
 interface TimerContextType {
     isTracking: boolean;
-    elapsedTime: number; // Час у мілісекундах
+    isPaused: boolean;
+    elapsedTime: number;
     startTimer: () => void;
     stopTimer: () => void;
+    pauseTimer: () => void;
+    resumeTimer: () => void;
     sessionStoppedByLimit: boolean;
 }
 
-// --- Початкові значення ---
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
 
 // --- Допоміжні функції ---
 const formatTime = (ms: number): { hours: string; minutes: string; seconds: string } => {
+    if (ms < 0) ms = 0;
     const totalSeconds = Math.floor(ms / 1000);
     const seconds = (totalSeconds % 60).toString().padStart(2, '0');
     const totalMinutes = Math.floor(totalSeconds / 60);
@@ -32,15 +41,17 @@ const formatTime = (ms: number): { hours: string; minutes: string; seconds: stri
     return { hours, minutes, seconds };
 };
 
-// --- Провайдер Таймера ---
 export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const { settings } = useSettings();
     const [isTracking, setIsTracking] = useState(false);
+    const [isPaused, setIsPaused] = useState(false);
     const [elapsedTime, setElapsedTime] = useState(0);
     const [startTime, setStartTime] = useState<number | null>(null);
     const [sessionStoppedByLimit, setSessionStoppedByLimit] = useState(false);
+    const [pauseStartTime, setPauseStartTime] = useState<number | null>(null);
+    const [totalPausedDuration, setTotalPausedDuration] = useState(0);
 
-    // 1. Асинхронне відновлення стану при запуску (запобігання втраті даних)
+    // 1. Асинхронне відновлення стану
     useEffect(() => {
         const loadState = async () => {
             try {
@@ -48,24 +59,36 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const storedStartTime = await AsyncStorage.getItem(START_TIME_KEY);
                 const storedElapsedTime = await AsyncStorage.getItem(ELAPSED_TIME_KEY);
 
-                if (storedIsTracking === 'true' && storedStartTime) {
-                    const startTs = parseInt(storedStartTime, 10);
-                    const now = Date.now();
-                    const restoredTime = now - startTs;
+                const storedPauseStart = await AsyncStorage.getItem(PAUSE_START_KEY);
+                const storedTotalPaused = await AsyncStorage.getItem(TOTAL_PAUSED_KEY);
 
-                    // Перевірка ліміту при відновленні
-                    if (restoredTime >= MAX_TIME_MS) {
-                        setElapsedTime(MAX_TIME_MS);
-                        setSessionStoppedByLimit(true);
-                        await AsyncStorage.removeItem(IS_TRACKING_KEY);
-                        await AsyncStorage.removeItem(START_TIME_KEY);
-                    } else {
-                        setStartTime(startTs);
-                        setElapsedTime(restoredTime);
-                        setIsTracking(true);
+                const savedTotalPaused = storedTotalPaused ? parseInt(storedTotalPaused, 10) : 0;
+                setTotalPausedDuration(savedTotalPaused);
+
+                if (storedStartTime) {
+                    const startTs = parseInt(storedStartTime, 10);
+                    setStartTime(startTs);
+
+                    if (storedPauseStart) {
+                        const pauseTs = parseInt(storedPauseStart, 10);
+                        setPauseStartTime(pauseTs);
+                        setIsPaused(true);
+                        setIsTracking(false);
+                        const timeBeforePause = pauseTs - startTs - savedTotalPaused;
+                        setElapsedTime(timeBeforePause);
+                    } 
+                    else if (storedIsTracking === 'true') {
+                        const now = Date.now();
+                        const restoredTime = now - startTs - savedTotalPaused;
+                        if (restoredTime >= MAX_TIME_MS) {
+                            handleLimitReached();
+                        } else {
+                            setElapsedTime(restoredTime);
+                            setIsTracking(true);
+                            setIsPaused(false);
+                        }
                     }
                 } else if (storedElapsedTime) {
-                    // Якщо таймер не відстежується, але час збережено (остання сесія)
                     setElapsedTime(parseInt(storedElapsedTime, 10));
                 }
             } catch (error) {
@@ -75,86 +98,138 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         loadState();
     }, []);
 
-    // 2. Реалізація Таймера та Обробка Ліміту
+    const handleLimitReached = async () => {
+        setIsTracking(false);
+        setIsPaused(false);
+        setElapsedTime(MAX_TIME_MS);
+        setSessionStoppedByLimit(true);
+        await AsyncStorage.multiRemove([IS_TRACKING_KEY, START_TIME_KEY, PAUSE_START_KEY]);
+        await AsyncStorage.setItem(ELAPSED_TIME_KEY, String(MAX_TIME_MS));
+    };
+
+    // 2. Інтервал таймера
     useEffect(() => {
-        if (!isTracking) {
+        if (!isTracking || isPaused || !startTime) {
             return;
         }
 
         const interval = setInterval(() => {
-            if (startTime) {
-                const newElapsedTime = Date.now() - startTime;
-                
-                // 🛑 16-ГОДИННИЙ ЛІМІТ ЗУПИНКИ
-                if (newElapsedTime >= MAX_TIME_MS) {
-                    setIsTracking(false);
-                    setElapsedTime(MAX_TIME_MS);
-                    setSessionStoppedByLimit(true);
-                    clearInterval(interval);
-                    AsyncStorage.removeItem(IS_TRACKING_KEY);
-                    AsyncStorage.removeItem(START_TIME_KEY);
-                    AsyncStorage.setItem(ELAPSED_TIME_KEY, String(MAX_TIME_MS));
-                    return;
-                }
+            const now = Date.now();
+            const newElapsedTime = now - startTime - totalPausedDuration;
 
-                setElapsedTime(newElapsedTime);
+            if (newElapsedTime >= MAX_TIME_MS) {
+                handleLimitReached();
+                clearInterval(interval);
+                return;
             }
+
+            setElapsedTime(newElapsedTime);
         }, 1000);
 
         return () => clearInterval(interval);
-    }, [isTracking, startTime]);
+    }, [isTracking, isPaused, startTime, totalPausedDuration]);
 
-    // 3. Обробка Фонового Режиму (для Android/iOS)
+    // 3. AppState (Фон)
     useEffect(() => {
         const handleAppStateChange = async (nextAppState: string) => {
-            if (isTracking && AppState.currentState.match(/inactive|background/) && nextAppState === 'active') {
-                // Відновлення таймера після повернення з фону
-                const storedStartTime = await AsyncStorage.getItem(START_TIME_KEY);
-                if (storedStartTime) {
-                    const startTs = parseInt(storedStartTime, 10);
+            if (AppState.currentState.match(/inactive|background/) && nextAppState === 'active') {
+                if (isTracking && !isPaused && startTime) {
                     const now = Date.now();
-                    const timeSinceStart = now - startTs;
-
+                    const timeSinceStart = now - startTime - totalPausedDuration;
                     if (timeSinceStart >= MAX_TIME_MS) {
-                        stopTimer(true); // Зупинити, якщо ліміт перевищено у фоні
-                        setElapsedTime(MAX_TIME_MS);
-                        setSessionStoppedByLimit(true);
+                        handleLimitReached();
                     } else {
                         setElapsedTime(timeSinceStart);
                     }
                 }
             }
         };
-
         const subscription = AppState.addEventListener('change', handleAppStateChange);
-        // 🛑 FIX: Додаємо stopTimer до масиву залежностей.
         return () => subscription.remove();
-    }, [isTracking, startTime]);
+    }, [isTracking, isPaused, startTime, totalPausedDuration]);
 
+    // 4. Дії
 
-    // 4. Функції Start/Stop
     const startTimer = useCallback(async () => {
         const now = Date.now();
         setStartTime(now);
         setIsTracking(true);
+        setIsPaused(false);
         setSessionStoppedByLimit(false);
+        setElapsedTime(0);
+        setTotalPausedDuration(0);
+        setPauseStartTime(null);
         
-        await AsyncStorage.setItem(START_TIME_KEY, String(now));
-        await AsyncStorage.setItem(IS_TRACKING_KEY, 'true');
-        // При старті ми також скидаємо старий збережений час
-        await AsyncStorage.removeItem(ELAPSED_TIME_KEY);
+        await AsyncStorage.multiSet([
+            [START_TIME_KEY, String(now)],
+            [IS_TRACKING_KEY, 'true']
+        ]);
+        await AsyncStorage.multiRemove([ELAPSED_TIME_KEY, PAUSE_START_KEY, TOTAL_PAUSED_KEY]);
     }, []);
 
+    const pauseTimer = useCallback(async () => {
+        if (isTracking && !isPaused) {
+            const now = Date.now();
+            setIsPaused(true);
+            setIsTracking(false);
+            setPauseStartTime(now);
+            await AsyncStorage.setItem(IS_TRACKING_KEY, 'false');
+            await AsyncStorage.setItem(PAUSE_START_KEY, String(now));
+        }
+    }, [isTracking, isPaused]);
+
+    const resumeTimer = useCallback(async () => {
+        if (isPaused && pauseStartTime) {
+            const now = Date.now();
+            const thisPauseDuration = now - pauseStartTime;
+            const newTotalPaused = totalPausedDuration + thisPauseDuration;
+            
+            setTotalPausedDuration(newTotalPaused);
+            setIsPaused(false);
+            setPauseStartTime(null);
+            setIsTracking(true);
+            
+            await AsyncStorage.setItem(IS_TRACKING_KEY, 'true');
+            await AsyncStorage.setItem(TOTAL_PAUSED_KEY, String(newTotalPaused));
+            await AsyncStorage.removeItem(PAUSE_START_KEY);
+        }
+    }, [isPaused, pauseStartTime, totalPausedDuration]);
+
+    // 🔥 ВИПРАВЛЕНА ЛОГІКА STOP 🔥
     const stopTimer = useCallback(async (isAutoStop = false) => {
+        // 1. Розраховуємо фінальний час ПРЯМО ЗАРАЗ, а не беремо зі стану elapsedTime
+        let finalElapsedTime = 0;
+        const now = Date.now();
+
+        if (startTime) {
+            if (isPaused && pauseStartTime) {
+                // Якщо зупинили, поки стояли на паузі:
+                // Час = (Момент паузи - Старт) - (Попередні паузи)
+                finalElapsedTime = pauseStartTime - startTime - totalPausedDuration;
+            } else {
+                // Якщо зупинили під час роботи:
+                // Час = (Зараз - Старт) - (Попередні паузи)
+                finalElapsedTime = now - startTime - totalPausedDuration;
+            }
+        } else {
+            finalElapsedTime = elapsedTime; // Fallback
+        }
+
+        // Захист від від'ємних значень
+        if (finalElapsedTime < 0) finalElapsedTime = 0;
+
         setIsTracking(false);
+        setIsPaused(false);
         
-        if (startTime && elapsedTime > 1000 && settings?.rate && settings?.currency) {
+        // 2. Перевірка на збереження (використовуємо finalElapsedTime)
+        // MIN_SAVE_TIME_MS = 1000 (1 секунда).
+        if (startTime && finalElapsedTime >= MIN_SAVE_TIME_MS && settings?.rate && settings?.currency) {
             const endTime = Date.now();
             const newSession: Session = {
                 id: Date.now().toString(),
                 startTime: startTime,
                 endTime: endTime,
-                elapsedTime: elapsedTime,
+                elapsedTime: finalElapsedTime, 
                 rate: settings.rate,
                 currency: settings.currency,
             };
@@ -162,41 +237,54 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             try {
                 const storedSessions = await AsyncStorage.getItem(SESSIONS_STORAGE_KEY);
                 let sessions: Session[] = storedSessions ? JSON.parse(storedSessions) : [];
-
                 sessions.unshift(newSession);
-
                 await AsyncStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(sessions));
-                console.log(`Session successfully saved: ${formatTime(elapsedTime).hours}:${formatTime(elapsedTime).minutes}:${formatTime(elapsedTime).seconds}`);
+                console.log(`Session saved: ${formatTime(finalElapsedTime).seconds}s`);
             } catch (error) {
-                console.error("Failed to save session to history:", error);
+                console.error("Failed to save session:", error);
             }
         } else {
-            console.log("Session stopped but not saved (too short or missing rate settings).");
+            console.log("Session not saved: Too short or missing settings.", { 
+                finalElapsedTime, 
+                minTime: MIN_SAVE_TIME_MS,
+                hasRate: !!settings?.rate 
+            });
         }
-        
-        await AsyncStorage.removeItem(IS_TRACKING_KEY);
-        await AsyncStorage.removeItem(START_TIME_KEY);
+
+        // Очищення
+        await AsyncStorage.multiRemove([
+            IS_TRACKING_KEY, 
+            START_TIME_KEY, 
+            PAUSE_START_KEY, 
+            TOTAL_PAUSED_KEY
+        ]);
         
         if (!isAutoStop) {
-            await AsyncStorage.removeItem(ELAPSED_TIME_KEY); // Видаляємо, щоб на старті бачити 00:00:00
+            await AsyncStorage.removeItem(ELAPSED_TIME_KEY);
             setElapsedTime(0);
             setSessionStoppedByLimit(false);
         } else {
-            await AsyncStorage.setItem(ELAPSED_TIME_KEY, String(MAX_TIME_MS)); 
+            await AsyncStorage.setItem(ELAPSED_TIME_KEY, String(MAX_TIME_MS));
         }
+        
+        setStartTime(null);
+        setPauseStartTime(null);
+        setTotalPausedDuration(0);
 
-    }, [elapsedTime, settings, startTime]); // Removed [elapsedTime]
+    }, [elapsedTime, settings, startTime, isPaused, pauseStartTime, totalPausedDuration]);
     
-    // Експорт форматованого часу для Timer.tsx
     const timeDisplay = useMemo(() => formatTime(elapsedTime), [elapsedTime]);
 
     return (
         <TimerContext.Provider 
             value={{ 
                 isTracking, 
+                isPaused,
                 elapsedTime, 
                 startTimer, 
                 stopTimer, 
+                pauseTimer,
+                resumeTimer,
                 sessionStoppedByLimit,
                 ...timeDisplay,
             } as TimerContextType & { hours: string; minutes: string; seconds: string }}
@@ -206,7 +294,6 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     );
 };
 
-// Хук для використання контексту
 export const useTimer = () => {
     const context = useContext(TimerContext);
     if (context === undefined) {
@@ -215,6 +302,5 @@ export const useTimer = () => {
     return context as TimerContextType & { hours: string; minutes: string; seconds: string };
 };
 
-// Експортуємо formatTime для використання в інших компонентах (як EarnedAmount)
 export { formatTime };
 
