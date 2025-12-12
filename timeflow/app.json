@@ -2,7 +2,7 @@
   "expo": {
     "name": "ClariRate",
     "slug": "timeflow",
-    "version": "1.0.101",
+    "version": "1.1.106",
     "orientation": "portrait",
     "icon": "./assets/images/ios-light.png",
     "scheme": "timeflow",
