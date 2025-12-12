@@ -11,6 +11,9 @@ import { FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const groupSessionsByDate = (sessions: Session[]) => {
+    // 1. Explicitly sort Newest -> Oldest
+    const sortedSessions = [...sessions].sort((a, b) => b.startTime - a.startTime);
+
     const dateFormatter = new Intl.DateTimeFormat('en-US', { 
         weekday: 'long', 
         month: 'short', 
@@ -19,23 +22,33 @@ const groupSessionsByDate = (sessions: Session[]) => {
 
     const today = new Date().toDateString();
 
-    return sessions.reduce((acc, session) => {
+    return sortedSessions.reduce((acc, session) => {
         const sessionDate = new Date(session.startTime);
         const dateKey = sessionDate.toDateString();
         
-        let displayDate = dateFormatter.format(sessionDate);
-        if (dateKey === today) {
-            displayDate = `Today, ${displayDate.split(' ')[1]} ${displayDate.split(' ')[2]}`;
-        }
-        
         let group = acc.find(g => g.date === dateKey);
+        
         if (!group) {
+            let displayDate = dateFormatter.format(sessionDate);
+            // Format: "Friday, Dec 12" -> "Today, Dec 12"
+            if (dateKey === today) {
+                const parts = displayDate.split(' ');
+                // parts[0] is weekday ("Friday,"), parts[1] is Month, parts[2] is Day
+                if (parts.length >= 3) {
+                    displayDate = `Today, ${parts[1]} ${parts[2]}`;
+                } else {
+                    displayDate = "Today";
+                }
+            }
+            
             group = {
                 date: dateKey,
                 displayDate,
                 data: [],
             };
-            acc.unshift(group); 
+            // 2. Use PUSH, not UNSHIFT. Since we sorted New->Old, 
+            // the first group we find is "Today", and we want it at the top.
+            acc.push(group); 
         }
 
         group.data.push(session);
@@ -51,8 +64,11 @@ export default function SessionsList() {
     const muted = useThemeColor('muted');
 
     const visibleSessions = useMemo(() => {
-        return isPro ? sessions : sessions.slice(0, 5);
+        // Ensure we sort BEFORE slicing, so free users see the 5 most recent, not 5 oldest
+        const sorted = [...sessions].sort((a, b) => b.startTime - a.startTime);
+        return isPro ? sorted : sorted.slice(0, 5);
     }, [sessions, isPro]);
+
     const groupedSessions = useMemo(() => groupSessionsByDate(visibleSessions), [visibleSessions]);
 
     let globalSessionIndexRef = useRef(-1);
@@ -68,7 +84,8 @@ export default function SessionsList() {
             </Text>
             {item.data.map((session, index) => {
                 globalSessionIndexRef.current++;
-                const isFifthSession = globalSessionIndexRef.current === 4 && visibleSessions.length === 5;
+                // Logic for fading the 5th item for free users
+                const isFifthSession = !isPro && globalSessionIndexRef.current === 4;
                 
                 return <SessionCard 
                     key={session.id} 
@@ -112,7 +129,7 @@ export default function SessionsList() {
             renderItem={renderGroup}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.scrollContainer}
-            ListFooterComponent={!isChecking && !isPro ? <PremiumCard /> : <></>}
+            ListFooterComponent={!isChecking && !isPro ? <PremiumCard /> : <View style={{ height: 50 }} />}
         />
     </SafeAreaView>
 }
@@ -124,13 +141,15 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         paddingVertical: Layout.spacing * 2,
+        paddingBottom: Layout.spacing * 10
     },
     groupContainer: {
         marginBottom: Layout.spacing * 4,
     },
     date: {
         fontSize: 30,
-        fontWeight: 600,
-        paddingHorizontal: Layout.spacing * 3
+        fontWeight: '600',
+        marginBottom: Layout.spacing * 2,
+        paddingHorizontal: Layout.spacing 
     }
-})
+});
