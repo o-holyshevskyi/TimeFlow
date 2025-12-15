@@ -1,6 +1,6 @@
-AccuRate Support
+ClariRate Support
 
-Welcome to the support page for AccuRate.
+Welcome to the support page for ClariRate.
 
 We are dedicated to helping freelancers and contractors track their time and earnings efficiently. If you are experiencing issues or have questions, please check the Frequently Asked Questions (FAQ) below or contact us directly.
 
@@ -26,7 +26,7 @@ Frequently Asked Questions (FAQ)
 
 If you have purchased the PROductive subscription but still see ads or cannot access PRO features (like CSV export), you may need to restore your purchase:
 
-Open the AccuRate app.
+Open the ClariRate app.
 
 Go to the Settings screen (gear icon).
 
@@ -59,8 +59,8 @@ The calculation happens in real-time, down to the second.
 
 5. Why do I see ads?
 
-AccuRate is a free-to-use app supported by advertisements.
-To remove ads and unlock unlimited session history, you can upgrade to AccuRate PRO via the Settings screen.
+ClariRate is a free-to-use app supported by advertisements.
+To remove ads and unlock unlimited session history, you can upgrade to ClariRate PRO via the Settings screen.
 
 6. How do I delete my data?
 
