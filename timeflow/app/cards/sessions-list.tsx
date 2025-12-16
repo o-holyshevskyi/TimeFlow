@@ -5,13 +5,14 @@ import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
 import { Session, useSessions } from "@/hooks/use-sessions";
 import { useUserStatus } from "@/hooks/user-status";
-import { Spinner, useThemeColor } from "heroui-native";
+import * as Haptics from 'expo-haptics';
+import { useRouter } from "expo-router";
+import { Button, Spinner, useThemeColor } from "heroui-native";
 import { useEffect, useMemo, useRef } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const groupSessionsByDate = (sessions: Session[]) => {
-    // 1. Explicitly sort Newest -> Oldest
     const sortedSessions = [...sessions].sort((a, b) => b.startTime - a.startTime);
 
     const dateFormatter = new Intl.DateTimeFormat('en-US', { 
@@ -30,10 +31,8 @@ const groupSessionsByDate = (sessions: Session[]) => {
         
         if (!group) {
             let displayDate = dateFormatter.format(sessionDate);
-            // Format: "Friday, Dec 12" -> "Today, Dec 12"
             if (dateKey === today) {
                 const parts = displayDate.split(' ');
-                // parts[0] is weekday ("Friday,"), parts[1] is Month, parts[2] is Day
                 if (parts.length >= 3) {
                     displayDate = `Today, ${parts[1]} ${parts[2]}`;
                 } else {
@@ -46,8 +45,6 @@ const groupSessionsByDate = (sessions: Session[]) => {
                 displayDate,
                 data: [],
             };
-            // 2. Use PUSH, not UNSHIFT. Since we sorted New->Old, 
-            // the first group we find is "Today", and we want it at the top.
             acc.push(group); 
         }
 
@@ -59,12 +56,12 @@ const groupSessionsByDate = (sessions: Session[]) => {
 export default function SessionsList() {
     const { sessions, isLoading } = useSessions();
     const { isPro, isChecking } = useUserStatus();
+    const { push } = useRouter();
     
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
 
     const visibleSessions = useMemo(() => {
-        // Ensure we sort BEFORE slicing, so free users see the 5 most recent, not 5 oldest
         const sorted = [...sessions].sort((a, b) => b.startTime - a.startTime);
         return isPro ? sorted : sorted.slice(0, 5);
     }, [sessions, isPro]);
@@ -77,14 +74,18 @@ export default function SessionsList() {
         globalSessionIndexRef.current = -1;
     }, [visibleSessions]);
 
+    const handleAddSession = () => {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
+        push('/modals/new-session');
+    }
+
     const renderGroup = ({ item }: { item: { date: string; displayDate: string; data: Session[] } }) => (
         <View key={item.date} style={styles.groupContainer}>
             <Text style={[styles.date, { color: foreground }]}>
                 {item.displayDate}
             </Text>
-            {item.data.map((session, index) => {
+            {item.data.map((session) => {
                 globalSessionIndexRef.current++;
-                // Logic for fading the 5th item for free users
                 const isFifthSession = !isPro && globalSessionIndexRef.current === 4;
                 
                 return <SessionCard 
@@ -131,6 +132,18 @@ export default function SessionsList() {
             contentContainerStyle={styles.scrollContainer}
             ListFooterComponent={!isChecking && !isPro ? <PremiumCard /> : <View style={{ height: 50 }} />}
         />
+        <View
+            style={{ 
+                position: 'absolute',
+                bottom: 0,
+                right: 0,
+                margin: Layout.spacing * 5,
+            }}
+        >
+            <Button isIconOnly variant="primary" size="lg" onPress={handleAddSession}>
+                <Icon name="add-outline" color="black" />
+            </Button>
+        </View>
     </SafeAreaView>
 }
 

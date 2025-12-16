@@ -12,7 +12,7 @@ const formatTimestampToTime = (timestamp: number): string => {
     });
 };
 
-const formatTime = (ms: number): { hours: string; minutes: string; seconds: string; duration: string } => {
+export const formatTime = (ms: number): { hours: string; minutes: string; seconds: string; duration: string } => {
     const totalSeconds = Math.floor(ms / 1000);
     const seconds = (totalSeconds % 60).toString().padStart(2, '0');
     const totalMinutes = Math.floor(totalSeconds / 60);
@@ -24,7 +24,7 @@ const formatTime = (ms: number): { hours: string; minutes: string; seconds: stri
     return { hours, minutes, seconds, duration };
 };
 
-const calculateAmount = (elapsedTimeMs: number, ratePerHour: string, currency: string): string => {
+export const calculateAmount = (elapsedTimeMs: number, ratePerHour: string, currency: string): string => {
     const rate = parseFloat(ratePerHour);
     if (isNaN(rate) || rate <= 0) {
         return `${currency} 0.00`;
