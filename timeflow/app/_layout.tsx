@@ -19,7 +19,7 @@ import { Platform } from 'react-native';
 import mobileAds from 'react-native-google-mobile-ads';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 
-SplashScreen.preventAutoHideAsync();
+SplashScreen.preventAutoHideAsync().catch(() => {});
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -83,6 +83,8 @@ export default function RootLayout() {
                     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
                         <Stack screenOptions={{ headerShown: false }}>
                             <Stack.Screen name="index" options={{ headerShown: false }} />
+                            <Stack.Screen name="cards" options={{ headerShown: false, presentation: 'card' }} />
+                            <Stack.Screen name="modals" options={{ headerShown: false, presentation: 'modal' }} />
                         </Stack>
                         <StatusBar style="auto" />
                     </ThemeProvider>
