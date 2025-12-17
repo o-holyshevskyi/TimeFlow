@@ -54,7 +54,7 @@ const groupSessionsByDate = (sessions: Session[]) => {
 };
 
 export default function SessionsList() {
-    const { sessions, isLoading } = useSessions();
+    const { sessions, isLoading, deleteSession } = useSessions();
     const { isPro, isChecking } = useUserStatus();
     const { push } = useRouter();
     
@@ -93,7 +93,8 @@ export default function SessionsList() {
                     item={session} 
                     foreground={foreground} 
                     muted={muted}
-                    isFading={isFifthSession} 
+                    isFading={isFifthSession}
+                    deleteSession={deleteSession} 
                 />
             })}
         </View>
@@ -117,7 +118,8 @@ export default function SessionsList() {
                         No saved session. Start the timer to save the first session.
                     </Text>
                     {!isChecking && !isPro && <PremiumCard />}
-                </View>
+                </View>        
+                <AddManualSession handleAddSession={handleAddSession} />
              </SafeAreaView>
         );
     }
@@ -132,20 +134,22 @@ export default function SessionsList() {
             contentContainerStyle={styles.scrollContainer}
             ListFooterComponent={!isChecking && !isPro ? <PremiumCard /> : <View style={{ height: 50 }} />}
         />
-        <View
-            style={{ 
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                margin: Layout.spacing * 5,
-            }}
-        >
-            <Button isIconOnly variant="primary" size="lg" onPress={handleAddSession}>
-                <Icon name="add-outline" color="black" />
-            </Button>
-        </View>
+        <AddManualSession handleAddSession={handleAddSession} />
     </SafeAreaView>
 }
+
+const AddManualSession = ({ handleAddSession }: { handleAddSession: () => void }) => <View
+    style={{ 
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        margin: Layout.spacing * 5,
+    }}
+>
+    <Button isIconOnly variant="primary" size="lg" onPress={handleAddSession}>
+        <Icon name="add-outline" color="black" />
+    </Button>
+</View>
 
 const styles = StyleSheet.create({
     container: { 

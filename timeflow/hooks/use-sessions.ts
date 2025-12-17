@@ -70,11 +70,27 @@ export const useSessions = () => {
         }
     }, [loadSessions]);
 
+    const deleteSession = useCallback(async (id: string) => {
+        try {
+            const updatedSessions = sessions.filter(session => session.id !== id);
+            await AsyncStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updatedSessions));
+            setSessions(updatedSessions);
+        } catch (error) {
+            console.error("Failed to delete session:", error);
+        }
+    }, [sessions, setSessions]);
+
     useFocusEffect(
         useCallback(() => {
             loadSessions();
         }, [loadSessions])
     );
 
-    return { sessions, isLoading, loadSessions, addManualSession };
+    return { 
+        sessions, 
+        isLoading, 
+        loadSessions, 
+        addManualSession,
+        deleteSession
+    };
 };
