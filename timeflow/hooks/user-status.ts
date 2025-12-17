@@ -7,13 +7,13 @@ export const useUserStatus = () => {
     
     useEffect(() => {
         async function loadStatus() {
-        try {
-            const customerInfo = await Purchases.getCustomerInfo();
-            const hasPro = !!customerInfo.entitlements.active["PROductive"];
-            setIsPro(hasPro);
-        } finally {
-            setIsChecking(false);
-        }
+            try {
+                const customerInfo = await Purchases.getCustomerInfo();
+                const hasPro = !!customerInfo.entitlements.active["PROductive"];
+                setIsPro(hasPro);
+            } finally {
+                setIsChecking(false);
+            }
         }
 
         loadStatus();
