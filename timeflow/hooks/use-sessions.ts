@@ -37,6 +37,10 @@ export const useSessions = () => {
         }
     }, []);
 
+    const getSessionById = useCallback((id: string): Session | undefined => {
+        return sessions.find(session => session.id === id);
+    }, [sessions]);
+
     const addManualSession = useCallback(async (
         startTime: number,
         endTime: number,
@@ -70,6 +74,37 @@ export const useSessions = () => {
         }
     }, [loadSessions]);
 
+    const editSession = useCallback(async (
+        sessionId: string,
+        startTime: number,
+        endTime: number,
+        rate: number,
+        currency: string
+    ) => {
+        try {
+            const updatedSessions = sessions.map(session => {
+                if (session.id === sessionId) {
+                    return {
+                        ...session,
+                        startTime,
+                        endTime,
+                        elapsedTime: endTime - startTime,
+                        rate: rate.toString(),
+                        currency
+                    };
+                }
+                return session;
+            });
+
+            await AsyncStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updatedSessions));
+            loadSessions();
+            return true;
+        } catch (error) {
+            console.error("Failed to edit session:", error);
+            return false;
+        }
+    }, [sessions, loadSessions]);
+
     const deleteSession = useCallback(async (id: string) => {
         try {
             const updatedSessions = sessions.filter(session => session.id !== id);
@@ -91,6 +126,8 @@ export const useSessions = () => {
         isLoading, 
         loadSessions, 
         addManualSession,
-        deleteSession
+        deleteSession,
+        getSessionById,
+        editSession
     };
 };
