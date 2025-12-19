@@ -4,8 +4,10 @@ import { useThemeColor } from "heroui-native";
 export default function ModalsLayout() {
     return <Stack
         screenOptions={{
-            headerShown: false,
             contentStyle: {
+                backgroundColor: useThemeColor('background'),
+            },
+            headerStyle: {
                 backgroundColor: useThemeColor('background'),
             },
         }}
@@ -14,7 +16,14 @@ export default function ModalsLayout() {
             name="new-session"
             options={{
                 presentation: 'modal',
-                headerShown: false,
+                headerTitle: 'Add New Session',
+            }}
+        />
+        <Stack.Screen
+            name="edit-session"
+            options={{
+                presentation: 'modal',
+                headerTitle: 'Edit Session',
             }}
         />
     </Stack>

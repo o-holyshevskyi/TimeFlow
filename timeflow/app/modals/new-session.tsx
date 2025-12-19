@@ -1,14 +1,18 @@
 import { calculateAmount, formatTime } from "@/components/sessions/session-card";
 import CurrencySelect from "@/components/settings/currency-select";
 import DateTimeSelect from "@/components/ui/date-time-select";
+import { DurationInput } from "@/components/ui/duration-input";
+import { EarningsInput } from "@/components/ui/earnings-input";
 import HourlyRateInput from "@/components/ui/hourly-rate";
 import { Layout } from "@/constants/layout";
 import { useSessions } from "@/hooks/use-sessions";
 import { useSettings } from "@/hooks/use-settings";
 import { router } from "expo-router";
-import { Button, TextField, Toast, useThemeColor, useToast } from "heroui-native";
-import { useEffect, useState } from "react";
+import { Button, Toast, useToast } from "heroui-native";
+import { useEffect, useMemo, useState } from "react";
 import { Dimensions, Text, View } from "react-native";
+import { formatCurrency } from "react-native-format-currency";
+import BaseModal from "./base-modal";
 
 const WIDTH = Dimensions.get('window').width * .85;
 
@@ -46,7 +50,13 @@ export default function NewSessionModal() {
     }, [startTime, endTime]);
 
     const { duration } = formatTime(endTime.getTime() - startTime.getTime());
-    const amount = calculateAmount(endTime.getTime() - startTime.getTime(), rate || '0', currency || '$');
+    const amount = useMemo(() => {
+        const [formatted] = formatCurrency({
+            amount: 0,
+            code: currency || 'USD',
+        });
+        return calculateAmount(endTime.getTime() - startTime.getTime(), rate || '0', formatted[0]);
+    }, [endTime, startTime, rate, currency]);
 
     const handleSave = async () => {
         if (!rate || !currency) return;
@@ -77,115 +87,26 @@ export default function NewSessionModal() {
         }
     };
 
-    return <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-        <View style={{ backgroundColor: 'white', width: 140, height: 5, margin: Layout.spacing * 2, borderRadius: 50 }} />
-        <View style={{
-            padding: Layout.spacing * 4, 
-            gap: Layout.spacing * 4, 
-            flexDirection: 'column', 
-            justifyContent: 'center', 
-            alignItems: 'center' 
-        }}>
-            <DateTimeSelect value={startTime} label="Start Time" onDateChange={setStartTime} />
-            <DateTimeSelect value={endTime} label="End Time" onDateChange={setEndTime} />
-            <View style={{ flexDirection: "row", gap: Layout.spacing * 2 }}>
-                <HourlyRateInput rate={rate} setRate={setRate} />
-                <View style={{flex: 1}}>
-                    <CurrencySelect initialCurrency={currency} onCurrencySelect={setCurrency} />
-                </View>
+    return <BaseModal>
+        <DateTimeSelect value={startTime} label="Start Time" onDateChange={setStartTime} />
+        <DateTimeSelect value={endTime} label="End Time" onDateChange={setEndTime} />
+        <View style={{ flexDirection: "row", gap: Layout.spacing * 2 }}>
+            <HourlyRateInput rate={rate} setRate={setRate} />
+            <View style={{flex: 1}}>
+                <CurrencySelect initialCurrency={currency} onCurrencySelect={setCurrency} />
             </View>
-            <View style={{ flexDirection: "row", gap: Layout.spacing * 2 }}>
-                <DurationInput duration={duration} />
-                <View style={{ flex: 2 }}>
-                    <EarningsInput amount={amount} />
-                </View>
-            </View>
-            <Button isDisabled={!canSave} style={{ width: WIDTH, marginTop: Layout.spacing * 5 }} onPress={handleSave}>
-                <Button.Label style={{ color: 'black', fontSize: 22, fontWeight: '700' }}>Save New Session</Button.Label>
-            </Button>
-            {saveError && 
-                <Text style={{ color: '#b91c1c', fontSize: 16, fontWeight: '600' }}>{saveError}</Text>
-            }
         </View>
-    </View>;
-}
-
-const DurationInput = ({ duration, isDisabled = false, editable = false }: { duration: string, isDisabled?: boolean, editable?: boolean }) => {
-    const foreground = useThemeColor('foreground');
-    
-    return <TextField isDisabled={isDisabled} style={{ flex: 2 }}>
-        <TextField.Label style={{ color: foreground, fontSize: 20 }}>Duration</TextField.Label>
-        <TextField.Input 
-            placeholder="25.00"
-            keyboardType="decimal-pad"
-            returnKeyType="done"
-            editable={editable}
-            submitBehavior='blurAndSubmit'
-            className="rounded-full"
-            value={duration}
-            style={{
-                fontWeight: '900',
-                fontSize: 24,
-                textAlignVertical: 'center',
-                color: 'white',
-            }}
-            animation={{
-                backgroundColor: {
-                    value: {
-                        blur: '#0f172abf',
-                        focus: '#0f172abf',
-                        error: '#0f172abf',
-                    },
-                    
-                },
-                borderColor: {
-                    value: {
-                        blur: '#334155',
-                        focus: '#334155',
-                        error: '#dc2626',
-                    },
-                },
-            }}
-        />
-    </TextField>;
-}
-
-const EarningsInput = ({ amount, isDisabled = false, editable = false }: { amount: string, isDisabled?: boolean, editable?: boolean }) => {
-    const foreground = useThemeColor('foreground');
-
-    return <TextField isDisabled={isDisabled} style={{ flex: 2 }}>
-        <TextField.Label style={{ color: foreground, fontSize: 20 }}>Earnings</TextField.Label>
-        <TextField.Input 
-            placeholder="25.00"
-            keyboardType="decimal-pad"
-            returnKeyType="done"
-            editable={editable}
-            submitBehavior='blurAndSubmit'
-            className="rounded-full"
-            value={amount}
-            style={{
-                fontWeight: '900',
-                fontSize: 24,
-                textAlignVertical: 'center',
-                color: 'white',
-            }}
-            animation={{
-                backgroundColor: {
-                    value: {
-                        blur: '#0f172abf',
-                        focus: '#0f172abf',
-                        error: '#0f172abf',
-                    },
-                    
-                },
-                borderColor: {
-                    value: {
-                        blur: '#334155',
-                        focus: '#334155',
-                        error: '#dc2626',
-                    },
-                },
-            }}
-        />
-    </TextField>;
+        <View style={{ flexDirection: "row", gap: Layout.spacing * 2 }}>
+            <DurationInput duration={duration} />
+            <View style={{ flex: 2 }}>
+                <EarningsInput amount={amount} />
+            </View>
+        </View>
+        <Button isDisabled={!canSave} style={{ width: WIDTH, marginTop: Layout.spacing * 5 }} onPress={handleSave}>
+            <Button.Label style={{ color: 'black', fontSize: 22, fontWeight: '700' }}>Save New Session</Button.Label>
+        </Button>
+        {saveError && 
+            <Text style={{ color: '#b91c1c', fontSize: 16, fontWeight: '600' }}>{saveError}</Text>
+        }
+    </BaseModal>
 }
