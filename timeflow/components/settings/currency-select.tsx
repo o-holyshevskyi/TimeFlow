@@ -11,9 +11,10 @@ const INPUT_WIDTH = Dimensions.get('window').width * 0.85
 type CurrencySelectProps = {
     initialCurrency: undefined | string;
     onCurrencySelect: (currencyCode: string) => void;
+    isDisabled?: boolean;
 }
 
-const CurrencySelect = ({ initialCurrency, onCurrencySelect }: CurrencySelectProps) => {
+const CurrencySelect = ({ initialCurrency, onCurrencySelect, isDisabled = false }: CurrencySelectProps) => {
     const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
@@ -91,7 +92,7 @@ const CurrencySelect = ({ initialCurrency, onCurrencySelect }: CurrencySelectPro
         }}
     >
         <Select.Trigger>
-            <CurrencyInput code={selectedCurrency.code} symbol={getSymbol(selectedCurrency.code)} />
+            <CurrencyInput isDisabled={isDisabled} code={selectedCurrency.code} symbol={getSymbol(selectedCurrency.code)} />
         </Select.Trigger>
         <Select.Portal>
             <Select.Overlay />
@@ -223,10 +224,10 @@ const CurrencySelect = ({ initialCurrency, onCurrencySelect }: CurrencySelectPro
     </Select>
 }
 
-const CurrencyInput = ({ code, symbol }: { code: string, symbol: string }) => {
+const CurrencyInput = ({ code, symbol, isDisabled }: { code: string, symbol: string, isDisabled?: boolean }) => {
     const foreground = useThemeColor('foreground');
 
-    return <TextField>
+    return <TextField isDisabled={isDisabled}>
         <TextField.Label style={{ color: foreground, fontSize: 20 }}>Currency</TextField.Label>
         <TextField.Input 
             placeholder="USD ($)"

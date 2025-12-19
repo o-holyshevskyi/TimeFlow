@@ -37,11 +37,97 @@ export const useSessions = () => {
         }
     }, []);
 
+    const getSessionById = useCallback((id: string): Session | undefined => {
+        return sessions.find(session => session.id === id);
+    }, [sessions]);
+
+    const addManualSession = useCallback(async (
+        startTime: number,
+        endTime: number,
+        rate: number,
+        currency: string
+    ) => {
+        try {
+            const newSession: Session = {
+                id: Date.now().toString(),
+                startTime,
+                endTime,
+                elapsedTime: endTime - startTime,
+                rate: rate.toString(),
+                currency
+            };
+
+            const stored = await AsyncStorage.getItem(SESSIONS_STORAGE_KEY);
+            let parsedSessions: Session[] = [];
+
+            if (stored) {
+                parsedSessions = JSON.parse(stored) as Session[];
+            }
+
+            const updatedSessions = [...parsedSessions, newSession];
+            await AsyncStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updatedSessions));
+            loadSessions();
+            return true;
+        } catch (error) {
+            console.error("Failed to add manual session:", error);
+            return false;
+        }
+    }, [loadSessions]);
+
+    const editSession = useCallback(async (
+        sessionId: string,
+        startTime: number,
+        endTime: number,
+        rate: number,
+        currency: string
+    ) => {
+        try {
+            const updatedSessions = sessions.map(session => {
+                if (session.id === sessionId) {
+                    return {
+                        ...session,
+                        startTime,
+                        endTime,
+                        elapsedTime: endTime - startTime,
+                        rate: rate.toString(),
+                        currency
+                    };
+                }
+                return session;
+            });
+
+            await AsyncStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updatedSessions));
+            loadSessions();
+            return true;
+        } catch (error) {
+            console.error("Failed to edit session:", error);
+            return false;
+        }
+    }, [sessions, loadSessions]);
+
+    const deleteSession = useCallback(async (id: string) => {
+        try {
+            const updatedSessions = sessions.filter(session => session.id !== id);
+            await AsyncStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updatedSessions));
+            setSessions(updatedSessions);
+        } catch (error) {
+            console.error("Failed to delete session:", error);
+        }
+    }, [sessions, setSessions]);
+
     useFocusEffect(
         useCallback(() => {
             loadSessions();
         }, [loadSessions])
     );
 
-    return { sessions, isLoading, loadSessions };
+    return { 
+        sessions, 
+        isLoading, 
+        loadSessions, 
+        addManualSession,
+        deleteSession,
+        getSessionById,
+        editSession
+    };
 };
