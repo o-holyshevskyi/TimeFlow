@@ -16,7 +16,7 @@ import {
 } from 'expo-tracking-transparency';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
-import mobileAds from 'react-native-google-mobile-ads';
+// import mobileAds from 'react-native-google-mobile-ads';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
@@ -26,7 +26,7 @@ export const unstable_settings = {
 };
 
 const REVENUECAT_API_KEY = Platform.select({
-    ios: 'appl_lhCnDHLgksLgTozPyXrXEqQHHcd',
+    ios: 'test_kQhmpoBQNdkTZEsGYmtSwWUptrS',
     android: 'test_kQhmpoBQNdkTZEsGYmtSwWUptrS',
 });
 
@@ -37,7 +37,7 @@ async function initializeAdMobAndATT() {
             await requestTrackingPermissionsAsync();
         }
 
-        await mobileAds().initialize();
+        // await mobileAds().initialize();
         
         console.log("AdMob and ATT initialized successfully.");
 
@@ -74,7 +74,7 @@ export default function RootLayout() {
     }, []);
 
     if (!isConfigured) return null;
-    if (!appIsReady) return null;
+    // if (!appIsReady) return null;
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>

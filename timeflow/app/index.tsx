@@ -1,4 +1,4 @@
-import AdBanner from '@/components/advertisment/ad-banner';
+// import AdBanner from '@/components/advertisment/ad-banner';
 import Actions from '@/components/home/actions';
 import MainContent from '@/components/home/content';
 import Header from '@/components/home/header';
@@ -15,7 +15,7 @@ export default function HomeScreen() {
     return <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
         <Header />
         <MainContent />
-        <AdBanner isPro={!isChecking && isPro} />
+        {/* <AdBanner isPro={!isChecking && isPro} /> */}
         <Actions />
     </SafeAreaView>;
 }
