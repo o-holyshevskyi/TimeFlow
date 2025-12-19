@@ -3,9 +3,11 @@ import { Session } from "@/hooks/use-sessions";
 import { BlurView } from "expo-blur";
 import * as Haptic from 'expo-haptics';
 import { LinearGradient } from "expo-linear-gradient";
+import { router } from "expo-router";
 import { Button, Card, Popover, PopoverTriggerRef, Toast, useThemeColor, useToast } from "heroui-native";
 import { useRef } from "react";
 import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { formatCurrency } from "react-native-format-currency";
 import { Icon } from "../ui/icon";
 
 const formatTimestampToTime = (timestamp: number): string => {
@@ -35,7 +37,7 @@ export const calculateAmount = (elapsedTimeMs: number, ratePerHour: string, curr
     }
     const totalHours = (elapsedTimeMs / (1000 * 60 * 60)).toFixed(2);
     const amount = parseFloat(totalHours) * rate;
-    return `${currency} ${amount.toFixed(2)}`;
+    return `${currency}${amount.toFixed(2)}`;
 };
 
 type SessionCardProps = {
@@ -51,8 +53,13 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
     const endTimeStr = formatTimestampToTime(item.endTime);
     const { duration } = formatTime(item.elapsedTime); 
     
-    const amountStr = calculateAmount(item.elapsedTime, item.rate, item.currency);
-    const rateStr = `${item.currency}${item.rate}/hr`;
+    const [formatted] = formatCurrency({
+        amount: 0,
+        code: item.currency,
+    })[0];
+
+    const amountStr = calculateAmount(item.elapsedTime, item.rate, formatted);
+    const rateStr = `${formatted}${item.rate} / hr`;
     
     const background = useThemeColor('background');
 
@@ -128,6 +135,15 @@ const SessionItemPopoverOptions = ({ item, deleteSession }: { item: Session, del
         ]);
     }
 
+    const handleEdit = () => {
+        popoverRef.current?.close();
+        Haptic.notificationAsync(Haptic.NotificationFeedbackType.Warning);
+        router.push({ 
+            pathname: '/modals/edit-session', 
+            params: { id: item.id } }
+        );
+    }
+
     return (
         <Popover>
             <Popover.Trigger ref={popoverRef} asChild>
@@ -168,6 +184,7 @@ const SessionItemPopoverOptions = ({ item, deleteSession }: { item: Session, del
                                     paddingHorizontal: Layout.spacing * 3,
                                     paddingVertical: Layout.spacing / 1.5, 
                                 }}
+                                onPress={handleEdit}
                             >
                                 <Icon name="pencil-outline" color="white" />
                                 <Button.Label style={{ fontSize: 18, fontWeight: '700' }}>
