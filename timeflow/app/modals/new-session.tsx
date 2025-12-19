@@ -11,7 +11,6 @@ import { router } from "expo-router";
 import { Button, Toast, useToast } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
 import { Dimensions, Text, View } from "react-native";
-import { formatCurrency } from "react-native-format-currency";
 import BaseModal from "./base-modal";
 
 const WIDTH = Dimensions.get('window').width * .85;
@@ -43,19 +42,18 @@ export default function NewSessionModal() {
         } else if (startTime.getTime() === endTime.getTime()) {
             setSaveError("Start and end times must be different.");
             setCanSave(false);
+        } else if (!rate || parseFloat(rate) <= 0) {
+            setSaveError("Please enter a valid hourly rate.");
+            setCanSave(false);
         } else {
             setSaveError(undefined);
             setCanSave(true);
         }
-    }, [startTime, endTime]);
+    }, [startTime, endTime, rate]);
 
     const { duration } = formatTime(endTime.getTime() - startTime.getTime());
     const amount = useMemo(() => {
-        const [formatted] = formatCurrency({
-            amount: 0,
-            code: currency || 'USD',
-        });
-        return calculateAmount(endTime.getTime() - startTime.getTime(), rate || '0', formatted[0]);
+        return calculateAmount(endTime.getTime() - startTime.getTime(), rate || '0', currency || 'USD');
     }, [endTime, startTime, rate, currency]);
 
     const handleSave = async () => {

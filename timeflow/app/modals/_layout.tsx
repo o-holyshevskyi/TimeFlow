@@ -10,6 +10,9 @@ export default function ModalsLayout() {
             headerStyle: {
                 backgroundColor: useThemeColor('background'),
             },
+            headerTitleStyle: {
+                color: useThemeColor('foreground'),
+            }
         }}
     >
         <Stack.Screen

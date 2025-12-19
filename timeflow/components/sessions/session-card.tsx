@@ -37,7 +37,13 @@ export const calculateAmount = (elapsedTimeMs: number, ratePerHour: string, curr
     }
     const totalHours = (elapsedTimeMs / (1000 * 60 * 60)).toFixed(2);
     const amount = parseFloat(totalHours) * rate;
-    return `${currency}${amount.toFixed(2)}`;
+
+    const [formatted] = formatCurrency({
+        amount: parseFloat(amount.toFixed(2)),
+        code: currency,
+    });
+
+    return formatted;
 };
 
 type SessionCardProps = {
@@ -53,14 +59,13 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
     const endTimeStr = formatTimestampToTime(item.endTime);
     const { duration } = formatTime(item.elapsedTime); 
     
+    const amountStr = calculateAmount(item.elapsedTime, item.rate, item.currency);
     const [formatted] = formatCurrency({
-        amount: 0,
+        amount: parseFloat(item.rate),
         code: item.currency,
-    })[0];
+    });
+    const rateStr = `${formatted} / hr`;
 
-    const amountStr = calculateAmount(item.elapsedTime, item.rate, formatted);
-    const rateStr = `${formatted}${item.rate} / hr`;
-    
     const background = useThemeColor('background');
 
     return (
@@ -98,6 +103,7 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
 const SessionItemPopoverOptions = ({ item, deleteSession }: { item: Session, deleteSession: (id: string) => void }) => {
     const muted = useThemeColor('muted');
     const background = useThemeColor('background');
+    const foreground = useThemeColor('foreground');
 
     const popoverRef = useRef<PopoverTriggerRef>(null);
 
@@ -187,7 +193,7 @@ const SessionItemPopoverOptions = ({ item, deleteSession }: { item: Session, del
                                 onPress={handleEdit}
                             >
                                 <Icon name="pencil-outline" color="white" />
-                                <Button.Label style={{ fontSize: 18, fontWeight: '700' }}>
+                                <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
                                     Edit Session
                                 </Button.Label>
                             </Button>

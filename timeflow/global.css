@@ -10,10 +10,14 @@
     @variant light {
       --accent: oklch(0.8321 0.2271 148.51);
       --background: oklch(0.232 0.0335 153.81);
+      --foreground: oklch(1 0.0363 261.26);
+      --muted: oklch(0.862 0.0363 261.26);
     }
     @variant dark {
       --accent: oklch(0.8321 0.2271 148.51);
       --background: oklch(0.232 0.0335 153.81);
+      --foreground: oklch(1 0.0363 261.26);
+      --muted: oklch(0.862 0.0363 261.26);
     }
   }
 }

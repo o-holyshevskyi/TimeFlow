@@ -10,7 +10,6 @@ import { router, useLocalSearchParams } from "expo-router";
 import { Button, Toast, useToast } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
 import { Dimensions, Text, View } from "react-native";
-import { formatCurrency } from "react-native-format-currency";
 import BaseModal from "./base-modal";
 
 const WIDTH = Dimensions.get('window').width * .85;
@@ -33,11 +32,7 @@ export default function EditSessionModal() {
 
     const { duration } = formatTime(endTime - startTime);
     const amount = useMemo(() => {
-        const [formatted] = formatCurrency({
-            amount: 0,
-            code: session?.currency || 'USD',
-        });
-        return calculateAmount(endTime - startTime, rate || '0', formatted[0]);
+        return calculateAmount(endTime - startTime, rate || '0', session?.currency || 'USD');
     }, [endTime, startTime, rate, session?.currency]);
     const { toast } = useToast();
     
