@@ -116,6 +116,12 @@
             "3qcr597p9d.skadnetwork"
           ]
         }
+      ],
+      [
+        "expo-notifications",
+        {
+          // "sounds": ["./assets/sounds/notification.wav"]
+        }
       ]
     ],
     "experiments": {
