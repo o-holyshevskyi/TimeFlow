@@ -1,10 +1,9 @@
-import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
 import { useRouter } from "expo-router";
-import { Button, useThemeColor } from "heroui-native";
+import { useThemeColor } from "heroui-native";
 import React from "react";
-import { Linking, ScrollView, StyleSheet, Text, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { Linking, StyleSheet, Text, View } from "react-native";
+import { BaseCard } from "./base-card";
 
 export default function PrivacyPolicyScreen() {
     const router = useRouter();
@@ -26,17 +25,8 @@ export default function PrivacyPolicyScreen() {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
-            {/* Header */}
-            <View style={styles.header}>
-                <Button variant="ghost" isIconOnly onPress={handleBack}>
-                    <Icon name="chevron-back-outline" />
-                </Button>
-                <Text style={[styles.headerTitle, { color: foreground }]}>Privacy Policy</Text>
-                <View style={{ width: 40 }} /> 
-            </View>
-
-            <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <BaseCard title="Privacy Policy">
+            <View style={styles.content}>
                 <Text style={[styles.sectionTitle, { color: foreground }]}>Privacy Policy</Text>
                 <Text style={[styles.paragraph, { color: muted }]}>
                     This privacy policy applies to the ClariRate app (hereby referred to as &quot;Application&quot;) for mobile devices that was created by Oleksandr Holyshevskyi (hereby referred to as &quot;Service Provider&quot;) as a Freemium service. This service is intended for use &quot;AS IS&quot;.
@@ -119,26 +109,12 @@ export default function PrivacyPolicyScreen() {
 
                 <Text style={[styles.footer, { color: muted }]}>Effective as of 2025-12-07</Text>
                 <View style={{ height: 40 }} />
-            </ScrollView>
-        </SafeAreaView>
+            </View>
+        </BaseCard>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Layout.spacing * 2,
-        paddingVertical: Layout.spacing,
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: 'bold',
-    },
     content: {
         padding: Layout.spacing * 3,
     },
