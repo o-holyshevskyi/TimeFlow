@@ -3,17 +3,20 @@ import { useUserStatus } from "@/hooks/user-status";
 import { exportSessionsToCSV } from '@/services/export-csv';
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
-import { Button, Chip, Toast, useThemeColor, useToast } from "heroui-native";
+import { Button, Chip, Spinner, useThemeColor } from "heroui-native";
 import { StyleSheet, Text, View } from "react-native";
 import { Icon } from "../ui/icon";
+import { usePremiumToast } from "../ui/premium-toast";
 
 const SessionHeader = () => {
     const foreground = useThemeColor('foreground');
     const { isPro, isChecking } = useUserStatus();
-    const { sessions } = useSessions();
-    const { toast } = useToast();
-
+    const { sessions, isLoading } = useSessions();
+    const { showToast } = usePremiumToast();
+    
     const router = useRouter();
+
+    if (isLoading || isChecking) return <Spinner />;
 
     const handleOnClose = () => {
         router.back();
@@ -21,18 +24,11 @@ const SessionHeader = () => {
 
     const handleExport = async () => {
         if (!isChecking && !isPro) {
-            toast.show({
-            component: (props) => (
-                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <View>
-                            <Toast.Label style={{ fontSize: 22 }}>✨ PRO Feature Locked</Toast.Label>
-                            <Toast.Description style={{ fontSize: 16 }}>Exporting history to CSV is available exclusively for PRO users. Upgrade to unlock!</Toast.Description>
-                        </View>
-                    </View>
-                </Toast>
-            ),
-        });
+            showToast(
+                '✨ PRO Feature Locked', 
+                'Exporting history to CSV is available exclusively for PRO users. Upgrade to unlock!',
+                false
+            );
         } else {
             await exportSessionsToCSV(sessions);
         }    
@@ -60,15 +56,15 @@ const SessionHeader = () => {
     </View>
 }
 
-const GetProLabel = () => <LinearGradient
+export const GetProLabel = ({left = -25, top = 30 }: {left?: number, top?: number}) => <LinearGradient
     colors={["#f7f455ff", "#22cea9ff"]}
     start={{ x: 0, y: 0 }}
     end={{ x: 1, y: 1 }}
     style={{
         borderRadius: 999,
         position: "absolute",
-        left: -25,
-        top: 30,
+        left: left,
+        top: top,
         zIndex: 1,
     }}
 >

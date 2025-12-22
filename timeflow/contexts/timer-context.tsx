@@ -1,6 +1,7 @@
 import { Session, SESSIONS_STORAGE_KEY } from '@/hooks/use-sessions';
 import { useSettings } from '@/hooks/use-settings';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as Notifications from 'expo-notifications';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 
@@ -11,10 +12,16 @@ const ELAPSED_TIME_KEY = 'timerElapsedTime';
 const IS_TRACKING_KEY = 'timerIsTracking';
 const PAUSE_START_KEY = 'timerPauseStartTime';
 const TOTAL_PAUSED_KEY = 'timerTotalPausedDuration';
+const MIN_SAVE_TIME_MS = 1000;
 
-// Мінімальний час для збереження сесії (в мілісекундах)
-// 1000 = 1 секунда. Якщо хочете зберігати ВСЕ, поставте 0.
-const MIN_SAVE_TIME_MS = 1000; 
+Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+    }),
+});
 
 interface TimerContextType {
     isTracking: boolean;
@@ -29,7 +36,6 @@ interface TimerContextType {
 
 const TimerContext = createContext<TimerContextType | undefined>(undefined);
 
-// --- Допоміжні функції ---
 const formatTime = (ms: number): { hours: string; minutes: string; seconds: string } => {
     if (ms < 0) ms = 0;
     const totalSeconds = Math.floor(ms / 1000);
@@ -50,6 +56,33 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [sessionStoppedByLimit, setSessionStoppedByLimit] = useState(false);
     const [pauseStartTime, setPauseStartTime] = useState<number | null>(null);
     const [totalPausedDuration, setTotalPausedDuration] = useState(0);
+
+    useEffect(() => {
+        const requestPermissions = async () => {
+            const { status: existingStatus } = await Notifications.getPermissionsAsync();
+            let finalStatus = existingStatus;
+            
+            if (existingStatus !== 'granted') {
+                const { status } = await Notifications.requestPermissionsAsync();
+                finalStatus = status;
+            }
+            
+            if (finalStatus !== 'granted') {
+                console.warn('Notification permissions not granted!');
+            } else {
+                console.log('Notification permissions granted!');
+            }
+        };
+        
+        requestPermissions();
+    }, []);
+
+    useEffect(() => {
+        if (settings?.notificationsEnabled === false) {
+            Notifications.cancelAllScheduledNotificationsAsync();
+            console.log('Notifications disabled by user settings - cancelled all pending.');
+        }
+    }, [settings?.notificationsEnabled]);
 
     // 1. Асинхронне відновлення стану
     useEffect(() => {
@@ -165,7 +198,36 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             [IS_TRACKING_KEY, 'true']
         ]);
         await AsyncStorage.multiRemove([ELAPSED_TIME_KEY, PAUSE_START_KEY, TOTAL_PAUSED_KEY]);
-    }, []);
+
+        const shouldNotify = settings?.notificationsEnabled ?? true;
+        console.log(shouldNotify)
+        if (shouldNotify) {
+            await Notifications.scheduleNotificationAsync({
+                content: {
+                    title: 'The timer is still running ⏱️',
+                    body: '4 hours have already passed. Don\'t forget to stop the timer if you\'ve finished.',
+                    sound: 'default'
+                },
+                trigger: {
+                    type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                    seconds: 4 * 60 * 60,
+                    repeats: false,
+                },
+            });
+            await Notifications.scheduleNotificationAsync({
+                content: {
+                    title: 'The timer is still running ⏱️',
+                    body: '8 hours have already passed. Don\'t forget to stop the timer if you\'ve finished.',
+                    sound: 'default'
+                },
+                trigger: {
+                    type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                    seconds: 8 * 60 * 60,
+                    repeats: false,
+                },
+            });
+        }
+    }, [settings]);
 
     const pauseTimer = useCallback(async () => {
         if (isTracking && !isPaused) {
@@ -175,8 +237,25 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             setPauseStartTime(now);
             await AsyncStorage.setItem(IS_TRACKING_KEY, 'false');
             await AsyncStorage.setItem(PAUSE_START_KEY, String(now));
+
+            const shouldNotify = settings?.notificationsEnabled ?? true;
+            console.log(shouldNotify)
+            if (shouldNotify) {
+                await Notifications.scheduleNotificationAsync({
+                    content: {
+                        title: 'Don\'t lose your hours! 💸',
+                        body: 'You have an unsaved session on pause. Save it now to keep your history accurate.',
+                        sound: 'default'
+                    },
+                    trigger: {
+                        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
+                        seconds: 1 * 60 * 60,
+                        repeats: false,
+                    },
+                });
+            }
         }
-    }, [isTracking, isPaused]);
+    }, [isTracking, isPaused, settings]);
 
     const resumeTimer = useCallback(async () => {
         if (isPaused && pauseStartTime) {
@@ -192,37 +271,30 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             await AsyncStorage.setItem(IS_TRACKING_KEY, 'true');
             await AsyncStorage.setItem(TOTAL_PAUSED_KEY, String(newTotalPaused));
             await AsyncStorage.removeItem(PAUSE_START_KEY);
+
+            await Notifications.cancelAllScheduledNotificationsAsync();
         }
     }, [isPaused, pauseStartTime, totalPausedDuration]);
 
-    // 🔥 ВИПРАВЛЕНА ЛОГІКА STOP 🔥
     const stopTimer = useCallback(async (isAutoStop = false) => {
-        // 1. Розраховуємо фінальний час ПРЯМО ЗАРАЗ, а не беремо зі стану elapsedTime
         let finalElapsedTime = 0;
         const now = Date.now();
 
         if (startTime) {
             if (isPaused && pauseStartTime) {
-                // Якщо зупинили, поки стояли на паузі:
-                // Час = (Момент паузи - Старт) - (Попередні паузи)
                 finalElapsedTime = pauseStartTime - startTime - totalPausedDuration;
             } else {
-                // Якщо зупинили під час роботи:
-                // Час = (Зараз - Старт) - (Попередні паузи)
                 finalElapsedTime = now - startTime - totalPausedDuration;
             }
         } else {
-            finalElapsedTime = elapsedTime; // Fallback
+            finalElapsedTime = elapsedTime;
         }
 
-        // Захист від від'ємних значень
         if (finalElapsedTime < 0) finalElapsedTime = 0;
 
         setIsTracking(false);
         setIsPaused(false);
         
-        // 2. Перевірка на збереження (використовуємо finalElapsedTime)
-        // MIN_SAVE_TIME_MS = 1000 (1 секунда).
         if (startTime && finalElapsedTime >= MIN_SAVE_TIME_MS && settings?.rate && settings?.currency) {
             const endTime = Date.now();
             const newSession: Session = {
@@ -251,7 +323,6 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             });
         }
 
-        // Очищення
         await AsyncStorage.multiRemove([
             IS_TRACKING_KEY, 
             START_TIME_KEY, 
@@ -270,7 +341,8 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setStartTime(null);
         setPauseStartTime(null);
         setTotalPausedDuration(0);
-
+        
+        await Notifications.cancelAllScheduledNotificationsAsync();
     }, [elapsedTime, settings, startTime, isPaused, pauseStartTime, totalPausedDuration]);
     
     const timeDisplay = useMemo(() => formatTime(elapsedTime), [elapsedTime]);

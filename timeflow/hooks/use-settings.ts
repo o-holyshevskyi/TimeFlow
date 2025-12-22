@@ -5,6 +5,8 @@ import { useCallback, useState } from "react";
 export type Settings = {
     currency?: string;
     rate?: string;
+    monthlyGoal?: string;
+    notificationsEnabled: boolean;
 }
 
 export const SETTINGS_STORAGE_KEY = 'settingsTest';
@@ -26,6 +28,12 @@ export const useSettings = () => {
         setSettings(settings);
     }, []);
 
+    const saveGoal = useCallback(async (goal: number) => {
+        const updatedSettings = { ...settings, monthlyGoal: goal.toString() };
+        await AsyncStorage.setItem(SETTINGS_STORAGE_KEY, JSON.stringify(updatedSettings));
+        await loadSettings();
+    }, [loadSettings, settings]);
+
     useFocusEffect(
         useCallback(() => {
             loadSettings();
@@ -36,5 +44,6 @@ export const useSettings = () => {
         settings,
 
         saveSettings,
+        saveGoal,
     };
 }

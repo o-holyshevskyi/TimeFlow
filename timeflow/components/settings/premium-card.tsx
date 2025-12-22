@@ -9,9 +9,10 @@ import Purchases, { PACKAGE_TYPE, PurchasesPackage } from "react-native-purchase
 import { Icon } from "../ui/icon";
 import RestorePurchase from "./restore-purchase";
 
-const PremiumCard = () => {
+const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+    const accent = useThemeColor('accent');
 
     const [availablePackage, setAvailablePackage] = useState<PurchasesPackage | null>(null);
     const [isPurchasing, setIsPurchasing] = useState(false);
@@ -94,8 +95,12 @@ const PremiumCard = () => {
         } finally {
             setIsPurchasing(false);
         }
-            
-        router.push('/');
+        
+        if (handleSuccess) {
+            handleSuccess();
+            router.push('/');
+        } else 
+            router.push('/');
     }
 
     if (!availablePackage) return null;
@@ -113,7 +118,7 @@ const PremiumCard = () => {
     return <Card style={[styles.premiumCard]}>
         <Card.Header style={[styles.premiumCardHeader]}>
             <View style={[styles.premiumTextContainer]}>
-                <Icon name="star" color="#2bee6c" />
+                <Icon name="star" color={accent} />
                 <Text style={[{ color: foreground }, styles.premiumCardTitle]}>Go PROductive</Text>
             </View>
             <Text style={[{ color: muted }, styles.premiumCardDescription]}>
@@ -129,15 +134,27 @@ const PremiumCard = () => {
         <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
              <View style={{ flexDirection: "column", gap: Layout.spacing * 5 }}>
                 <View style={[styles.premiumTextContainer]}>
-                    <Icon name="checkmark-circle" color="#2bee6c" />
+                    <Icon name="checkmark-circle" color={accent} />
                     <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Ad-Free Experience</Text>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
-                    <Icon name="checkmark-circle" color="#2bee6c" />
+                    <Icon name="checkmark-circle" color={accent} />
+                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                        Advanced Monthly Analytics
+                    </Text>
+                </View>
+                <View style={[styles.premiumTextContainer]}>
+                    <Icon name="checkmark-circle" color={accent} />
+                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                        Monthly Income Goals
+                    </Text>
+                </View>
+                <View style={[styles.premiumTextContainer]}>
+                    <Icon name="checkmark-circle" color={accent} />
                     <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Unlimited History</Text>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
-                    <Icon name="checkmark-circle" color="#2bee6c" />
+                    <Icon name="checkmark-circle" color={accent} />
                     <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Export Data (CSV)</Text>
                 </View>
             </View>
@@ -175,7 +192,13 @@ const PremiumCard = () => {
             <Text style={[{ color: muted, textAlign: 'center' }, { fontSize: 14, marginBottom: Layout.spacing }]}>
                 Already bought PRO? Tap &quot;Restore Purchases&quot; to recover your subscription on this device.
             </Text>
-            <RestorePurchase isDisabled={isPurchasing || isLoading} onRestoreSuccess={() => router.push('/')} />
+            <RestorePurchase isDisabled={isPurchasing || isLoading} onRestoreSuccess={() => {
+                if (handleSuccess) {
+                    handleSubscribe();
+                    router.replace('/');
+                } else
+                    router.push('/');
+            }} />
         </Card.Footer>
     </Card>
 }
