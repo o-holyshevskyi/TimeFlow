@@ -120,7 +120,8 @@
       [
         "expo-notifications",
         {
-          // "sounds": ["./assets/sounds/notification.wav"]
+          "icon": "./assets/images/ios-light.png", 
+          "color": "#ffffff"
         }
       ]
     ],
