@@ -1,4 +1,5 @@
 import { Layout } from "@/constants/layout";
+import { useClients } from "@/hooks/use-clients";
 import { Session } from "@/hooks/use-sessions";
 import { BlurView } from "expo-blur";
 import * as Haptic from 'expo-haptics';
@@ -57,11 +58,15 @@ type SessionCardProps = {
 const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: SessionCardProps) => {
     const startTimeStr = formatTimestampToTime(item.startTime);
     const endTimeStr = formatTimestampToTime(item.endTime);
-    const { duration } = formatTime(item.elapsedTime); 
-    
-    const amountStr = calculateAmount(item.elapsedTime, item.rate, item.currency);
+    const { duration } = formatTime(item.elapsedTime);
+    const { clients } = useClients();
+
+    const client = item.clientId ? clients.find(c => c.id === item.clientId) : null;
+    const amount = client && client.defaultRate ? client.defaultRate : item.rate;
+
+    const amountStr = calculateAmount(item.elapsedTime, amount, item.currency);
     const [formatted] = formatCurrency({
-        amount: parseFloat(item.rate),
+        amount: parseFloat(amount),
         code: item.currency,
     });
     const rateStr = `${formatted} / hr`;
@@ -71,14 +76,39 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
     return (
         <Card style={[styles.card]}>
             <Card.Body style={{ flexDirection: 'column', gap: Layout.spacing * 2 }}>
+                {client && (
+                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: -8 }}>
+                        <View style={{ 
+                            width: 10, 
+                            height: 10, 
+                            borderRadius: 5, 
+                            backgroundColor: client.color || '#2bee6c' 
+                        }} />
+                        <Text style={{ 
+                            color: client.color || '#2bee6c', 
+                            fontSize: 14, 
+                            fontWeight: '700',
+                            textTransform: 'uppercase',
+                            letterSpacing: 0.5
+                        }}>
+                            {client.name}
+                        </Text>
+                    </View>
+                )}
+
                 <View style={[styles.cardBody]}>
                     <Text style={[styles.amount, { color: foreground }]}>{amountStr}</Text>
                     <SessionItemPopoverOptions item={item} deleteSession={deleteSession} />
                 </View>
+                
                 <Text style={[styles.time, { color: muted }]}>
                     {startTimeStr} - {endTimeStr} ({duration})
                 </Text>
-                <Text style={[styles.rate, { color: muted }]}>{rateStr}</Text>
+                
+                <Text style={[styles.rate, { color: muted }]}>
+                   {rateStr}
+                   {client && item.rate === client.defaultRate && " (Client Rate)"}
+                </Text>
             </Card.Body>
             {isFading && (
                 <LinearGradient

@@ -21,6 +21,12 @@ const Header = () => {
         router.push('/cards/sessions-list');
     }
 
+    const handleOnClientsPress = () => {
+        Haptic.impactAsync(Haptic.ImpactFeedbackStyle.Medium);
+        popoverRef.current?.close();
+        router.push('/cards/clients');
+    }
+
     const handleOnSettingsPress = () => {
         Haptic.impactAsync(Haptic.ImpactFeedbackStyle.Medium);
         popoverRef.current?.close();
@@ -87,6 +93,12 @@ const Header = () => {
                                     <Icon name="calendar-outline"/>
                                     <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
                                         Sessions
+                                    </Button.Label>
+                                </Button>
+                                <Button variant="ghost" onPress={handleOnClientsPress}>
+                                    <Icon name="briefcase-outline"/>
+                                    <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
+                                        My Clients
                                     </Button.Label>
                                 </Button>
                                 <Button variant="ghost" onPress={handleOnAnalyticsPress}>

@@ -1,8 +1,9 @@
 import { Layout } from "@/constants/layout";
 import { useTimer } from "@/contexts/timer-context";
+import { useClients } from "@/hooks/use-clients";
 import { useSettings } from "@/hooks/use-settings";
 import { Card, useThemeColor } from "heroui-native";
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
 
@@ -12,17 +13,34 @@ const EarnedAmount = () => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
 
+    const { clientId } = useTimer();
+    const { clients } = useClients();
     const { settings } = useSettings();
     const { elapsedTime, sessionStoppedByLimit } = useTimer();
+
+    const [rate, setRate] = useState<string | undefined>(undefined);
+
+    const selectedClient = useMemo(() => clients.find(cl => cl.id === clientId), [clients, clientId])
+
+    useEffect(() => {
+        if (clientId) {
+            if (selectedClient) {
+                const rate = selectedClient.defaultRate;
+                setRate(rate);
+            }
+        } else if (settings?.rate) {
+            setRate(settings.rate);
+        }
+    }, [clientId, selectedClient, settings]);
     
     const amount = useMemo(() => {
-        if (!settings?.rate || elapsedTime === 0) return 0;
+        if (!rate || elapsedTime === 0) return 0;
 
-        const rate = Number(settings.rate);
+        const _rate = Number(rate);
         const timeInHours = elapsedTime / (1000 * 60 * 60);
         
-        return rate * timeInHours;
-    }, [elapsedTime, settings?.rate]);
+        return _rate * timeInHours;
+    }, [elapsedTime, rate]);
 
     const formattedAmount = useMemo(() => {
         if (!settings?.currency) return "$0.00";
@@ -37,17 +55,17 @@ const EarnedAmount = () => {
     }, [amount, settings?.currency]);
 
     const formattedRate = useMemo(() => {
-        if (!settings?.currency || !settings.rate) return "$0.00";
+        if (!settings?.currency || !rate) return "$0.00";
         
-        const rate = parseInt(settings.rate);
-        const roundedRate = Math.round(rate * 100) / 100;
+        const _rate = parseInt(rate);
+        const roundedRate = Math.round(_rate * 100) / 100;
 
         const [formatted] = formatCurrency({
             amount: roundedRate,
             code: settings.currency,
         });
         return formatted;
-    }, [settings]);
+    }, [settings, rate]);
 
     return <View>
         <Card style={[styles.card]}>
@@ -61,7 +79,24 @@ const EarnedAmount = () => {
                     {formattedAmount}
                 </Text>
             </Card.Body>
-            <Card.Footer>
+            <Card.Footer style={{ flexDirection: 'row', gap: Layout.spacing * 2, alignItems: 'center' }}>
+                {selectedClient && (<>
+                    <View style={{ 
+                        width: 10, 
+                        height: 10, 
+                        borderRadius: 5, 
+                        backgroundColor: selectedClient?.color || '#2bee6c' 
+                    }} />
+                    <Text style={{ 
+                        color: selectedClient?.color || '#2bee6c', 
+                        fontSize: 18, 
+                        fontWeight: '700',
+                        textTransform: 'uppercase',
+                    }}>
+                        {selectedClient?.name}
+                    </Text>
+                </>
+                )}
                 <Text style={{ color: muted, fontSize: 18 }}>
                     Rate: {formattedRate} / hour
                 </Text>
