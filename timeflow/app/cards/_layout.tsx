@@ -18,6 +18,13 @@ export default function CardsLayout() {
             }}
         />
         <Stack.Screen
+            name="clients"
+            options={{
+                presentation: 'card',
+                headerShown: false,
+            }}
+        />
+        <Stack.Screen
             name="analytics"
             options={{
                 presentation: 'card',
