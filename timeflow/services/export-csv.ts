@@ -18,7 +18,7 @@ export const exportSessionsToCSV = async (sessions: Session[]) => {
     }
 
     try {
-        const headers = 'ID,Start Date,End Date,Duration (Hours),Rate,Currency,Total Amount\n';
+        const headers = 'ID,Start Date,End Date,Duration (Hours),Rate,Currency,Total Amount,Client Id\n';
 
         const rows = sessions.map(session => {
             const startDate = formatDateForCSV(session.startTime);
@@ -27,8 +27,9 @@ export const exportSessionsToCSV = async (sessions: Session[]) => {
 
             const rate = parseFloat(session.rate);
             const totalAmount = (parseFloat(durationHours) * rate).toFixed(2);
+            const clientId = session.clientId || 'n/a';
 
-            return `${session.id},${startDate},${endDate},${durationHours},${session.rate},${session.currency},${totalAmount}`;
+            return `${session.id},${startDate},${endDate},${durationHours},${session.rate},${session.currency},${totalAmount},${clientId}`;
         }).join('\n');
 
         const csvContent = headers + rows;
