@@ -11,7 +11,6 @@ import { Ticker } from "./timer";
 const CARD_WIDTH = Dimensions.get('screen').width * .9;
 
 const EarnedAmount = () => {
-    const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
 
     const { clientId } = useTimer();
@@ -76,9 +75,6 @@ const EarnedAmount = () => {
                 </Text>
             </Card.Header>
             <Card.Body>
-                {/* <Text style={[{ color: foreground }, styles.description]}>
-                    {formattedAmount}
-                </Text> */}
                 <Ticker value={formattedAmount} />
             </Card.Body>
             <Card.Footer style={{ flexDirection: 'row', gap: Layout.spacing * 2, alignItems: 'center' }}>
