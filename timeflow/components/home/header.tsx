@@ -5,133 +5,142 @@ import { useRouter } from "expo-router";
 import { Button, Popover, PopoverTriggerRef, useThemeColor } from "heroui-native";
 import { useRef } from "react";
 import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
+import Animated, { FadeInDown, ZoomIn, ZoomOut } from "react-native-reanimated";
 import { Icon } from '../ui/icon';
 
 const POPOVER_HEIGHT = Dimensions.get('window').height * 0.80;
 
+const AnimatedMenuItem = ({ index, children }: { index: number, children: React.ReactNode }) => (
+    <Animated.View
+        entering={FadeInDown.delay(index * 100).duration(200).springify(250).damping(80)}
+        style={{ width: '100%', alignItems: 'flex-end' }}
+    >
+        {children}
+    </Animated.View>
+);
+
 const Header = () => {
     const foreground = useThemeColor('foreground');
-
     const router = useRouter();
     const popoverRef = useRef<PopoverTriggerRef>(null);
 
-    const handleOnListPress = () => {
+    // Consolidated handler logic for cleaner JSX
+    const handleNavigation = (path: string) => {
         Haptic.impactAsync(Haptic.ImpactFeedbackStyle.Medium);
         popoverRef.current?.close();
-        router.push('/cards/sessions-list');
-    }
-
-    const handleOnClientsPress = () => {
-        Haptic.impactAsync(Haptic.ImpactFeedbackStyle.Medium);
-        popoverRef.current?.close();
-        router.push('/cards/clients');
-    }
-
-    const handleOnSettingsPress = () => {
-        Haptic.impactAsync(Haptic.ImpactFeedbackStyle.Medium);
-        popoverRef.current?.close();
-        router.push('/cards/settings');
-    }
-
-    const handleOnAnalyticsPress = () => {
-        Haptic.impactAsync(Haptic.ImpactFeedbackStyle.Medium);
-        popoverRef.current?.close();
-        router.push('/cards/analytics');
-    }
+        router.push(path as any); // Uncomment when routes exist
+    };
 
     const handleMenuOpen = () => {
         Haptic.impactAsync(Haptic.ImpactFeedbackStyle.Medium);
         popoverRef.current?.open();
-    }
+    };
 
     const handleMenuClose = () => {
         Haptic.impactAsync(Haptic.ImpactFeedbackStyle.Medium);
         popoverRef.current?.close();
-    }
+    };
 
-    return <View style={[styles.container]}>
-        <View style={{width: Layout.spacing * 10 }} />
-        <Text
-            style={[{ color: foreground }, styles.headerText]}
-        >
-            Time Tracker
-        </Text>
-        <Popover>
-            <Popover.Trigger ref={popoverRef} asChild>
-                <Pressable style={{paddingHorizontal: Layout.spacing * 2}} onPress={handleMenuOpen}>
-                    <Icon name='menu-outline'/>
-                </Pressable>
-            </Popover.Trigger>
-            <Popover.Portal>
-                <Popover.Overlay />
-                <BlurView
-                    intensity={40}
-                    tint="dark"
-                    style={{
-                        ...StyleSheet.absoluteFillObject,
-                        borderTopLeftRadius: 20,
-                        borderTopRightRadius: 20,
-                        overflow: 'hidden',
-                    }}
-                >
-                    <Popover.Content
-                        className="bg-transparent flex-column justify-between gap-10"
-                        width='full'
+    return (
+        <View style={[styles.container]}>
+            <View style={{ width: Layout.spacing * 10 }} />
+            <Text style={[{ color: foreground }, styles.headerText]}>
+                Time Tracker
+            </Text>
+            
+            <Popover>
+                <Popover.Trigger ref={popoverRef} asChild>
+                    <Pressable style={{ paddingHorizontal: Layout.spacing * 2 }} onPress={handleMenuOpen}>
+                        <Icon name='menu-outline' />
+                    </Pressable>
+                </Popover.Trigger>
+
+                <Popover.Portal>
+                    <Popover.Overlay />
+                    <BlurView
+                        intensity={40}
+                        tint="dark"
+                        style={styles.blurContainer}
                     >
-                        <View
-                            style={{ height: POPOVER_HEIGHT}}
+                        <Popover.Content
+                            className="bg-transparent flex-column justify-between gap-10"
+                            width='full'
                         >
-                            <View 
-                                style={{ 
-                                    flex: 1, 
-                                    alignItems: 'flex-end', 
-                                    justifyContent: 'flex-start', 
-                                    paddingHorizontal: Layout.spacing * 1,
-                                }}
-                            >
-                                <Button variant="ghost" onPress={handleOnListPress}>
-                                    <Icon name="calendar-outline"/>
-                                    <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
-                                        Sessions
-                                    </Button.Label>
-                                </Button>
-                                <Button variant="ghost" onPress={handleOnClientsPress}>
-                                    <Icon name="briefcase-outline"/>
-                                    <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
-                                        My Clients
-                                    </Button.Label>
-                                </Button>
-                                <Button variant="ghost" onPress={handleOnAnalyticsPress}>
-                                    <Icon name='stats-chart-outline'/>
-                                    <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
-                                        Analytics
-                                    </Button.Label>
-                                </Button>    
-                                <Button variant="ghost" onPress={handleOnSettingsPress}>
-                                    <Icon name='settings-outline'/>
-                                    <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
-                                        Settings
-                                    </Button.Label>
-                                </Button>                        
-                            </View>      
-                            <View
-                                style={{ 
-                                    flex: 1, 
-                                    alignItems: 'flex-end', 
-                                    justifyContent: 'flex-end', 
-                                    paddingHorizontal: Layout.spacing * 1,
-                                }}
-                            >
-                                <Button onPress={handleMenuClose} isIconOnly variant="primary">
-                                    <Icon name='close-outline' color="black"/>
-                                </Button>
+                            <View style={{ height: POPOVER_HEIGHT }}>
+                                {/* Menu Items Container */}
+                                <View
+                                    style={{
+                                        flex: 1,
+                                        alignItems: 'flex-end',
+                                        justifyContent: 'flex-start',
+                                        paddingHorizontal: Layout.spacing * 1,
+                                        paddingTop: Layout.spacing * 4, // Added some top padding
+                                    }}
+                                >
+                                    <AnimatedMenuItem index={0}>
+                                        <Button variant="ghost" onPress={() => handleNavigation('/cards/sessions-list')}>
+                                            <Icon name="calendar-outline" />
+                                            <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
+                                                Sessions
+                                            </Button.Label>
+                                        </Button>
+                                    </AnimatedMenuItem>
+
+                                    <AnimatedMenuItem index={1}>
+                                        <Button variant="ghost" onPress={() => handleNavigation('/cards/clients')}>
+                                            <Icon name="briefcase-outline" />
+                                            <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
+                                                My Clients
+                                            </Button.Label>
+                                        </Button>
+                                    </AnimatedMenuItem>
+
+                                    <AnimatedMenuItem index={2}>
+                                        <Button variant="ghost" onPress={() => handleNavigation('/cards/analytics')}>
+                                            <Icon name='stats-chart-outline' />
+                                            <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
+                                                Analytics
+                                            </Button.Label>
+                                        </Button>
+                                    </AnimatedMenuItem>
+
+                                    <AnimatedMenuItem index={3}>
+                                        <Button variant="ghost" onPress={() => handleNavigation('/cards/settings')}>
+                                            <Icon name='settings-outline' />
+                                            <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
+                                                Settings
+                                            </Button.Label>
+                                        </Button>
+                                    </AnimatedMenuItem>
+                                </View>
+
+                                {/* Close Button Container */}
+                                <View
+                                    style={{
+                                        flex: 1,
+                                        alignItems: 'flex-end',
+                                        justifyContent: 'flex-end',
+                                        paddingHorizontal: Layout.spacing * 1,
+                                        paddingBottom: Layout.spacing * 2,
+                                    }}
+                                >
+                                    {/* Different animation for Close button (Pop in) */}
+                                    <Animated.View 
+                                        entering={ZoomIn.delay(400).springify()}
+                                        exiting={ZoomOut.duration(200)}
+                                    >
+                                        <Button onPress={handleMenuClose} isIconOnly variant="primary" style={{ borderRadius: 9999 }}>
+                                            <Icon name='close-outline' color="black" />
+                                        </Button>
+                                    </Animated.View>
+                                </View>
                             </View>
-                        </View>
-                    </Popover.Content>
-                </BlurView>
-            </Popover.Portal>
-        </Popover>
-    </View>;
+                        </Popover.Content>
+                    </BlurView>
+                </Popover.Portal>
+            </Popover>
+        </View>
+    );
 }
 
 const styles = StyleSheet.create({
@@ -143,7 +152,13 @@ const styles = StyleSheet.create({
     },
     headerText: {
         fontSize: 28,
-        fontWeight: 700
+        fontWeight: '700'
+    },
+    blurContainer: {
+        ...StyleSheet.absoluteFillObject,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        overflow: 'hidden',
     }
 });
 
