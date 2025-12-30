@@ -1,19 +1,12 @@
 import { Layout } from "@/constants/layout";
-import { useRouter } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import React from "react";
 import { Linking, StyleSheet, Text, View } from "react-native";
 import { BaseCard } from "./base-card";
 
 export default function PrivacyPolicyScreen() {
-    const router = useRouter();
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
-    const background = useThemeColor('background');
-
-    const handleBack = () => {
-        router.back();
-    };
 
     const openLink = async (url: string) => {
         const supported = await Linking.canOpenURL(url);
@@ -39,6 +32,11 @@ export default function PrivacyPolicyScreen() {
                     {'\n'}• The pages of the Application that you visit, the time and date of your visit, the time spent on those pages
                     {'\n'}• The operating system you use on your mobile device
                     {'\n'}• Advertising ID (IDFA/GAID): Used to provide personalized advertisements and analytics.
+                </Text>
+
+                <Text style={[styles.sectionTitle, { color: foreground }]}>Notifications</Text>
+                <Text style={[styles.paragraph, { color: muted }]}>
+                    The Application uses local notifications to provide Smart Alerts (e.g., long session warnings or pause reminders). These notifications are scheduled locally on your device and do not transmit your usage data to external servers.
                 </Text>
 
                 <Text style={[styles.sectionTitle, { color: foreground }]}>Location Information</Text>
@@ -94,7 +92,7 @@ export default function PrivacyPolicyScreen() {
                 <Text style={[styles.paragraph, { color: muted }]}>
                     This Privacy Policy may be updated from time to time for any reason. The Service Provider will notify you of any changes to the Privacy Policy by updating this page with the new Privacy Policy. You are advised to consult this Privacy Policy regularly for any changes, as continued use is deemed approval of all changes.
                     {'\n\n'}
-                    This privacy policy is effective as of 2025-12-07
+                    This privacy policy is effective as of 2025-12-30
                 </Text>
 
                 <Text style={[styles.sectionTitle, { color: foreground }]}>Your Consent</Text>
@@ -107,7 +105,7 @@ export default function PrivacyPolicyScreen() {
                     If you have any questions regarding privacy while using the Application, or have questions about the practices, please contact the Service Provider via email at <Text style={{ color: '#3b82f6', textDecorationLine: 'underline' }} onPress={handleEmailPress}>holyshevskyi.a@gmail.com</Text>.
                 </Text>
 
-                <Text style={[styles.footer, { color: muted }]}>Effective as of 2025-12-07</Text>
+                <Text style={[styles.footer, { color: muted }]}>Effective as of 2025-12-30</Text>
                 <View style={{ height: 40 }} />
             </View>
         </BaseCard>
