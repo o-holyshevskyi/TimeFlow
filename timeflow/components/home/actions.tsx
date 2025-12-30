@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
 import { Icon } from "../ui/icon";
 
-const CARD_WIDTH = Dimensions.get('screen').width * .9;
+const CARD_WIDTH = Dimensions.get('window').width * .9;
 
 const Actions = () => {
     const { isTracking, startTimer, stopTimer, pauseTimer, resumeTimer, isPaused, setClientId } = useTimer();
@@ -200,7 +200,7 @@ const Actions = () => {
                 }
             }}
         >
-            <Select.Trigger asChild>
+            <Select.Trigger style={{ width: CARD_WIDTH, alignSelf: 'center' }} asChild>
                 {StartBtn}
             </Select.Trigger>
             
