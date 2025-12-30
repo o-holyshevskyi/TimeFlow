@@ -14,7 +14,7 @@ type PeriodType = 'week' | 'month';
 
 const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean }) => {
     const { settings } = useSettings();
-    const { showToast } = usePremiumToast()
+    const { showToast } = usePremiumToast();
 
     const [offset, setOffset] = useState(0);
     const [period, setPeriod] = useState<PeriodType>('week');
@@ -126,6 +126,7 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
     
     const handlePeriodChange = (p: PeriodType) => {
         if (!isPro && p === 'month') {
+            Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
             showToast(
                 '✨ PRO Feature Locked', 
                 'Weekly stats are free. Monthly trends require PRO. Upgrade to unlock!'

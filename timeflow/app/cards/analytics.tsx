@@ -1,8 +1,10 @@
 import ChartCard from "@/components/analytics/chart-card"
+import { ClientStats } from "@/components/analytics/client-stats"
 import { GoalCard } from "@/components/analytics/goal-card"
 import { InsightsCard } from "@/components/analytics/insights"
 import { RecentHistory } from "@/components/analytics/recent-history"
 import { SummaryCards } from "@/components/analytics/summary-cards"
+import { WorkHeatmap } from "@/components/analytics/work-heatmap"
 import { Layout } from "@/constants/layout"
 import { useSessions } from "@/hooks/use-sessions"
 import { useUserStatus } from "@/hooks/user-status"
@@ -19,6 +21,8 @@ export default function Analytics() {
         <View style={{ paddingVertical: Layout.spacing * 2, gap: Layout.spacing * 5 }}>
             <SummaryCards sessions={sessions} isPro={isPro} />
             <ChartCard sessions={sessions} isPro={isPro} />
+            <ClientStats isPro={isPro} />
+            <WorkHeatmap sessions={sessions} isPro={isPro} />
             <InsightsCard sessions={sessions} />
             <GoalCard sessions={sessions} isPro={isPro} />
             <RecentHistory sessions={sessions} />
