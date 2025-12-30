@@ -4,9 +4,10 @@ type HourlyRateInputProps = {
     setRate: (rate: string) => void;
     rate?: string;
     isDisabled?: boolean;
+    width?: number;
 }
 
-const HourlyRateInput = ({ setRate, rate, isDisabled = false }: HourlyRateInputProps) => {
+const HourlyRateInput = ({ setRate, rate, isDisabled = false, width }: HourlyRateInputProps) => {
     const foreground = useThemeColor('foreground');
 
     const handleAmountChange = (text: string) => {
@@ -45,7 +46,7 @@ const HourlyRateInput = ({ setRate, rate, isDisabled = false }: HourlyRateInputP
         setRate(cleanText);
     }
     
-    return <TextField isDisabled={isDisabled} style={{ flex: 2 }}>
+    return <TextField isDisabled={isDisabled} style={[ width ? { width } : { flex: 2 }]}>
         <TextField.Label style={{ color: foreground, fontSize: 20 }}>Rate per Hour</TextField.Label>
         <TextField.Input 
             placeholder="25.00"

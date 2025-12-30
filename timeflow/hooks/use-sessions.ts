@@ -9,6 +9,7 @@ export interface Session {
     elapsedTime: number;
     rate: string;
     currency: string;
+    clientId?: string;
 }
 
 export const SESSIONS_STORAGE_KEY = 'timerSessions';
@@ -45,7 +46,8 @@ export const useSessions = () => {
         startTime: number,
         endTime: number,
         rate: number,
-        currency: string
+        currency: string,
+        clientId?: string
     ) => {
         try {
             const newSession: Session = {
@@ -54,7 +56,8 @@ export const useSessions = () => {
                 endTime,
                 elapsedTime: endTime - startTime,
                 rate: rate.toString(),
-                currency
+                currency,
+                clientId,
             };
 
             const stored = await AsyncStorage.getItem(SESSIONS_STORAGE_KEY);
@@ -79,7 +82,8 @@ export const useSessions = () => {
         startTime: number,
         endTime: number,
         rate: number,
-        currency: string
+        currency: string,
+        clientId?: string,
     ) => {
         try {
             const updatedSessions = sessions.map(session => {
@@ -90,7 +94,8 @@ export const useSessions = () => {
                         endTime,
                         elapsedTime: endTime - startTime,
                         rate: rate.toString(),
-                        currency
+                        currency,
+                        clientId,
                     };
                 }
                 return session;
@@ -115,6 +120,23 @@ export const useSessions = () => {
         }
     }, [sessions, setSessions]);
 
+    const unlinkClientFromSessions = useCallback(async (clientId: string) => {
+        const updatedSessions = sessions.map(session => {
+            if (session.clientId === clientId) {
+                return { ...session, clientId: undefined }; // Відв'язуємо
+            }
+            return session;
+        });
+        setSessions(updatedSessions);
+        await AsyncStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updatedSessions));
+    }, [sessions]);
+
+    const deleteSessionsByClientId = useCallback(async (clientId: string) => {
+        const updatedSessions = sessions.filter(session => session.clientId !== clientId);
+        setSessions(updatedSessions);
+        await AsyncStorage.setItem(SESSIONS_STORAGE_KEY, JSON.stringify(updatedSessions));
+    }, [sessions]);
+
     useFocusEffect(
         useCallback(() => {
             loadSessions();
@@ -128,6 +150,8 @@ export const useSessions = () => {
         addManualSession,
         deleteSession,
         getSessionById,
-        editSession
+        editSession,
+        unlinkClientFromSessions,
+        deleteSessionsByClientId    
     };
 };

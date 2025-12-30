@@ -1,10 +1,12 @@
 import { calculateAmount, formatTime } from "@/components/sessions/session-card";
 import CurrencySelect from "@/components/settings/currency-select";
+import ClientSelect from "@/components/ui/client-select";
 import DateTimeSelect from "@/components/ui/date-time-select";
 import { DurationInput } from "@/components/ui/duration-input";
 import { EarningsInput } from "@/components/ui/earnings-input";
 import HourlyRateInput from "@/components/ui/hourly-rate";
 import { Layout } from "@/constants/layout";
+import { useClients } from "@/hooks/use-clients";
 import { useSessions } from "@/hooks/use-sessions";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button, Toast, useToast } from "heroui-native";
@@ -12,10 +14,11 @@ import { useEffect, useMemo, useState } from "react";
 import { Dimensions, Text, View } from "react-native";
 import BaseModal from "./base-modal";
 
-const WIDTH = Dimensions.get('window').width * .85;
+const WIDTH = Dimensions.get('window').width * .90;
 
 export default function EditSessionModal() {
     const { id } = useLocalSearchParams();
+    const { clients } = useClients();
 
     const sessionId = Array.isArray(id) ? id[0] : id;
     const { getSessionById, editSession } = useSessions();
@@ -26,6 +29,7 @@ export default function EditSessionModal() {
     const [endTime, setEndTime] = useState<number>(0);
     const [rate, setRate] = useState<string>('');
     const [currency, setCurrency] = useState<string>('');
+    const [clientId, setClientId] = useState<string | undefined>(undefined);
     
     const [saveError, setSaveError] = useState<undefined | string>(undefined);
     const [canSave, setCanSave] = useState(false);
@@ -42,6 +46,7 @@ export default function EditSessionModal() {
             setEndTime(session.endTime);
             setRate(session.rate);
             setCurrency(session.currency);
+            setClientId(session.clientId);
         }
     }, [session]);
 
@@ -60,6 +65,21 @@ export default function EditSessionModal() {
             setCanSave(true);
         }
     }, [startTime, endTime, rate]);
+
+    useEffect(() => {
+        if (clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (client?.defaultRate && parseFloat(client.defaultRate) > 0) {
+                setRate(client.defaultRate);
+            } else {
+                if (rate) setRate(rate);
+            }
+        } else {
+            if (rate) {
+                setRate(rate);
+            }
+        }
+    }, [clientId, clients, rate]);
     
     const showToast = () => {
         toast.show({
@@ -83,7 +103,8 @@ export default function EditSessionModal() {
             startTime,
             endTime,
             parseFloat(rate),
-            currency
+            currency,
+            clientId,
         );
 
         if (success) {
@@ -99,6 +120,14 @@ export default function EditSessionModal() {
     return <BaseModal>
         <DateTimeSelect value={new Date(startTime)} label="Start Time" onDateChange={(date) => setStartTime(date.getTime())} />
         <DateTimeSelect value={new Date(endTime)} label="End Time" onDateChange={(date) => setEndTime(date.getTime())} />
+        {clients.length > 0 && (
+            <View style={{ width: WIDTH }}>
+                <ClientSelect 
+                    selectedClientId={clientId} 
+                    onClientSelect={setClientId} 
+                />
+            </View>
+        )}
         <View style={{ flexDirection: "row", gap: Layout.spacing * 2 }}>
             <HourlyRateInput rate={rate} setRate={setRate} />
             <View style={{flex: 1}}>

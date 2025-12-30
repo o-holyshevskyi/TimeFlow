@@ -1,8 +1,10 @@
 import { Layout } from "@/constants/layout"
+import { useClients } from "@/hooks/use-clients"
 import { Session } from "@/hooks/use-sessions"
 import { useSettings } from "@/hooks/use-settings"
 import { useInsights } from "@/hooks/useInsights"
 import { Card, useThemeColor } from "heroui-native"
+import { useMemo } from "react"
 import { ScrollView, StyleSheet, Text, View } from "react-native"
 import { formatCurrency } from "react-native-format-currency"
 import { Icon } from "../ui/icon"
@@ -13,7 +15,41 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
     const accent = useThemeColor('accent');
     
     const { settings } = useSettings();
+    const { clients } = useClients();
     const insights = useInsights(sessions);
+
+    const topClient = useMemo(() => {
+        if (!sessions.length || !clients.length) return null;
+
+        const clientEarnings: Record<string, number> = {};
+
+        sessions.forEach(session => {
+            if (session.clientId && session.rate) {
+                const hours = session.elapsedTime / (1000 * 60 * 60);
+                const amount = hours * parseFloat(session.rate);
+                
+                if (!isNaN(amount)) {
+                    clientEarnings[session.clientId] = (clientEarnings[session.clientId] || 0) + amount;
+                }
+            }
+        });
+
+        let bestClientId: any = null;
+        let maxAmount = 0;
+
+        Object.entries(clientEarnings).forEach(([id, amount]) => {
+            if (amount > maxAmount) {
+                maxAmount = amount;
+                bestClientId = id;
+            }
+        });
+
+        if (bestClientId) {
+            const client = clients.find(c => c.id === bestClientId);
+            return client ? { name: client.name, amount: maxAmount } : null;
+        }
+        return null;
+    }, [sessions, clients]);
     
     return <View style={{ gap: Layout.spacing }}>
         <Text style={[styles.sectionTitle, { color: foreground }]}>Insights 💡</Text>
@@ -42,6 +78,17 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
                 </Text>
                 <Text style={[styles.subtext, { color: accent }]}>by end of month</Text>
             </Card>
+            {topClient && (
+                <Card style={styles.insightCard}>
+                    <Text style={[styles.label, { color: muted }]}>Top Client</Text>
+                    <Text numberOfLines={1} style={[styles.value, { color: foreground, fontSize: 22 }]}>
+                        {topClient.name}
+                    </Text>
+                    <Text style={[styles.subtext, { color: accent }]}>
+                        {formatCurrency({ amount: topClient.amount, code: settings?.currency || 'USD' })[0]} earned
+                    </Text>
+                </Card>
+            )}
             <Card style={styles.insightCard}>
                 <Text style={[styles.label, { color: muted }]}>Most Profitable Day</Text>
                 <Text style={[styles.value, { color: foreground }]}>

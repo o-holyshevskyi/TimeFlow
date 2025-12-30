@@ -29,5 +29,19 @@ export default function ModalsLayout() {
                 headerTitle: 'Edit Session',
             }}
         />
+        <Stack.Screen
+            name="new-client"
+            options={{
+                presentation: 'modal',
+                headerTitle: 'Add New Client',
+            }}
+        />
+        <Stack.Screen
+            name="edit-client"
+            options={{
+                presentation: 'modal',
+                headerTitle: 'Edit Client',
+            }}
+        />
     </Stack>
 }

@@ -8,7 +8,7 @@ import { useUserStatus } from "@/hooks/user-status";
 import * as Haptics from 'expo-haptics';
 import { useRouter } from "expo-router";
 import { Button, Spinner, useThemeColor } from "heroui-native";
-import { useEffect, useMemo, useRef } from "react";
+import { useMemo } from "react";
 import { FlatList, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -68,11 +68,12 @@ export default function SessionsList() {
 
     const groupedSessions = useMemo(() => groupSessionsByDate(visibleSessions), [visibleSessions]);
 
-    let globalSessionIndexRef = useRef(-1);
-
-    useEffect(() => {
-        globalSessionIndexRef.current = -1;
-    }, [visibleSessions]);
+    const fadingSessionId = useMemo(() => {
+        if (!isPro && visibleSessions.length === 5) {
+            return visibleSessions[4].id;
+        }
+        return null;
+    }, [visibleSessions, isPro]);
 
     const handleAddSession = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
@@ -85,8 +86,7 @@ export default function SessionsList() {
                 {item.displayDate}
             </Text>
             {item.data.map((session) => {
-                globalSessionIndexRef.current++;
-                const isFifthSession = !isPro && globalSessionIndexRef.current === 4;
+                const isFifthSession = session.id === fadingSessionId;
                 
                 return <SessionCard 
                     key={session.id} 

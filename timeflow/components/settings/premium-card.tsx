@@ -31,32 +31,24 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
 
     async function getOfferings() {
         try {
-            console.log("--- START FETCHING OFFERINGS ---");
             const offerings = await Purchases.getOfferings();
             
-            // Логуємо структуру відповіді
-            console.log("Offerings Raw:", JSON.stringify(offerings, null, 2));
-
             let pck: PurchasesPackage | undefined;
 
             // 1. Спробуємо знайти в Current
             if (offerings.current && offerings.current.availablePackages.length > 0) {
-                console.log("Found in CURRENT offering");
                 pck = offerings.current.availablePackages.find(p => p.packageType === PACKAGE_TYPE.LIFETIME) 
                       || offerings.current.availablePackages[0];
             } 
             // 2. Якщо Current пустий, шукаємо конкретно 'default' (fallback)
             else if (offerings.all['default'] && offerings.all['default'].availablePackages.length > 0) {
-                console.log("Found in DEFAULT offering (fallback)");
                 pck = offerings.all['default'].availablePackages.find(p => p.packageType === PACKAGE_TYPE.LIFETIME)
                       || offerings.all['default'].availablePackages[0];
             } else {
-                console.log("No offerings found anywhere.");
                 setDebugInfo("No offerings found. Check Console.");
             }
 
             if (pck) {
-                console.log("✅ Package Selected:", pck.product.identifier, pck.product.priceString);
                 setAvailablePackage(pck);
             }
 
@@ -65,7 +57,6 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
             setDebugInfo(`Error: ${e.message}`);
         } finally {
             setIsLoading(false); // Завжди вимикаємо спінер!
-            console.log("--- END FETCHING ---");
         }
     }
 

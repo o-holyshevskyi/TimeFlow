@@ -1,10 +1,12 @@
 import { calculateAmount, formatTime } from "@/components/sessions/session-card";
 import CurrencySelect from "@/components/settings/currency-select";
+import ClientSelect from "@/components/ui/client-select";
 import DateTimeSelect from "@/components/ui/date-time-select";
 import { DurationInput } from "@/components/ui/duration-input";
 import { EarningsInput } from "@/components/ui/earnings-input";
 import HourlyRateInput from "@/components/ui/hourly-rate";
 import { Layout } from "@/constants/layout";
+import { useClients } from "@/hooks/use-clients"; // 🔥 IMPORT
 import { useSessions } from "@/hooks/use-sessions";
 import { useSettings } from "@/hooks/use-settings";
 import { router } from "expo-router";
@@ -13,13 +15,14 @@ import { useEffect, useMemo, useState } from "react";
 import { Dimensions, Text, View } from "react-native";
 import BaseModal from "./base-modal";
 
-const WIDTH = Dimensions.get('window').width * .85;
+const WIDTH = Dimensions.get('window').width * .9;
 
 export default function NewSessionModal() {
     const [startTime, setStartTime] = useState<Date>(new Date());
     const [endTime, setEndTime] = useState<Date>(new Date(new Date().getTime() + 60 * 60 * 1000));
     const [rate, setRate] = useState<undefined | string>(undefined);
     const [currency, setCurrency] = useState<undefined | string>(undefined);
+    const [clientId, setClientId] = useState<string | undefined>(undefined);
 
     const [saveError, setSaveError] = useState<undefined | string>(undefined);
     const [canSave, setCanSave] = useState(false);
@@ -27,6 +30,7 @@ export default function NewSessionModal() {
     const { settings } = useSettings();
     const { addManualSession } = useSessions();
     const { toast } = useToast();
+    const { clients } = useClients();
 
     useEffect(() => {
         if (settings) {
@@ -34,6 +38,21 @@ export default function NewSessionModal() {
             setCurrency(settings.currency);
         }
     }, [settings]);
+
+    useEffect(() => {
+        if (clientId) {
+            const client = clients.find(c => c.id === clientId);
+            if (client?.defaultRate && parseFloat(client.defaultRate) > 0) {
+                setRate(client.defaultRate);
+            } else {
+                if (settings?.rate) setRate(settings.rate);
+            }
+        } else {
+            if (settings?.rate) {
+                setRate(settings.rate);
+            }
+        }
+    }, [clientId, clients, settings]);
 
     useEffect(() => {
         if (startTime.getTime() > endTime.getTime()) {
@@ -63,7 +82,8 @@ export default function NewSessionModal() {
             startTime.getTime(),
             endTime.getTime(),
             parseFloat(rate),
-            currency
+            currency,
+            clientId
         );
 
         if (success) {
@@ -88,6 +108,14 @@ export default function NewSessionModal() {
     return <BaseModal>
         <DateTimeSelect value={startTime} label="Start Time" onDateChange={setStartTime} />
         <DateTimeSelect value={endTime} label="End Time" onDateChange={setEndTime} />
+        {clients.length > 0 && (
+            <View style={{ width: WIDTH }}>
+                <ClientSelect 
+                    selectedClientId={clientId} 
+                    onClientSelect={setClientId} 
+                />
+            </View>
+        )}
         <View style={{ flexDirection: "row", gap: Layout.spacing * 2 }}>
             <HourlyRateInput rate={rate} setRate={setRate} />
             <View style={{flex: 1}}>
