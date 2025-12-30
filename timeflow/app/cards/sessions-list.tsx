@@ -9,10 +9,20 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from "expo-router";
 import { Button, Spinner, useThemeColor } from "heroui-native";
 import { useMemo } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
+import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const groupSessionsByDate = (sessions: Session[]) => {
+// 1. Define specific heights for smoother animation calculations
+const SESSION_ITEM_HEIGHT = 160; 
+const HEADER_ITEM_HEIGHT = 60;
+
+// Helper Types for the FlatList
+type ListItem = 
+  | { type: 'header'; date: string; displayDate: string }
+  | { type: 'session'; data: Session };
+
+const groupAndFlattenSessions = (sessions: Session[]): ListItem[] => {
     const sortedSessions = [...sessions].sort((a, b) => b.startTime - a.startTime);
 
     const dateFormatter = new Intl.DateTimeFormat('en-US', { 
@@ -22,14 +32,15 @@ const groupSessionsByDate = (sessions: Session[]) => {
     });
 
     const today = new Date().toDateString();
+    const result: ListItem[] = [];
+    let lastDateKey = '';
 
-    return sortedSessions.reduce((acc, session) => {
+    sortedSessions.forEach((session) => {
         const sessionDate = new Date(session.startTime);
         const dateKey = sessionDate.toDateString();
-        
-        let group = acc.find(g => g.date === dateKey);
-        
-        if (!group) {
+
+        // If this is a new date, push a Header item first
+        if (dateKey !== lastDateKey) {
             let displayDate = dateFormatter.format(sessionDate);
             if (dateKey === today) {
                 const parts = displayDate.split(' ');
@@ -40,17 +51,22 @@ const groupSessionsByDate = (sessions: Session[]) => {
                 }
             }
             
-            group = {
+            result.push({
+                type: 'header',
                 date: dateKey,
-                displayDate,
-                data: [],
-            };
-            acc.push(group); 
+                displayDate: displayDate
+            });
+            lastDateKey = dateKey;
         }
 
-        group.data.push(session);
-        return acc;
-    }, [] as { date: string; displayDate: string; data: Session[] }[]);
+        // Push the session item
+        result.push({
+            type: 'session',
+            data: session
+        });
+    });
+
+    return result;
 };
 
 export default function SessionsList() {
@@ -60,13 +76,15 @@ export default function SessionsList() {
     
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+    const scrollY = useSharedValue(0);
 
     const visibleSessions = useMemo(() => {
         const sorted = [...sessions].sort((a, b) => b.startTime - a.startTime);
         return isPro ? sorted : sorted.slice(0, 5);
     }, [sessions, isPro]);
 
-    const groupedSessions = useMemo(() => groupSessionsByDate(visibleSessions), [visibleSessions]);
+    // 2. Use the flattened data structure
+    const flatData = useMemo(() => groupAndFlattenSessions(visibleSessions), [visibleSessions]);
 
     const fadingSessionId = useMemo(() => {
         if (!isPro && visibleSessions.length === 5) {
@@ -80,25 +98,11 @@ export default function SessionsList() {
         push('/modals/new-session');
     }
 
-    const renderGroup = ({ item }: { item: { date: string; displayDate: string; data: Session[] } }) => (
-        <View key={item.date} style={styles.groupContainer}>
-            <Text style={[styles.date, { color: foreground }]}>
-                {item.displayDate}
-            </Text>
-            {item.data.map((session) => {
-                const isFifthSession = session.id === fadingSessionId;
-                
-                return <SessionCard 
-                    key={session.id} 
-                    item={session} 
-                    foreground={foreground} 
-                    muted={muted}
-                    isFading={isFifthSession}
-                    deleteSession={deleteSession} 
-                />
-            })}
-        </View>
-    );
+    const scrollHandler = useAnimatedScrollHandler({
+        onScroll: (event) => {
+            scrollY.value = event.contentOffset.y;
+        },
+    });
 
     if (isLoading) {
         return (
@@ -108,7 +112,7 @@ export default function SessionsList() {
         );
     }
 
-    if (groupedSessions.length === 0) {
+    if (flatData.length === 0) {
         return (
              <SafeAreaView style={[styles.container]}>
                 <SessionHeader />
@@ -124,48 +128,167 @@ export default function SessionsList() {
         );
     }
 
-    return <SafeAreaView style={[styles.container]}>
-        <SessionHeader />
-        <FlatList
-            data={groupedSessions}
-            keyExtractor={item => item.date}
-            renderItem={renderGroup}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.scrollContainer}
-            ListFooterComponent={!isChecking && !isPro ? <PremiumCard /> : <View style={{ height: 50 }} />}
-        />
-        <AddManualSession handleAddSession={handleAddSession} />
-    </SafeAreaView>
+    return (
+        <SafeAreaView style={[styles.container]}>
+            <SessionHeader />
+            <Animated.FlatList
+                data={flatData}
+                // 3. Dynamic layout calculation based on item type
+                getItemLayout={(_, index) => {
+                    // This is an approximation. For perfect accuracy with variable types, 
+                    // you might need a more complex calculation, but this is usually sufficient.
+                    const item = flatData[index];
+                    const length = item?.type === 'header' ? HEADER_ITEM_HEIGHT : SESSION_ITEM_HEIGHT;
+                    const offset = index * (SESSION_ITEM_HEIGHT); // Simplified offset
+                    return { length, offset, index };
+                }}
+                onScroll={scrollHandler}
+                // Create a unique key based on type
+                keyExtractor={(item, index) => 
+                    item.type === 'header' ? `header-${item.date}` : `session-${item.data.id}`
+                }
+                renderItem={({ item, index }) => {
+                    if (item.type === 'header') {
+                        return (
+                            <Text style={[styles.date, { color: foreground }]}>
+                                {item.displayDate}
+                            </Text>
+                        );
+                    }
+
+                    // 4. Render the Animated Card
+                    return (
+                        <AnimatedSessionCard
+                            session={item.data}
+                            index={index}
+                            scrollY={scrollY}
+                            isFading={item.data.id === fadingSessionId}
+                            deleteSession={deleteSession}
+                            foreground={foreground}
+                            muted={muted}
+                        />
+                    );
+                }}
+                maxToRenderPerBatch={10}
+                updateCellsBatchingPeriod={50}
+                initialNumToRender={10}
+                windowSize={5}
+                scrollEventThrottle={16}
+                contentContainerClassName="px-4"
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContainer}
+                ListFooterComponent={!isChecking && !isPro ? <PremiumCard /> : <View style={{ height: 50 }} />}
+            />
+            
+            <View
+                style={styles.fabContainer}
+            >        
+                <AddManualSession handleAddSession={handleAddSession} />
+            </View>
+        </SafeAreaView>
+    );
 }
 
-const AddManualSession = ({ handleAddSession }: { handleAddSession: () => void }) => <View
-    style={{ 
-        position: 'absolute',
-        bottom: 0,
-        right: 0,
-        margin: Layout.spacing * 5,
-    }}
->
-    <Button isIconOnly variant="primary" size="lg" onPress={handleAddSession}>
-        <Icon name="add-outline" color="black" />
-    </Button>
-</View>
+const ITEM_SIZE = 140;
+
+// 5. Extracted Component specifically for the Animated Card
+const AnimatedSessionCard = ({ 
+    session, 
+    index, 
+    scrollY, 
+    isFading, 
+    deleteSession,
+    foreground,
+    muted
+}: {
+    session: Session,
+    index: number,
+    scrollY: SharedValue<number>,
+    isFading: boolean,
+    deleteSession: (id: string) => Promise<void>,
+    foreground: string,
+    muted: string
+}) => {
+    const animatedStyle = useAnimatedStyle(() => {
+        const itemOffset = index * SESSION_ITEM_HEIGHT;
+
+        const inputRange = [
+            -1,
+            0,
+            itemOffset - (SESSION_ITEM_HEIGHT * 0.5), // Start animating when item is near top
+            itemOffset + (SESSION_ITEM_HEIGHT * 4),
+        ];
+        
+        const opacityInputRange = [
+            -1,
+            0,
+            ITEM_SIZE * index,
+            ITEM_SIZE * (index + 0.5),
+        ];
+
+        const scale = interpolate(
+            scrollY.value,
+            inputRange,
+            [1, 1, 1, .85],
+            Extrapolation.CLAMP
+        );
+
+        const opacity = interpolate(
+            scrollY.value,
+            opacityInputRange,
+            [1, 1, 1, 0],
+            Extrapolation.CLAMP
+        );
+
+        return {
+            opacity,
+            transform: [{ scale }],
+        };
+    });
+
+    return (
+        <Animated.View style={[styles.cardContainer, animatedStyle]}>
+            <SessionCard 
+                item={session} 
+                foreground={foreground} 
+                muted={muted}
+                isFading={isFading}
+                deleteSession={deleteSession} 
+            />
+        </Animated.View>
+    );
+};
+
+const AddManualSession = ({ handleAddSession }: { handleAddSession: () => void }) => (
+    <View>
+        <Button isIconOnly variant="primary" size="lg" onPress={handleAddSession}>
+            <Icon name="add-outline" color="black" />
+        </Button>
+    </View>
+);
 
 const styles = StyleSheet.create({
     container: { 
         flex: 1, 
-        paddingHorizontal: Layout.spacing * 3
+        // paddingHorizontal: Layout.spacing * 3
     },
     scrollContainer: {
         paddingVertical: Layout.spacing * 2,
         paddingBottom: Layout.spacing * 10
     },
-    groupContainer: {
-        marginBottom: Layout.spacing * 4,
+    fabContainer: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        margin: Layout.spacing * 5,
+    },
+    cardContainer: {
+        marginBottom: Layout.spacing * 2, // Spacing between cards
     },
     date: {
         fontSize: 30,
         fontWeight: '600',
+        marginTop: Layout.spacing * 2,
         marginBottom: Layout.spacing * 2,
         paddingHorizontal: Layout.spacing 
     }

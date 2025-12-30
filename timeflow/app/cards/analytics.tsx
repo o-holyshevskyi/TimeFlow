@@ -9,6 +9,7 @@ import { Layout } from "@/constants/layout"
 import { useSessions } from "@/hooks/use-sessions"
 import { useUserStatus } from "@/hooks/user-status"
 import { View } from "react-native"
+import Animated, { Easing, FadeInLeft, FadeInRight } from "react-native-reanimated"
 import { BaseCard } from "./base-card"
 
 export default function Analytics() {    
@@ -19,9 +20,21 @@ export default function Analytics() {
 
     return <BaseCard title="Analytics">
         <View style={{ paddingVertical: Layout.spacing * 2, gap: Layout.spacing * 5 }}>
-            <SummaryCards sessions={sessions} isPro={isPro} />
-            <ChartCard sessions={sessions} isPro={isPro} />
-            <ClientStats isPro={isPro} />
+            <Animated.View
+                entering={FadeInRight.delay(500).easing(Easing.ease).duration(600).damping(80)}
+            >
+                <SummaryCards sessions={sessions} isPro={isPro} />
+            </Animated.View>
+            <Animated.View
+                entering={FadeInLeft.delay(500).easing(Easing.ease).duration(600).damping(80)}
+            >
+                <ChartCard sessions={sessions} isPro={isPro} />
+            </Animated.View>
+            <Animated.View
+                entering={FadeInRight.delay(500).easing(Easing.ease).duration(600).damping(80)}
+            >
+                <ClientStats isPro={isPro} />
+            </Animated.View>
             <WorkHeatmap sessions={sessions} isPro={isPro} />
             <InsightsCard sessions={sessions} />
             <GoalCard sessions={sessions} isPro={isPro} />

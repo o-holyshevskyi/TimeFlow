@@ -1,12 +1,12 @@
 import { Layout } from "@/constants/layout";
 import { useTimer } from "@/contexts/timer-context";
 import { Card, useThemeColor } from "heroui-native";
-import { StyleSheet, Text, View } from "react-native";
+import { MotiView } from 'moti';
+import { StyleSheet, Text, TextProps, View } from "react-native";
 
 const TEXT_SIZE = 45;
 
 const Timer = () => {
-    const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
 
     const { hours, minutes, seconds } = useTimer();
@@ -15,7 +15,7 @@ const Timer = () => {
         <View style={[styles.timeItem]}>
             <Card style={[styles.card]}>
                 <Card.Body>
-                    <Text style={[{ color: foreground }, styles.cardBodyText]}>{hours}</Text>
+                    <Ticker value={hours} />
                 </Card.Body>
             </Card>
             <Text style={[{ color: muted }, styles.timeItemDescription]}>
@@ -25,7 +25,7 @@ const Timer = () => {
         <View style={[styles.timeItem]}>
             <Card style={[styles.card]}>
                 <Card.Body>
-                    <Text style={[{ color: foreground }, styles.cardBodyText]}>{minutes}</Text>
+                    <Ticker value={minutes} />
                 </Card.Body>
             </Card>
             <Text style={[{ color: muted }, styles.timeItemDescription]}>
@@ -35,7 +35,7 @@ const Timer = () => {
         <View style={[styles.timeItem]}>
             <Card style={[styles.card]}>
                 <Card.Body>
-                    <Text style={[{ color: foreground }, styles.cardBodyText]}>{seconds}</Text>
+                    <Ticker value={seconds} />
                 </Card.Body>
             </Card>
             <Text style={[{ color: muted }, styles.timeItemDescription]}>
@@ -43,6 +43,91 @@ const Timer = () => {
             </Text>
         </View>
     </View>
+}
+
+interface TickerProps {
+    value: string;
+}
+
+export const Ticker = ({ value }: TickerProps) => {
+    const splitValue = value.split('');
+    const foreground = useThemeColor('foreground');
+
+    return <View style={{ flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center' }}>
+        {splitValue.map((number, index) => {
+            const _number = parseInt(number);
+            if (!isNaN(_number)) {
+                return <TickerList
+                    key={index}
+                    number={_number}
+                    index={index}
+                />
+            }  else {
+                return <Tick 
+                    key={index}
+                    fontSize={TEXT_SIZE}
+                    style={{
+                        color: foreground
+                    }}
+                >
+                    {number}
+                </Tick>
+            }
+        })}
+    </View>
+}
+
+interface TickerListProps {
+    number: number;
+    index: number;
+}
+
+const numbersToNice = [...Array(10).keys()];
+
+const TickerList = ({ number, index }: TickerListProps) => {
+    const foreground = useThemeColor('foreground');
+
+    return <View
+        style={{ 
+            height: TEXT_SIZE,
+            overflow: "hidden",
+        }}
+    >
+        <MotiView
+            animate={{
+                translateY: -TEXT_SIZE * 0.9 * number
+            }}
+            transition={{
+                delay: index * 100,
+                damping: 80,
+                stiffness: 200
+            }}
+        >
+            {numbersToNice.map((num) => (
+                <Tick 
+                    key={`num-${num}`}
+                    fontSize={TEXT_SIZE}
+                    style={{ color: foreground }}
+                >
+                    {num}
+                </Tick>
+            ))}
+        </MotiView>
+    </View>
+}
+
+const Tick = ({children, fontSize, style, ...rest}: TextProps & { fontSize: number }) => {
+    return <Text 
+        {...rest} 
+        style={[style, {
+            fontSize,
+            lineHeight: fontSize * 1.1,
+            fontVariant: ['tabular-nums'],
+            fontWeight: 900,
+        }]}
+    >
+        {children}
+    </Text>
 }
 
 const styles = StyleSheet.create({
