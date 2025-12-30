@@ -6,6 +6,7 @@ import { Card, useThemeColor } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
 import { Dimensions, StyleSheet, Text, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
+import { Ticker } from "./timer";
 
 const CARD_WIDTH = Dimensions.get('screen').width * .9;
 
@@ -48,7 +49,7 @@ const EarnedAmount = () => {
         const roundedAmount = Math.round(amount * 100) / 100;
 
         const [formatted] = formatCurrency({
-            amount: roundedAmount,
+            amount: parseInt(roundedAmount.toFixed()),
             code: settings.currency,
         });
         return formatted;
@@ -75,9 +76,10 @@ const EarnedAmount = () => {
                 </Text>
             </Card.Header>
             <Card.Body>
-                <Text style={[{ color: foreground }, styles.description]}>
+                {/* <Text style={[{ color: foreground }, styles.description]}>
                     {formattedAmount}
-                </Text>
+                </Text> */}
+                <Ticker value={formattedAmount} />
             </Card.Body>
             <Card.Footer style={{ flexDirection: 'row', gap: Layout.spacing * 2, alignItems: 'center' }}>
                 {selectedClient && (<>
