@@ -1,3 +1,4 @@
+import BackupCard from "@/components/settings/backup-card";
 import NotificationsCard from "@/components/settings/notifications-card";
 import PremiumCard from "@/components/settings/premium-card";
 import PrivacyLink from "@/components/settings/privacy-link";
@@ -11,6 +12,7 @@ export default function Settings() {
         <View style={[styles.contentContainer]}>
             <SettingsCard />
             <NotificationsCard />
+            <BackupCard />
             <PremiumCard />
         </View>
         <PrivacyLink />
