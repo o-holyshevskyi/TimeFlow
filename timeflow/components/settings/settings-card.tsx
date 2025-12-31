@@ -42,11 +42,11 @@ const SettingsCard = () => {
     }, [toast]);
 
     const handleSaveRate = useCallback(async () => {
-        await saveSettings({ currency, rate });
+        await saveSettings({ currency, rate, notificationsEnabled: settings?.notificationsEnabled ?? true });
         showToast();
 
         Keyboard.dismiss();
-    }, [currency, rate, saveSettings, showToast]);
+    }, [currency, rate, saveSettings, showToast, settings]);
 
     return <Card style={[styles.settingsCard]}>
         <Card.Header style={[styles.settingsCardHeader]}>
