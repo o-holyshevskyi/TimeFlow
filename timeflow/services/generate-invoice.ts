@@ -13,7 +13,7 @@ interface InvoiceData {
     endDate: Date;
 }
 
-export const generateInvoice = async ({ client, sessions, currency, invoiceNumber, startDate, endDate }: InvoiceData) => {
+export const generateInvoiceHTML = ({ client, sessions, currency, invoiceNumber, startDate, endDate }: InvoiceData): string => {
     const totalAmount = sessions.reduce((acc, s) => {
         const hours = s.elapsedTime / (1000 * 60 * 60);
         const rate = parseFloat(s.rate || '0');
@@ -102,6 +102,13 @@ export const generateInvoice = async ({ client, sessions, currency, invoiceNumbe
         </body>
         </html>
     `;
+
+    return html;
+}
+
+
+export const generateInvoice = async ({ client, sessions, currency, invoiceNumber, startDate, endDate }: InvoiceData) => {
+    const html = generateInvoiceHTML({ client, sessions, currency, invoiceNumber, startDate, endDate });
 
     try {
         const { uri } = await Print.printToFileAsync({ html });

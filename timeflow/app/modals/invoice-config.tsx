@@ -5,20 +5,25 @@ import { Layout } from "@/constants/layout";
 import { useClients } from "@/hooks/use-clients";
 import { useSessions } from "@/hooks/use-sessions";
 import { useSettings } from "@/hooks/use-settings";
-import { generateInvoice } from "@/services/generate-invoice";
+import { generateInvoice, generateInvoiceHTML } from "@/services/generate-invoice";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button, Spinner, useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { WebView } from 'react-native-webview';
 import BaseModal from "./base-modal";
 
 const WIDTH = Dimensions.get('window').width * .9;
+const SCREEN_HEIGHT = Dimensions.get('window').height;
 
 export default function InvoiceConfigModal() {
     const { id } = useLocalSearchParams();
+    const insets = useSafeAreaInsets();
     
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+    const cardBg = useThemeColor('default');
     const { settings } = useSettings();
     const { sessions } = useSessions();
     const { clients } = useClients();
@@ -28,6 +33,9 @@ export default function InvoiceConfigModal() {
     
     const [invoiceNumber, setInvoiceNumber] = useState(`INV-${new Date().toISOString().slice(0, 10).replace(/-/g, '')}01`);
     const [isGenerating, setIsGenerating] = useState(false);
+
+    const [showPreview, setShowPreview] = useState(false);
+    const [previewHtml, setPreviewHtml] = useState('');
 
     const clientId = Array.isArray(id) ? id[0] : id;
     const client = useMemo(() => clients.find(cl => cl.id === clientId), [clients, clientId]);
@@ -44,6 +52,24 @@ export default function InvoiceConfigModal() {
             return isClient && inRange;
         });
     }, [sessions, client, startDate, endDate]);
+
+    const isDisabled = isGenerating || filteredSessions.length === 0 || invoiceNumber.length === 0;
+
+    const handlePreview = () => {
+        if (!client) return;
+        
+        const html = generateInvoiceHTML({
+            client,
+            sessions: filteredSessions,
+            currency: settings?.currency || 'USD',
+            invoiceNumber,
+            startDate,
+            endDate
+        });
+        
+        setPreviewHtml(html);
+        setShowPreview(true);
+    };
 
     const handleGenerate = async () => {
         setIsGenerating(true);
@@ -96,9 +122,19 @@ export default function InvoiceConfigModal() {
 
             <View style={styles.footer}>
                 <Button 
+                    size="lg"
+                    variant="secondary"
+                    onPress={handlePreview}
+                    isDisabled={isDisabled}
+                    style={{ width: WIDTH, marginBottom: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: muted }}
+                >
+                     <Icon name="eye-outline" size={22} color={foreground} />
+                     <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '600' }}>Preview Document</Button.Label>
+                </Button>
+                <Button 
                     size="lg" 
                     onPress={handleGenerate} 
-                    isDisabled={isGenerating || filteredSessions.length === 0 || invoiceNumber.length === 0}
+                    isDisabled={isDisabled}
                     style={{ width: WIDTH }}
                 >
                     {isGenerating ? (
@@ -111,6 +147,34 @@ export default function InvoiceConfigModal() {
                     )}
                 </Button>
             </View>
+            <Modal
+                animationType="slide"
+                transparent={true}
+                visible={showPreview}
+                onRequestClose={() => setShowPreview(false)}
+            >
+                <View style={[styles.previewModalContainer, { paddingTop: insets.top, backgroundColor: cardBg }]}>
+                    <View style={styles.previewHeader}>
+                        <Text style={[styles.previewTitle, {color: foreground}]}>Invoice Preview</Text>
+                        <TouchableOpacity onPress={() => setShowPreview(false)} style={styles.closeBtn}>
+                            <Icon name="close" size={24} color={foreground} />
+                        </TouchableOpacity>
+                    </View>
+                    
+                    <View style={styles.webviewWrapper}>
+                        <WebView
+                            originWhitelist={['*']}
+                            source={{ html: previewHtml }}
+                            style={{ flex: 1 }}
+                            showsVerticalScrollIndicator={false}
+                            scalesPageToFit={true}
+                            bounces={false}         // Prevents scrolling past edges unnecessarily
+                            javaScriptEnabled={true}
+                            domStorageEnabled={true}
+                        />
+                    </View>
+                </View>
+            </Modal>
         </BaseModal>
     );
 };
@@ -160,5 +224,29 @@ const styles = StyleSheet.create({
     footer: {
         marginTop: 'auto',
         marginBottom: 20,
+    },
+    previewModalContainer: {
+        flex: 1,
+        height: SCREEN_HEIGHT,
+    },
+    previewHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        paddingHorizontal: 20,
+        paddingBottom: 15,
+        borderBottomWidth: 1,
+        borderBottomColor: 'rgba(255,255,255,0.1)',
+    },
+    previewTitle: {
+        fontSize: 18,
+        fontWeight: '700',
+    },
+    closeBtn: {
+        padding: 4,
+    },
+    webviewWrapper: {
+        flex: 1,
+        backgroundColor: '#fff',
     }
 });
