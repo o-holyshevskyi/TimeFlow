@@ -126,7 +126,15 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
              <View style={{ flexDirection: "column", gap: Layout.spacing * 5 }}>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Ad-Free Experience</Text>
+                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                        Generate PDF Invoices
+                    </Text>
+                </View>
+                <View style={[styles.premiumTextContainer]}>
+                    <Icon name="checkmark-circle" color={accent} />
+                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                        Backup & Restore
+                    </Text>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
@@ -137,16 +145,20 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
                     <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                        Unlimited History
+                    </Text>
+                </View>
+                <View style={[styles.premiumTextContainer]}>
+                    <Icon name="checkmark-circle" color={accent} />
+                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
                         Monthly Income Goals
                     </Text>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Unlimited History</Text>
-                </View>
-                <View style={[styles.premiumTextContainer]}>
-                    <Icon name="checkmark-circle" color={accent} />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>Export Data (CSV)</Text>
+                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                        Ad-Free Experience
+                    </Text>
                 </View>
             </View>
         </Card.Body>
