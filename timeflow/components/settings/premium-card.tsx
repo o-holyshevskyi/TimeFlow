@@ -145,7 +145,7 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
                     <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
-                        Unlimited History
+                        Unlimited History/CSV Export
                     </Text>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
