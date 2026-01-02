@@ -6,9 +6,9 @@ import { Layout } from "@/constants/layout";
 import { Session, useSessions } from "@/hooks/use-sessions";
 import { useUserStatus } from "@/hooks/user-status";
 import * as Haptics from 'expo-haptics';
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { Button, Spinner, useThemeColor } from "heroui-native";
-import { useMemo } from "react";
+import { useCallback, useMemo, useRef } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -77,6 +77,7 @@ export default function SessionsList() {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
     const scrollY = useSharedValue(0);
+    const listRef = useRef<Animated.FlatList>(null);
 
     const visibleSessions = useMemo(() => {
         const sorted = [...sessions].sort((a, b) => b.startTime - a.startTime);
@@ -97,6 +98,13 @@ export default function SessionsList() {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
         push('/modals/new-session');
     }
+
+    useFocusEffect(
+        useCallback(() => {
+            listRef.current?.scrollToOffset({ offset: 0, animated: true });
+            scrollY.value = 0;
+        }, [scrollY])
+    );
 
     const scrollHandler = useAnimatedScrollHandler({
         onScroll: (event) => {
@@ -133,6 +141,7 @@ export default function SessionsList() {
             <SessionHeader />
             <Animated.FlatList
                 data={flatData}
+                ref={listRef}
                 // 3. Dynamic layout calculation based on item type
                 getItemLayout={(_, index) => {
                     // This is an approximation. For perfect accuracy with variable types, 
