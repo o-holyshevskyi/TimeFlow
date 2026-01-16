@@ -6,13 +6,11 @@ import { useRouter } from "expo-router";
 import { Button, Chip, Spinner, useThemeColor } from "heroui-native";
 import { StyleSheet, Text, View } from "react-native";
 import { Icon } from "../ui/icon";
-import { usePremiumToast } from "../ui/premium-toast";
 
 const SessionHeader = () => {
     const foreground = useThemeColor('foreground');
     const { isPro, isChecking } = useUserStatus();
     const { sessions, isLoading } = useSessions();
-    const { showToast } = usePremiumToast();
     
     const router = useRouter();
 
@@ -23,15 +21,9 @@ const SessionHeader = () => {
     }
 
     const handleExport = async () => {
-        if (!isChecking && !isPro) {
-            showToast(
-                '✨ PRO Feature Locked', 
-                'Exporting history to CSV is available exclusively for PRO users. Upgrade to unlock!',
-                false
-            );
-        } else {
-            await exportSessionsToCSV(sessions);
-        }    
+        const sorted = [...sessions].sort((a, b) => b.startTime - a.startTime);
+        const visibleSessions = isPro ? sorted : sorted.slice(0, 5);
+        await exportSessionsToCSV(visibleSessions);    
     };
     
     return <View style={[styles.headerContainer]}>
@@ -47,7 +39,6 @@ const SessionHeader = () => {
                 alignItems: "center",
             }}
         >
-            {!isChecking && !isPro && <GetProLabel />}
             <Button variant="ghost" isIconOnly onPress={handleExport}>
                 <Icon name="share-outline" />
             </Button>

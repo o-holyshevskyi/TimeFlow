@@ -37,6 +37,13 @@ export default function ModalsLayout() {
             }}
         />
         <Stack.Screen
+            name="invoice-config"
+            options={{
+                presentation: 'modal',
+                headerTitle: 'Invoice Configuration',
+            }}
+        />
+        <Stack.Screen
             name="edit-client"
             options={{
                 presentation: 'modal',

@@ -70,7 +70,7 @@ const RestorePurchase = ({ isDisabled, onRestoreSuccess }: Props) => {
                 ) : (
                     <View style={{ flexDirection: 'row', gap: Layout.spacing, alignItems: 'center', justifyContent: 'center' }}>
                         <Icon name="refresh" color="#2bee6c" />
-                        <Button.Label style={{ fontSize: 18, fontWeight: '600', color: '#2bee6c' }}>
+                        <Button.Label style={{ fontSize: 24, fontWeight: '600', color: '#2bee6c' }}>
                             Restore Purchases
                         </Button.Label>
                     </View>

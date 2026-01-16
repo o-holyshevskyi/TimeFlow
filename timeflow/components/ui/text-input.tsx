@@ -5,21 +5,23 @@ interface TextInputProps {
     label: string; 
     text: string;
     placeholder: string;
+    isEditable?: boolean;
     onChangeText: (val: string) => void;
+    width?: number;
 }
 
 const WIDTH = Dimensions.get('window').width * .9;
 
-export const TextInput = ({label, text, onChangeText, placeholder}: TextInputProps) => {
+export const TextInput = ({label, text, onChangeText, placeholder, isEditable = true, width}: TextInputProps) => {
     const foreground = useThemeColor('foreground');
 
-    return <TextField isDisabled={false} style={{ width: WIDTH }}>
+    return <TextField isDisabled={false} style={{ width: width || WIDTH }}>
         <TextField.Label style={{ color: foreground, fontSize: 20 }}>{label}</TextField.Label>
         <TextField.Input 
             placeholder={placeholder}
             keyboardType="default"
             returnKeyType="done"
-            editable={true}
+            editable={isEditable}
             submitBehavior='blurAndSubmit'
             className="rounded-full"
             onChangeText={onChangeText}

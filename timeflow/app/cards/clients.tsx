@@ -153,6 +153,8 @@ const ClientItemPopoverOptions = ({
     const popoverRef = useRef<PopoverTriggerRef>(null);
 
     const { toast } = useToast();
+    const { isPro } = useUserStatus();
+    const { showToast: showPremiumToast } = usePremiumToast();
 
     const popoverTrigger = () => {
         Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -235,7 +237,22 @@ const ClientItemPopoverOptions = ({
             pathname: '/modals/edit-client', 
             params: { id: item.id } }
         );
-    }
+    }    
+
+    const handleCreateInvoice = async () => {
+        popoverRef.current?.close();
+        if (!isPro) {
+            showPremiumToast('✨ PRO Feature Locked', 'Generate Invoice requires PRO. Upgrade to unlock!');        
+            
+            return;
+        }
+        
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+        router.push({ 
+            pathname: '/modals/invoice-config', 
+            params: { id: item.id } 
+        });
+    };
 
     return (
         <Popover>
@@ -266,12 +283,11 @@ const ClientItemPopoverOptions = ({
                         snapPoints={['60%']}
                     >
                         <View style={{ paddingHorizontal: Layout.spacing }}>
-                            <Button 
-                                variant="tertiary" 
+                            <Button
                                 style={{ 
                                     backgroundColor: 'transparent', 
                                     marginTop: Layout.spacing * 2,
-                                    borderColor: '#334155',
+                                    borderColor: accent,
                                     borderWidth: 1,
                                     borderRadius: 9999,
                                     paddingHorizontal: Layout.spacing * 3,
@@ -279,11 +295,26 @@ const ClientItemPopoverOptions = ({
                                 }}
                                 onPress={handleEdit}
                             >
-                                <Icon name="pencil-outline" color="white" />
+                                <Icon name="pencil-outline" color={foreground} />
                                 <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
                                     Edit Client
                                 </Button.Label>
                             </Button>
+                            {hasSessions && <Button
+                                style={{ 
+                                    backgroundColor: 'transparent', 
+                                    marginTop: Layout.spacing * 2,
+                                    borderColor: accent,
+                                    borderWidth: 1,
+                                    borderRadius: 9999,
+                                    paddingHorizontal: Layout.spacing * 3,
+                                    paddingVertical: Layout.spacing / 1.5, 
+                                }}
+                                onPress={handleCreateInvoice}
+                            >
+                                <Icon name="document-text-outline" color={foreground} />
+                                <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>Create Invoice</Button.Label>
+                            </Button>}
                             {hasSessions && <Button 
                                 variant="tertiary" 
                                 style={{ 
@@ -297,8 +328,8 @@ const ClientItemPopoverOptions = ({
                                 }}
                                 onPress={handleViewSessions}
                             >
-                                <Icon name="list-outline" color={accent} />
-                                <Button.Label style={{ color: accent, fontSize: 18, fontWeight: '700' }}>
+                                <Icon name="list-outline" color={foreground} />
+                                <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
                                     View Sessions
                                 </Button.Label>
                             </Button>}
