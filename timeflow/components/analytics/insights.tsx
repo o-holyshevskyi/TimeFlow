@@ -47,7 +47,7 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
 
         if (bestClientId) {
             const client = clients.find(c => c.id === bestClientId);
-            return client ? { name: client.name, amount: maxAmount } : null;
+            return client ? { name: client.name, amount: maxAmount.toFixed(2) } : null;
         }
         return null;
     }, [sessions, clients]);
@@ -86,7 +86,7 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
                         {topClient.name}
                     </AppText>
                     <AppText style={[styles.subtext, { color: accent }]}>
-                        {formatCurrency({ amount: topClient.amount, code: settings?.currency || 'USD' })[0]} earned
+                        {formatCurrency({ amount: parseFloat(topClient.amount), code: settings?.currency || 'USD' })[0]} earned
                     </AppText>
                 </Card>
             )}
