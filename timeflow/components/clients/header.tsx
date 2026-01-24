@@ -1,6 +1,7 @@
 import { useRouter } from "expo-router";
 import { Button, useThemeColor } from "heroui-native";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 const ClientHeader = () => {
@@ -17,7 +18,7 @@ const ClientHeader = () => {
             <Icon name="chevron-back-outline" />
         </Button>
         <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={[styles.titleText, { color: foreground }]}>My Clients</Text>
+            <AppText style={[styles.titleText, { color: foreground }]}>My Clients</AppText>
         </View>
         <View
             style={{

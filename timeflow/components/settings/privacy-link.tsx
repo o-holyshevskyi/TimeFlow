@@ -1,7 +1,8 @@
 import Constats from 'expo-constants';
 import { router } from 'expo-router';
 import { useThemeColor } from "heroui-native";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { AppText } from "../ui/app-text";
 
 export default function PrivacyLink() {
     const muted = useThemeColor('muted');
@@ -13,12 +14,12 @@ export default function PrivacyLink() {
     return <View style={styles.container}>
         <View style={styles.linksRow}>
             <TouchableOpacity onPress={openLink}>
-                <Text style={[styles.linkText, { color: muted }]}>Privacy Policy</Text>
+                <AppText style={[styles.linkText, { color: muted }]}>Privacy Policy</AppText>
             </TouchableOpacity>
             
-            <Text style={[styles.separator, { color: muted }]}>•</Text>
+            <AppText style={[styles.separator, { color: muted }]}>•</AppText>
 
-            <Text style={{ alignSelf: 'center', color: muted, fontWeight: 500 }}>v. {Constats.expoConfig?.version}</Text>
+            <AppText style={{ alignSelf: 'center', color: muted, fontWeight: 500 }}>v. {Constats.expoConfig?.version}</AppText>
         </View>
     </View>
 }

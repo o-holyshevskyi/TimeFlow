@@ -6,7 +6,8 @@ import { BlurView } from "expo-blur";
 import { router } from "expo-router";
 import { Button, Select, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 const CARD_WIDTH = Dimensions.get('window').width * .9;
@@ -227,9 +228,9 @@ const Actions = () => {
                             snapPoints={['60%']}
                         >
                             <View style={{ height: Math.min(clients.length * 80 + 50, 400), paddingVertical: 20 }}>
-                                <Text style={{ color: muted, textAlign: 'center', marginBottom: 10, fontSize: 24, fontWeight: '600' }}>
+                                <AppText style={{ color: muted, textAlign: 'center', marginBottom: 10, fontSize: 24, fontWeight: '600' }}>
                                     Select Client to Start
-                                </Text>
+                                </AppText>
                                 <ScrollView showsVerticalScrollIndicator={false}>
                                     {clients.map((cl) => (
                                         <Select.Item
@@ -252,17 +253,17 @@ const Actions = () => {
                                                         justifyContent: 'center',
                                                         alignItems: 'center'
                                                     }}>
-                                                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>
+                                                        <AppText style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>
                                                             {cl.name.charAt(0).toUpperCase()}
-                                                        </Text>
+                                                        </AppText>
                                                     </View>
 
                                                     <View>
-                                                        <Text style={{ color: foreground, fontSize: 20, fontWeight: '700' }}>
+                                                        <AppText style={{ color: foreground, fontSize: 20, fontWeight: '700' }}>
                                                             {cl.name}
-                                                        </Text>
+                                                        </AppText>
                                                         {cl.isDefault && (
-                                                            <Text style={{ color: muted, fontSize: 14 }}>Default</Text>
+                                                            <AppText style={{ color: muted, fontSize: 14 }}>Default</AppText>
                                                         )}
                                                     </View>
                                                 </View>

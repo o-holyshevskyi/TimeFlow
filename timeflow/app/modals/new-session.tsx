@@ -1,5 +1,6 @@
 import { calculateAmount, formatTime } from "@/components/sessions/session-card";
 import CurrencySelect from "@/components/settings/currency-select";
+import { AppText } from "@/components/ui/app-text";
 import ClientSelect from "@/components/ui/client-select";
 import DateTimeSelect from "@/components/ui/date-time-select";
 import { DurationInput } from "@/components/ui/duration-input";
@@ -12,7 +13,7 @@ import { useSettings } from "@/hooks/use-settings";
 import { router } from "expo-router";
 import { Button, Toast, useToast } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
-import { Dimensions, Text, View } from "react-native";
+import { Dimensions, View } from "react-native";
 import BaseModal from "./base-modal";
 
 const WIDTH = Dimensions.get('window').width * .9;
@@ -132,7 +133,7 @@ export default function NewSessionModal() {
             <Button.Label style={{ color: 'black', fontSize: 22, fontWeight: '700' }}>Save New Session</Button.Label>
         </Button>
         {saveError && 
-            <Text style={{ color: '#b91c1c', fontSize: 16, fontWeight: '600' }}>{saveError}</Text>
+            <AppText style={{ color: '#b91c1c', fontSize: 16, fontWeight: '600' }}>{saveError}</AppText>
         }
     </BaseModal>
 }

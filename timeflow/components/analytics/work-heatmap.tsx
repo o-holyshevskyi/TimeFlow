@@ -2,7 +2,8 @@ import { Layout } from "@/constants/layout";
 import { Session } from "@/hooks/use-sessions";
 import { Button, Card, useThemeColor } from "heroui-native";
 import { useEffect, useMemo, useRef } from "react";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon"; // 🔥 IMPORT ICON
 import { usePremiumToast } from "../ui/premium-toast";
 
@@ -94,7 +95,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
 
     const renderLegend = () => (
         <View style={styles.legendContainer}>
-            <Text style={{ color: muted, fontSize: 10, marginRight: 4 }}>Less</Text>
+            <AppText style={{ color: muted, fontSize: 10, marginRight: 4 }}>Less</AppText>
             {[0, 1, 2, 3, 4].map((level) => (
                 <View 
                     key={level} 
@@ -104,7 +105,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
                     ]} 
                 />
             ))}
-            <Text style={{ color: muted, fontSize: 10, marginLeft: 4 }}>More</Text>
+            <AppText style={{ color: muted, fontSize: 10, marginLeft: 4 }}>More</AppText>
         </View>
     );
 
@@ -113,7 +114,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
             <Card style={[styles.card, { backgroundColor: cardBg, overflow: 'hidden' }]}>
                 <Card.Header style={{ paddingHorizontal: Layout.spacing * 2, paddingTop: Layout.spacing * 2 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center', opacity: 0.5 }}>
-                        <Text style={{ fontSize: 16, fontWeight: '600', color: muted }}>Consistency</Text>
+                        <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Consistency</AppText>
                         {renderLegend()}
                     </View>
                 </Card.Header>
@@ -128,12 +129,12 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
                         <Icon name="lock-closed" size={30} color={accent} />
                     </View>
                     
-                    <Text style={{ color: foreground, fontSize: 18, fontWeight: '700', textAlign: 'center' }}>
+                    <AppText style={{ color: foreground, fontSize: 18, fontWeight: '700', textAlign: 'center' }}>
                         Unlock Activity History
-                    </Text>
-                    <Text style={{ color: muted, fontSize: 14, textAlign: 'center', maxWidth: 250 }}>
+                    </AppText>
+                    <AppText style={{ color: muted, fontSize: 14, textAlign: 'center', maxWidth: 250 }}>
                         Visualize your work habits and build a streak with the Consistency Graph.
-                    </Text>
+                    </AppText>
 
                     <Button 
                         style={{ marginTop: Layout.spacing, backgroundColor: accent, paddingHorizontal: 30 }} 
@@ -144,7 +145,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
                             )
                         }}
                     >
-                        <Text style={{ color: '#000', fontWeight: '700', fontSize: 16 }}>Go PRO</Text>
+                        <AppText style={{ color: '#000', fontWeight: '700', fontSize: 16 }}>Go PRO</AppText>
                     </Button>
                 </View>
             </Card>
@@ -155,7 +156,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
         <Card style={[styles.card, { backgroundColor: cardBg }]}>
             <Card.Header style={{ paddingHorizontal: Layout.spacing * 2, paddingTop: Layout.spacing * 2 }}>
                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 16, fontWeight: '600', color: muted }}>Consistency</Text>
+                    <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Consistency</AppText>
                     {renderLegend()}
                 </View>
             </Card.Header>
@@ -166,9 +167,9 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
                         {WEEK_DAYS.map((day, index) => (
                             <View key={index} style={styles.dayLabelContainer}>
                                 {day.show && (
-                                    <Text style={{ color: muted, fontSize: 10, lineHeight: SQUARE_SIZE }}>
+                                    <AppText style={{ color: muted, fontSize: 10, lineHeight: SQUARE_SIZE }}>
                                         {day.label}
-                                    </Text>
+                                    </AppText>
                                 )}
                             </View>
                         ))}

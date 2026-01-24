@@ -1,6 +1,7 @@
 import { Layout } from "@/constants/layout";
 import { useThemeColor } from "heroui-native";
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { AppText } from "../ui/app-text";
 import { Icon } from "./icon"; // Переконайтеся, що шлях до вашої іконки правильний
 
 // Палітра кольорів для клієнтів
@@ -28,7 +29,7 @@ export const ColorSelector = ({ selectedColor, onSelect, label = "Color Marker" 
 
     return (
         <View style={styles.container}>
-            <Text style={[styles.label, { color: foreground }]}>{label}</Text>
+            <AppText style={[styles.label, { color: foreground }]}>{label}</AppText>
             
             <ScrollView 
                 horizontal 

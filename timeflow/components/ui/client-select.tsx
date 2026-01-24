@@ -3,7 +3,8 @@ import { useClients } from '@/hooks/use-clients';
 import { BlurView } from 'expo-blur';
 import { Button, Select, TextField, useThemeColor } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
-import { Dimensions, Keyboard, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Keyboard, Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { AppText } from "../ui/app-text";
 import { Icon } from './icon';
 
 const INPUT_WIDTH = Dimensions.get('window').width * 0.85;
@@ -159,16 +160,16 @@ const ClientSelect = ({ selectedClientId, onClientSelect, isDisabled = false }: 
                                                         backgroundColor: client.color || '#808080',
                                                         justifyContent: 'center', alignItems: 'center'
                                                     }}>
-                                                        <Text style={{ fontSize: 16, fontWeight: 'bold', color: 'black' }}>
+                                                        <AppText style={{ fontSize: 16, fontWeight: 'bold', color: 'black' }}>
                                                             {client.name.charAt(0).toUpperCase()}
-                                                        </Text>
+                                                        </AppText>
                                                     </View>
                                                     <View style={{ gap: Layout.spacing }}>
-                                                        <Text style={{ color: foreground, fontSize: 18, fontWeight: '600' }}>
+                                                        <AppText style={{ color: foreground, fontSize: 18, fontWeight: '600' }}>
                                                             {client.name}
-                                                        </Text>
+                                                        </AppText>
                                                         <View>
-                                                            <Text style={{ color: muted }}>{client.defaultRate} / hour</Text>
+                                                            <AppText style={{ color: muted }}>{client.defaultRate} / hour</AppText>
                                                         </View>
                                                     </View>
                                                 </View>                                             

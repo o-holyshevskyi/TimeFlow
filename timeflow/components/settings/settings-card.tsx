@@ -3,7 +3,8 @@ import { useTimer } from "@/contexts/timer-context";
 import { useSettings } from "@/hooks/use-settings";
 import { Button, Card, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
-import { Keyboard, StyleSheet, Text, View } from "react-native";
+import { Keyboard, StyleSheet, View } from "react-native";
+import { AppText } from "../ui/app-text";
 import HourlyRateInput from "../ui/hourly-rate";
 import CurrencySelect from "./currency-select";
 
@@ -50,8 +51,8 @@ const SettingsCard = () => {
 
     return <Card style={[styles.settingsCard]}>
         <Card.Header style={[styles.settingsCardHeader]}>
-            <Text style={[{ color: foreground }, styles.settingsCardTitle]}>Set Your Hourly Rate</Text>
-            <Text style={[{ color: muted }, styles.settingsCardDescription]}>This will be used to calculate your earnings.</Text>
+            <AppText style={[{ color: foreground }, styles.settingsCardTitle]}>Set Your Hourly Rate</AppText>
+            <AppText style={[{ color: muted }, styles.settingsCardDescription]}>This will be used to calculate your earnings.</AppText>
         </Card.Header>
         <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
             <View style={{ flexDirection: "row", gap: Layout.spacing * 2 }}>

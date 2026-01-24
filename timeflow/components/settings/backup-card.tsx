@@ -2,7 +2,8 @@ import { Layout } from "@/constants/layout";
 import { useDataBackup } from "@/hooks/use-data-backup";
 import { Button, Card, Spinner, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 const BackupCard = () => {
@@ -42,17 +43,17 @@ const BackupCard = () => {
     return (
         <Card style={[styles.settingsCard]}>
             <Card.Header style={[styles.settingsCardHeader]}>
-                <Text style={[{ color: foreground }, styles.settingsCardTitle]}>Data Backup</Text>
-                <Text style={[{ color: muted }, styles.settingsCardDescription]}>
+                <AppText style={[{ color: foreground }, styles.settingsCardTitle]}>Data Backup</AppText>
+                <AppText style={[{ color: muted }, styles.settingsCardDescription]}>
                     Save your history to a file or restore from one.
-                </Text>
+                </AppText>
             </Card.Header>
 
             <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
                 {/* <View style={styles.restoreRow}>
                     <View style={{ flex: 1, gap: 4 }}>
-                        <Text style={{ color: foreground, fontSize: 18, fontWeight: '600' }}>Restore Data</Text>
-                        <Text style={{ color: muted, fontSize: 14 }}>Import .json file</Text>
+                        <AppText style={{ color: foreground, fontSize: 18, fontWeight: '600' }}>Restore Data</AppText>
+                        <AppText style={{ color: muted, fontSize: 14 }}>Import .json file</AppText>
                     </View>
                     
                     <Button 
@@ -67,7 +68,7 @@ const BackupCard = () => {
                         ) : (
                             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
                                 <Icon name="cloud-download-outline" color={accent} size={24} />
-                                <Text style={{ color: accent, fontWeight: '600' }}>Import</Text>
+                                <AppText style={{ color: accent, fontWeight: '600' }}>Import</AppText>
                             </View>
                         )}
                     </Button>

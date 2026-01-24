@@ -5,9 +5,10 @@ import { useSettings } from "@/hooks/use-settings";
 import * as Haptics from 'expo-haptics';
 import { Card, useThemeColor } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
 import { PieChart } from "react-native-gifted-charts";
+import { AppText } from "../ui/app-text";
 import { usePremiumToast } from "../ui/premium-toast";
 
 type PeriodType = 'week' | 'month' | 'all';
@@ -155,7 +156,7 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                 
                 {/* Верхній рядок: Заголовок + Перемикач */}
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 16, fontWeight: '600', color: muted }}>Distribution</Text>
+                    <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Distribution</AppText>
                     
                     {/* Перемикач періодів */}
                     <View style={{ flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: 2 }}>
@@ -170,14 +171,14 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                                     backgroundColor: period === p ? 'rgba(255,255,255,0.1)' : 'transparent'
                                 }}
                             >
-                                <Text style={{ 
+                                <AppText style={{ 
                                     color: period === p ? foreground : muted, 
                                     fontWeight: period === p ? '700' : '400',
                                     fontSize: 12,
                                     textTransform: 'capitalize'
                                 }}>
                                     {p}
-                                </Text>
+                                </AppText>
                             </TouchableOpacity>
                         ))}
                     </View>
@@ -185,8 +186,8 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
 
                 {/* Загальна сума */}
                 <View style={{ flexDirection: "row", gap: Layout.spacing, alignItems: 'flex-end' }}>
-                    <Text style={{ fontSize: 26, fontWeight: '900', color: foreground }}>{formattedTotal}</Text>
-                    <Text style={{ fontSize: 16, color: muted, marginBottom: 4 }}>Total</Text>
+                    <AppText style={{ fontSize: 26, fontWeight: '900', color: foreground }}>{formattedTotal}</AppText>
+                    <AppText style={{ fontSize: 16, color: muted, marginBottom: 4 }}>Total</AppText>
                 </View>
             </Card.Header>
             
@@ -194,7 +195,7 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                 {data.length === 0 ? (
                     // Стан "Немає даних за цей період"
                     <View style={{ height: 180, justifyContent: 'center', alignItems: 'center' }}>
-                         <Text style={{ color: muted, fontSize: 16 }}>No data for this period</Text>
+                         <AppText style={{ color: muted, fontSize: 16 }}>No data for this period</AppText>
                     </View>
                 ) : (
                     // Графік
@@ -219,15 +220,15 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                                 if (!selectedSlice) return null;
                                 return (
                                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 24, color: foreground, fontWeight: 'bold' }}>
+                                        <AppText style={{ fontSize: 24, color: foreground, fontWeight: 'bold' }}>
                                             {selectedSlice.percentage}
-                                        </Text>
-                                        <Text style={{ fontSize: 13, color: muted, textAlign: 'center', paddingHorizontal: 4, maxWidth: 80 }} numberOfLines={1}>
+                                        </AppText>
+                                        <AppText style={{ fontSize: 13, color: muted, textAlign: 'center', paddingHorizontal: 4, maxWidth: 80 }} numberOfLines={1}>
                                             {selectedSlice.name}
-                                        </Text>
-                                        <Text style={{ fontSize: 12, color: muted, marginTop: 4 }}>
+                                        </AppText>
+                                        <AppText style={{ fontSize: 12, color: muted, marginTop: 4 }}>
                                             {selectedSlice.amount}
-                                        </Text>
+                                        </AppText>
                                     </View>
                                 );
                             }}
@@ -243,9 +244,9 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                         {data.map((item, index) => (
                             <View key={index} style={styles.legendItem}>
                                 {renderDot(item.color)}
-                                <Text style={{ color: foreground, fontSize: 14 }}>
+                                <AppText style={{ color: foreground, fontSize: 14 }}>
                                     {item.name}
-                                </Text>
+                                </AppText>
                             </View>
                         ))}
                     </View>

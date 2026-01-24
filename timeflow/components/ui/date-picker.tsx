@@ -1,7 +1,8 @@
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { TextField, useThemeColor } from "heroui-native";
 import { useState } from "react";
-import { Dimensions, Modal, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Modal, Platform, Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { AppText } from "../ui/app-text";
 
 interface DatePickerProps {
     label: string;
@@ -87,7 +88,7 @@ export const DatePicker = ({
                                 style={styles.closeButton} 
                                 onPress={() => setShowPicker(false)}
                             >
-                                <Text style={styles.closeButtonText}>Done</Text>
+                                <AppText style={styles.closeButtonText}>Done</AppText>
                             </TouchableOpacity>
                         </View>
                     </TouchableOpacity>

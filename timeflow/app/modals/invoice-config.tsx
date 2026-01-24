@@ -1,3 +1,4 @@
+import { AppText } from "@/components/ui/app-text";
 import { DateRangeSelect } from "@/components/ui/date-range-select";
 import { Icon } from "@/components/ui/icon";
 import { TextInput } from "@/components/ui/text-input";
@@ -9,7 +10,7 @@ import { generateInvoice, generateInvoiceHTML } from "@/services/generate-invoic
 import { router, useLocalSearchParams } from "expo-router";
 import { Button, Spinner, useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { Dimensions, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Dimensions, Modal, StyleSheet, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { WebView } from 'react-native-webview';
 import BaseModal from "./base-modal";
@@ -108,14 +109,14 @@ export default function InvoiceConfigModal() {
                     onEndDateChange={setEndDate}
                 />
                 <View style={[styles.summary, { backgroundColor: '#1e293b', borderColor: muted }]}>
-                    <Text style={{ color: muted, fontSize: 24, fontWeight: '700' }}>Selected Period:</Text>
-                    <Text style={{ color: foreground, fontSize: 20, fontWeight: 'bold', marginVertical: 4 }}>
+                    <AppText style={{ color: muted, fontSize: 24, fontWeight: '700' }}>Selected Period:</AppText>
+                    <AppText style={{ color: foreground, fontSize: 20, fontWeight: 'bold', marginVertical: 4 }}>
                         {filteredSessions.length} Sessions
-                    </Text>
+                    </AppText>
                     {filteredSessions.length === 0 && (
-                        <Text style={{ color: '#ef4444', fontSize: 12 }}>
+                        <AppText style={{ color: '#ef4444', fontSize: 12 }}>
                             No sessions found for this client in this range.
-                        </Text>
+                        </AppText>
                     )}
                 </View>
             </View>
@@ -155,7 +156,7 @@ export default function InvoiceConfigModal() {
             >
                 <View style={[styles.previewModalContainer, { paddingTop: insets.top, backgroundColor: cardBg }]}>
                     <View style={styles.previewHeader}>
-                        <Text style={[styles.previewTitle, {color: foreground}]}>Invoice Preview</Text>
+                        <AppText style={[styles.previewTitle, {color: foreground}]}>Invoice Preview</AppText>
                         <TouchableOpacity onPress={() => setShowPreview(false)} style={styles.closeBtn}>
                             <Icon name="close" size={24} color={foreground} />
                         </TouchableOpacity>

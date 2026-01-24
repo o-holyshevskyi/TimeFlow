@@ -3,7 +3,8 @@ import { useSettings } from "@/hooks/use-settings";
 import * as Notifications from 'expo-notifications';
 import { Card, Switch, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
-import { Linking, StyleSheet, Text, View } from "react-native";
+import { Linking, StyleSheet, View } from "react-native";
+import { AppText } from "../ui/app-text";
 
 const NotificationsCard = () => {
     const foreground = useThemeColor('foreground');
@@ -63,21 +64,21 @@ const NotificationsCard = () => {
     return (
         <Card style={[styles.card]}>
             <Card.Header style={[styles.cardHeader]}>
-                <Text style={[{ color: foreground }, styles.cardTitle]}>Notifications</Text>
-                <Text style={[{ color: muted }, styles.cardDescription]}>
+                <AppText style={[{ color: foreground }, styles.cardTitle]}>Notifications</AppText>
+                <AppText style={[{ color: muted }, styles.cardDescription]}>
                     Get reminders if your timer runs for too long (e.g. 8+ hours).
-                </Text>
+                </AppText>
             </Card.Header>
             
             <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
                 <View style={styles.row}>
                     <View style={{ flex: 2, gap: 4 }}>
-                        <Text style={{ fontSize: 20, fontWeight: '600', color: foreground }}>
+                        <AppText style={{ fontSize: 20, fontWeight: '600', color: foreground }}>
                             Enable Reminders
-                        </Text>
-                        <Text style={{ fontSize: 16, color: muted }}>
+                        </AppText>
+                        <AppText style={{ fontSize: 16, color: muted }}>
                             Send a push notification if timer is running &gt; 8h
-                        </Text>
+                        </AppText>
                     </View>
                     
                     <Switch isSelected={isEnabled} onSelectedChange={toggleSwitch} />

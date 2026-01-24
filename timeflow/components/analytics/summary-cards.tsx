@@ -3,10 +3,11 @@ import { Session } from "@/hooks/use-sessions";
 import { useSettings } from "@/hooks/use-settings";
 import { BlurView } from "expo-blur";
 import { Card, useThemeColor } from "heroui-native";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
 import { ScrollView } from "react-native-gesture-handler";
 import { GetProLabel } from "../sessions/header";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 const getHours = (ms: number) => ms / 1000 / 3600;
@@ -135,13 +136,13 @@ const SummaryCard = ({ title, value, icon, percent, subText, color, isBlurred }:
                     <View style={[styles.iconWrapper, { backgroundColor: color }]}>
                         <Icon name={icon} color={muted} />
                     </View>
-                    <Text style={{ color: muted }}>{title}</Text>
+                    <AppText style={{ color: muted }}>{title}</AppText>
                 </Card.Header>
 
                 <Card.Body>
-                    <Text style={{ fontSize: 26, fontWeight: '900', color: foreground }}>
+                    <AppText style={{ fontSize: 26, fontWeight: '900', color: foreground }}>
                         {value}
-                    </Text>
+                    </AppText>
                 </Card.Body>
 
                 <Card.Footer style={styles.footer}>
@@ -152,12 +153,12 @@ const SummaryCard = ({ title, value, icon, percent, subText, color, isBlurred }:
                                 color={percent >= 0 ? accent : danger}
                                 size={20}
                             />
-                            <Text style={{ color: percent >= 0 ? accent : danger }}>
+                            <AppText style={{ color: percent >= 0 ? accent : danger }}>
                                 {Math.abs(percent).toFixed(1)}%
-                            </Text>
+                            </AppText>
                         </>
                     ) : (
-                        <Text style={{ color: muted }}>{subText}</Text>
+                        <AppText style={{ color: muted }}>{subText}</AppText>
                     )}
                 </Card.Footer>
             </Card>

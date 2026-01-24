@@ -4,9 +4,10 @@ import { useSettings } from "@/hooks/use-settings";
 import * as Haptics from 'expo-haptics';
 import { Button, Card, useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, TouchableOpacity, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
 import { BarChart, } from "react-native-gifted-charts";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 import { usePremiumToast } from "../ui/premium-toast";
 
@@ -166,7 +167,7 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
         <Card style={[styles.card, { backgroundColor: '#1C2D23' }]}>
             <Card.Header style={{ flexDirection: 'column', gap: Layout.spacing, paddingHorizontal: Layout.spacing * 2 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                    <Text style={{ fontSize: 16, fontWeight: '600', color: muted }}>Earnings</Text>
+                    <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Earnings</AppText>
                     <View style={{ flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: 2 }}>
                         {(['week', 'month'] as PeriodType[]).map((p) => (
                             <TouchableOpacity 
@@ -179,28 +180,28 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
                                     backgroundColor: period === p ? 'rgba(255,255,255,0.1)' : 'transparent'
                                 }}
                             >
-                                <Text style={{ 
+                                <AppText style={{ 
                                     color: period === p ? foreground : muted, 
                                     fontWeight: period === p ? '700' : '400',
                                     fontSize: 12,
                                     textTransform: 'capitalize'
                                 }}>
                                     {p}
-                                </Text>
+                                </AppText>
                             </TouchableOpacity>
                         ))}
                     </View>
                 </View>
                 <View style={{ flexDirection: "row", gap: Layout.spacing, alignItems: 'flex-end' }}>
-                    <Text style={{ fontSize: 26, fontWeight: '900', color: foreground }}>{formattedAmount[0]}</Text>
-                    <Text style={{ fontSize: 16, color: muted, marginBottom: 4 }}>Total</Text>
+                    <AppText style={{ fontSize: 26, fontWeight: '900', color: foreground }}>{formattedAmount[0]}</AppText>
+                    <AppText style={{ fontSize: 16, color: muted, marginBottom: 4 }}>Total</AppText>
                 </View>
             </Card.Header>
 
             <Card.Body style={{ marginTop: Layout.spacing }}>
                 <View style={{ alignItems: 'center' }}>
                     {sessions.length === 0 ? 
-                        <Text 
+                        <AppText 
                             style={{ 
                                 height: 200, 
                                 color: muted, 
@@ -209,9 +210,9 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
                                 textAlign: 'center', 
                             }}>
                             No saved data. Start the first session.
-                        </Text> :
+                        </AppText> :
                             totalMoney === 0 ?
-                            <Text 
+                            <AppText 
                                 style={{ 
                                     height: 200, 
                                     color: muted, 
@@ -220,7 +221,7 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
                                     textAlign: 'center', 
                                 }}>
                                 No saved activity for selected period.
-                            </Text> :
+                            </AppText> :
                             <BarChart
                                 key={period}
                                 data={barData}
@@ -257,9 +258,9 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
                     <Icon name="chevron-back-outline" color={foreground} />
                 </Button>
                 
-                <Text style={{ fontSize: 16, fontWeight: '600', color: foreground }}>
+                <AppText style={{ fontSize: 16, fontWeight: '600', color: foreground }}>
                     {titleDate}
-                </Text>
+                </AppText>
 
                 <Button isIconOnly variant="ghost" onPress={handleNext}>
                     <Icon name="chevron-forward-outline" color={foreground} />

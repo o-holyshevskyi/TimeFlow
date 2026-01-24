@@ -5,8 +5,9 @@ import { useSettings } from "@/hooks/use-settings"
 import { useInsights } from "@/hooks/useInsights"
 import { Card, useThemeColor } from "heroui-native"
 import { useMemo } from "react"
-import { ScrollView, StyleSheet, Text, View } from "react-native"
+import { ScrollView, StyleSheet, View } from "react-native"
 import { formatCurrency } from "react-native-format-currency"
+import { AppText } from "../ui/app-text"
 import { Icon } from "../ui/icon"
 
 export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
@@ -52,14 +53,14 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
     }, [sessions, clients]);
     
     return <View style={{ gap: Layout.spacing }}>
-        <Text style={[styles.sectionTitle, { color: foreground }]}>Insights 💡</Text>
+        <AppText style={[styles.sectionTitle, { color: foreground }]}>Insights 💡</AppText>
         
         {sessions.length === 0 &&
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                 <Icon name="timer-outline" color={muted} />
-                <Text style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
+                <AppText style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
                     No saved session. Start the timer to save the first session.
-                </Text>
+                </AppText>
             </View>
         }
 
@@ -72,50 +73,50 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
             }}
         >
             <Card style={styles.insightCard}>
-                <Text style={[styles.label, { color: muted }]}>Projected Earnings</Text>
-                <Text style={[styles.value, { color: foreground }]}>
+                <AppText style={[styles.label, { color: muted }]}>Projected Earnings</AppText>
+                <AppText style={[styles.value, { color: foreground }]}>
                     {formatCurrency({ amount: parseFloat(insights?.projected || '0') ?? 0, code: settings?.currency || 'USD' })[0]}
-                </Text>
-                <Text style={[styles.subtext, { color: accent }]}>by end of month</Text>
+                </AppText>
+                <AppText style={[styles.subtext, { color: accent }]}>by end of month</AppText>
             </Card>
             {topClient && (
                 <Card style={styles.insightCard}>
-                    <Text style={[styles.label, { color: muted }]}>Top Client</Text>
-                    <Text numberOfLines={1} style={[styles.value, { color: foreground, fontSize: 22 }]}>
+                    <AppText style={[styles.label, { color: muted }]}>Top Client</AppText>
+                    <AppText numberOfLines={1} style={[styles.value, { color: foreground, fontSize: 22 }]}>
                         {topClient.name}
-                    </Text>
-                    <Text style={[styles.subtext, { color: accent }]}>
+                    </AppText>
+                    <AppText style={[styles.subtext, { color: accent }]}>
                         {formatCurrency({ amount: topClient.amount, code: settings?.currency || 'USD' })[0]} earned
-                    </Text>
+                    </AppText>
                 </Card>
             )}
             <Card style={styles.insightCard}>
-                <Text style={[styles.label, { color: muted }]}>Most Profitable Day</Text>
-                <Text style={[styles.value, { color: foreground }]}>
+                <AppText style={[styles.label, { color: muted }]}>Most Profitable Day</AppText>
+                <AppText style={[styles.value, { color: foreground }]}>
                     {insights?.bestDay || '—'}
-                </Text>
-                <Text style={[styles.subtext, { color: accent }]}>keep pushing!</Text>
+                </AppText>
+                <AppText style={[styles.subtext, { color: accent }]}>keep pushing!</AppText>
             </Card>
             <Card style={styles.insightCard}>
-                <Text style={[styles.label, { color: muted }]}>Daily Average</Text>
-                <Text style={[styles.value, { color: foreground }]}>
+                <AppText style={[styles.label, { color: muted }]}>Daily Average</AppText>
+                <AppText style={[styles.value, { color: foreground }]}>
                     {formatCurrency({ amount: parseFloat(insights?.dailyAverage ?? '0') ?? 0, code: settings?.currency || 'USD' })[0]}
-                </Text>
-                <Text style={[styles.subtext, { color: accent }]}>per day</Text>
+                </AppText>
+                <AppText style={[styles.subtext, { color: accent }]}>per day</AppText>
             </Card>
             <Card style={styles.insightCard}>
-                <Text style={[styles.label, { color: muted }]}>Avg Session</Text>
-                <Text style={[styles.value, { color: foreground }]}>
+                <AppText style={[styles.label, { color: muted }]}>Avg Session</AppText>
+                <AppText style={[styles.value, { color: foreground }]}>
                     {insights?.avgSession || '0'} hrs
-                </Text>
-                <Text style={[styles.subtext, { color: accent }]}>focus time</Text>
+                </AppText>
+                <AppText style={[styles.subtext, { color: accent }]}>focus time</AppText>
             </Card>
             <Card style={styles.insightCard}>
-                <Text style={[styles.label, { color: muted }]}>Your Rhythm</Text>
-                <Text style={[styles.value, { color: foreground, fontSize: 22 }]}>
+                <AppText style={[styles.label, { color: muted }]}>Your Rhythm</AppText>
+                <AppText style={[styles.value, { color: foreground, fontSize: 22 }]}>
                     {insights?.persona?.emoji} {insights?.persona?.title || '—'}
-                </Text>
-                <Text style={[styles.subtext, { color: accent }]}>most active time</Text>
+                </AppText>
+                <AppText style={[styles.subtext, { color: accent }]}>most active time</AppText>
             </Card>
         </ScrollView>
     </View>
