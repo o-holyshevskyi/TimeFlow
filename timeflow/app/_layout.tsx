@@ -7,13 +7,12 @@ import 'react-native-reanimated';
 
 import { TimerProvider } from '@/contexts/timer-context';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-import { HeroUINativeProvider } from 'heroui-native';
-
 import {
     getTrackingPermissionsAsync,
     PermissionStatus,
     requestTrackingPermissionsAsync,
 } from 'expo-tracking-transparency';
+import { HeroUINativeProvider } from 'heroui-native';
 import { useEffect, useState } from 'react';
 import { Platform } from 'react-native';
 import mobileAds from 'react-native-google-mobile-ads';
@@ -78,7 +77,14 @@ export default function RootLayout() {
 
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
-            <HeroUINativeProvider>
+            <HeroUINativeProvider
+                config={{
+                    textProps: {
+                        allowFontScaling: false,
+                        maxFontSizeMultiplier: 1.2,
+                    }
+                }}
+            >
                 <TimerProvider>
                     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
                         <Stack screenOptions={{ headerShown: false }}>
