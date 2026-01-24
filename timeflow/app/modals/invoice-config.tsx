@@ -1,3 +1,4 @@
+import { triggerReview } from "@/components/home/actions";
 import { AppText } from "@/components/ui/app-text";
 import { DateRangeSelect } from "@/components/ui/date-range-select";
 import { Icon } from "@/components/ui/icon";
@@ -90,6 +91,7 @@ export default function InvoiceConfigModal() {
             console.error(e);
         } finally {
             setIsGenerating(false);
+            setTimeout(() => triggerReview(), 1000);
         }
     };
 

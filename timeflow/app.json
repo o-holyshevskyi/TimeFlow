@@ -11,6 +11,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.holyshevskyi.a.timeflow",
+      "appStoreUrl": "https://apps.apple.com/us/app/clarirate-hourly-work-tracker/id6756209477",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
         "NSUserTrackingUsageDescription": "This identifier will be used to deliver personalized ads to you."

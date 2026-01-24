@@ -2,6 +2,7 @@ import BackupCard from "@/components/settings/backup-card";
 import NotificationsCard from "@/components/settings/notifications-card";
 import PremiumCard from "@/components/settings/premium-card";
 import PrivacyLink from "@/components/settings/privacy-link";
+import RateCard from "@/components/settings/rate-card";
 import SettingsCard from "@/components/settings/settings-card";
 import { Layout } from "@/constants/layout";
 import { StyleSheet, View } from "react-native";
@@ -13,6 +14,7 @@ export default function Settings() {
             <SettingsCard />
             <NotificationsCard />
             <BackupCard />
+            <RateCard />
             <PremiumCard />
         </View>
         <PrivacyLink />
