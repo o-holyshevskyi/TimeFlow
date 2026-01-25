@@ -1,5 +1,6 @@
 import ClientHeader from "@/components/clients/header";
 import { GetProLabel } from "@/components/sessions/header";
+import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { usePremiumToast } from "@/components/ui/premium-toast";
 import { Layout } from "@/constants/layout";
@@ -13,7 +14,7 @@ import { router } from "expo-router";
 import { push } from "expo-router/build/global-state/routing";
 import { Button, Card, Popover, PopoverTriggerRef, Spinner, Toast, useThemeColor, useToast } from "heroui-native";
 import { useEffect, useRef, useState } from "react";
-import { Alert, Dimensions, FlatList, Pressable, StyleSheet, Text, View } from "react-native";
+import { Alert, Dimensions, FlatList, Pressable, StyleSheet, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -63,7 +64,7 @@ export default function Clients() {
                                 borderRadius: 999, 
                                 backgroundColor: item.color || '#2bee6c' 
                             }} />
-                            <Text style={{ 
+                            <AppText style={{ 
                                 color: item.color || '#2bee6c', 
                                 fontSize: 28, 
                                 fontWeight: '700',
@@ -71,7 +72,7 @@ export default function Clients() {
                                 letterSpacing: 0.5
                             }}>
                                 {item.name}
-                            </Text>
+                            </AppText>
                         </View>
                         <ClientItemPopoverOptions 
                             item={item} 
@@ -82,16 +83,16 @@ export default function Clients() {
                         />
                     </View>
                     
-                    <Text style={[styles.rate, { color: muted }]}>
+                    <AppText style={[styles.rate, { color: muted }]}>
                     {item.defaultRate && item.defaultRate !== '0' ? 
                             `${formatCurrency({ amount: parseFloat(item.defaultRate || '0'), code: settings?.currency || 'USD' })[0]} / hr` : 
                             'Global Rate'}
-                    </Text>
+                    </AppText>
 
                     <View style={[styles.cardBody]}>
-                        <Text style={[styles.rate, { color: muted }]}>{sessionsCount > 0 ? 
+                        <AppText style={[styles.rate, { color: muted }]}>{sessionsCount > 0 ? 
                             `Total sessions: ${sessionsCount}` : 
-                            'No saved sessions for this client'}</Text>
+                            'No saved sessions for this client'}</AppText>
                     </View>
                 </Card.Body>
             </Card>
@@ -108,9 +109,9 @@ export default function Clients() {
             ListEmptyComponent={
                 <View style={{ marginTop: HEIGHT, justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }}>
                     <Icon name="briefcase-outline" color={muted} />
-                    <Text style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
+                    <AppText style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
                         No saved clients. Click + button to save the first client.
-                    </Text>
+                    </AppText>
                 </View>
             }
         />
@@ -312,7 +313,7 @@ const ClientItemPopoverOptions = ({
                                 }}
                                 onPress={handleCreateInvoice}
                             >
-                                <Icon name="document-text-outline" color={foreground} />
+                                <Icon name="document-AppText-outline" color={foreground} />
                                 <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>Create Invoice</Button.Label>
                             </Button>}
                             {hasSessions && <Button 

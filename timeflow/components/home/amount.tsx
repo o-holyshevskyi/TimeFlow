@@ -4,8 +4,9 @@ import { useClients } from "@/hooks/use-clients";
 import { useSettings } from "@/hooks/use-settings";
 import { Card, useThemeColor } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
-import { Dimensions, StyleSheet, Text, View } from "react-native";
+import { Dimensions, StyleSheet, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
+import { AppText } from "../ui/app-text";
 import { Ticker } from "./timer";
 
 const CARD_WIDTH = Dimensions.get('screen').width * .9;
@@ -70,9 +71,9 @@ const EarnedAmount = () => {
     return <View>
         <Card style={[styles.card]}>
             <Card.Header>
-                <Text style={[{ color: muted }, styles.title]}>
+                <AppText style={[{ color: muted }, styles.title]}>
                     Earned Money
-                </Text>
+                </AppText>
             </Card.Header>
             <Card.Body>
                 <Ticker value={formattedAmount} />
@@ -85,26 +86,26 @@ const EarnedAmount = () => {
                         borderRadius: 5, 
                         backgroundColor: selectedClient?.color || '#2bee6c' 
                     }} />
-                    <Text style={{ 
+                    <AppText style={{ 
                         color: selectedClient?.color || '#2bee6c', 
                         fontSize: 18, 
                         fontWeight: '700',
                         textTransform: 'uppercase',
                     }}>
                         {selectedClient?.name}
-                    </Text>
+                    </AppText>
                 </>
                 )}
-                <Text style={{ color: muted, fontSize: 18 }}>
+                <AppText style={{ color: muted, fontSize: 18 }}>
                     Rate: {formattedRate} / hour
-                </Text>
+                </AppText>
             </Card.Footer>
         </Card>
         {sessionStoppedByLimit && (
             <View style={styles.limitWarning}>
-                <Text style={styles.limitWarningText}>
+                <AppText style={styles.limitWarningText}>
                     Timer auto-stopped (16h limit exceeded).
-                </Text>
+                </AppText>
             </View>
         )}
     </View>;

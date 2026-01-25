@@ -4,8 +4,9 @@ import * as Haptic from "expo-haptics";
 import { useRouter } from "expo-router";
 import { Button, Popover, PopoverTriggerRef, useThemeColor } from "heroui-native";
 import { useRef } from "react";
-import { Dimensions, Pressable, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Pressable, StyleSheet, View } from "react-native";
 import Animated, { FadeInDown, ZoomIn, ZoomOut } from "react-native-reanimated";
+import { AppText } from "../ui/app-text";
 import { Icon } from '../ui/icon';
 
 const POPOVER_HEIGHT = Dimensions.get('window').height * 0.80;
@@ -44,9 +45,9 @@ const Header = () => {
     return (
         <View style={[styles.container]}>
             <View style={{ width: Layout.spacing * 10 }} />
-            <Text style={[{ color: foreground }, styles.headerText]}>
+            <AppText style={[{ color: foreground }, styles.headerText]}>
                 Time Tracker
-            </Text>
+            </AppText>
             
             <Popover>
                 <Popover.Trigger ref={popoverRef} asChild>

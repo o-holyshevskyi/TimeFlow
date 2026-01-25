@@ -4,9 +4,10 @@ import { useSettings } from "@/hooks/use-settings";
 import { BlurView } from "expo-blur";
 import { Card, useThemeColor } from "heroui-native";
 import { useMemo } from "react";
-import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, StyleSheet, TouchableOpacity, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
 import { GetProLabel } from "../sessions/header";
+import { AppText } from "../ui/app-text";
 import { usePremiumToast } from "../ui/premium-toast";
 import { calculatePeriodData } from "./summary-cards";
 
@@ -68,19 +69,19 @@ export const GoalCard = ({ sessions, isPro }: GoalCardProps) => {
             <Card style={[styles.card, { backgroundColor: '#1C2D23' }]}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: Layout.spacing }}>
                     <View style={{flexDirection: 'row', alignItems: 'center', gap: 6}}>
-                        <Text style={{ fontSize: 16, fontWeight: '600', color: muted }}>Monthly Goal</Text>
-                        {isPro && <Text style={{ fontSize: 12, color: accent, opacity: 0.8 }}>(Edit)</Text>}
+                        <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Monthly Goal</AppText>
+                        {isPro && <AppText style={{ fontSize: 12, color: accent, opacity: 0.8 }}>(Edit)</AppText>}
                     </View>
-                    <Text style={{ fontSize: 16, fontWeight: '700', color: accent }}>{progress.toFixed(0)}%</Text>
+                    <AppText style={{ fontSize: 16, fontWeight: '700', color: accent }}>{progress.toFixed(0)}%</AppText>
                 </View>
 
                 <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 4, marginBottom: Layout.spacing * 2 }}>
-                    <Text style={{ fontSize: 24, fontWeight: '900', color: foreground }}>
+                    <AppText style={{ fontSize: 24, fontWeight: '900', color: foreground }}>
                         {formattedEarned[0]}
-                    </Text>
-                    <Text style={{ fontSize: 16, color: muted }}>
+                    </AppText>
+                    <AppText style={{ fontSize: 16, color: muted }}>
                         / {formattedTarget[0]}
-                    </Text>
+                    </AppText>
                 </View>
 
                 <View style={{ height: 12, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 99 }}>

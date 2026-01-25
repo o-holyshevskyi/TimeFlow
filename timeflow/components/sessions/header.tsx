@@ -4,7 +4,8 @@ import { exportSessionsToCSV } from '@/services/export-csv';
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Button, Chip, Spinner, useThemeColor } from "heroui-native";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 const SessionHeader = () => {
@@ -31,7 +32,7 @@ const SessionHeader = () => {
             <Icon name="chevron-back-outline" />
         </Button>
         <View style={{ flex: 1, alignItems: 'center' }}>
-            <Text style={[styles.titleText, { color: foreground }]}>Sessions History</Text>
+            <AppText style={[styles.titleText, { color: foreground }]}>Sessions History</AppText>
         </View>
         <View
             style={{

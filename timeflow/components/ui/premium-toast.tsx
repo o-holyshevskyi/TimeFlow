@@ -3,8 +3,9 @@ import { BlurView } from "expo-blur";
 import { LinearGradient } from "expo-linear-gradient";
 import { Button, Popover, PopoverTriggerRef, Toast, useThemeColor, useToast } from "heroui-native";
 import { useRef } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import PremiumCard from "../settings/premium-card";
+import { AppText } from "../ui/app-text";
 
 export const usePremiumToast = () => {
     const { toast } = useToast();
@@ -52,7 +53,7 @@ export const usePremiumToast = () => {
                                                     popoverRef.current?.open();
                                                 }}
                                             >
-                                                <Text numberOfLines={1} style={{ fontSize: 16, fontWeight: '600', color: "black" }}>Upgrade</Text>
+                                                <AppText numberOfLines={1} style={{ fontSize: 16, fontWeight: '600', color: "black" }}>Upgrade</AppText>
                                             </Toast.Action>
                                         </LinearGradient>
                                     </Pressable>

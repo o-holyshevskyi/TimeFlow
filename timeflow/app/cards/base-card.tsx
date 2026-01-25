@@ -1,8 +1,9 @@
+import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
 import { router } from "expo-router";
 import { Button, useThemeColor } from "heroui-native";
-import { ScrollView, StyleSheet, Text, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export const BaseCard = ({ title, children }: {title: string, children: React.ReactNode}) => {
@@ -18,7 +19,7 @@ export const BaseCard = ({ title, children }: {title: string, children: React.Re
                 <Icon name="chevron-back-outline" />
             </Button>
             <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={[styles.titleText, { color: foreground }]}>{title}</Text>
+                <AppText style={[styles.titleText, { color: foreground }]}>{title}</AppText>
             </View>
             <View style={{ width: 40 }} />
         </View>

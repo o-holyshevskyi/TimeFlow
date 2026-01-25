@@ -1,3 +1,4 @@
+import { AppText } from "@/components/ui/app-text";
 import { ColorSelector } from "@/components/ui/color-selector";
 import HourlyRateInput from "@/components/ui/hourly-rate";
 import { TextInput } from "@/components/ui/text-input";
@@ -6,7 +7,7 @@ import { useClients } from "@/hooks/use-clients";
 import { router, useLocalSearchParams } from "expo-router";
 import { Button, Switch, Toast, useThemeColor, useToast } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
-import { Dimensions, Text, View } from "react-native";
+import { Dimensions, View } from "react-native";
 import BaseModal from "./base-modal";
 
 const WIDTH = Dimensions.get('window').width * .9;
@@ -96,7 +97,7 @@ export default function EditClientModal() {
         />
         <HourlyRateInput rate={rate} setRate={setRate} width={WIDTH + Layout.spacing * 4 } />
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Layout.spacing, width: WIDTH }}>
-            <Text style={{ color: 'white', fontSize: 18 }}>Set as Default Client</Text>
+            <AppText style={{ color: 'white', fontSize: 18 }}>Set as Default Client</AppText>
             <Switch 
                 isSelected={isDefault} 
                 onSelectedChange={setIsDefault}
@@ -106,7 +107,7 @@ export default function EditClientModal() {
             <Button.Label style={{ color: 'black', fontSize: 22, fontWeight: '700' }}>Save Client</Button.Label>
         </Button>
         {saveError && 
-            <Text style={{ color: '#b91c1c', fontSize: 16, fontWeight: '600' }}>{saveError}</Text>
+            <AppText style={{ color: '#b91c1c', fontSize: 16, fontWeight: '600' }}>{saveError}</AppText>
         }
     </BaseModal>
 }

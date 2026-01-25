@@ -1,6 +1,7 @@
 import SessionHeader from "@/components/sessions/header";
 import SessionCard from "@/components/sessions/session-card";
 import PremiumCard from "@/components/settings/premium-card";
+import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { Layout } from "@/constants/layout";
 import { Session, useSessions } from "@/hooks/use-sessions";
@@ -9,7 +10,7 @@ import * as Haptics from 'expo-haptics';
 import { useFocusEffect, useRouter } from "expo-router";
 import { Button, Spinner, useThemeColor } from "heroui-native";
 import { useCallback, useMemo, useRef } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import Animated, { Extrapolation, interpolate, SharedValue, useAnimatedScrollHandler, useAnimatedStyle, useSharedValue } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -126,9 +127,9 @@ export default function SessionsList() {
                 <SessionHeader />
                 <View style={[styles.scrollContainer, { flex: 1, justifyContent: 'center', alignItems: 'center' }]}>
                     <Icon name="timer-outline" color={muted} />
-                    <Text style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
+                    <AppText style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
                         No saved session. Start the timer to save the first session.
-                    </Text>
+                    </AppText>
                     {!isChecking && !isPro && <PremiumCard />}
                 </View>        
                 <AddManualSession handleAddSession={handleAddSession} />
@@ -159,9 +160,9 @@ export default function SessionsList() {
                 renderItem={({ item, index }) => {
                     if (item.type === 'header') {
                         return (
-                            <Text style={[styles.date, { color: foreground }]}>
+                            <AppText style={[styles.date, { color: foreground }]}>
                                 {item.displayDate}
-                            </Text>
+                            </AppText>
                         );
                     }
 

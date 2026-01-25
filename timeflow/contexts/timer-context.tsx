@@ -1,8 +1,8 @@
 import { useClients } from '@/hooks/use-clients';
 import { Session, SESSIONS_STORAGE_KEY } from '@/hooks/use-sessions';
 import { useSettings } from '@/hooks/use-settings';
+import { notificationService } from '@/services/notification-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import * as Notifications from 'expo-notifications';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { AppState } from 'react-native';
 
@@ -15,15 +15,6 @@ const PAUSE_START_KEY = 'timerPauseStartTime';
 const TOTAL_PAUSED_KEY = 'timerTotalPausedDuration';
 const CLIENT_ID_KEY = 'timerClientId'; 
 const MIN_SAVE_TIME_MS = 1000;
-
-Notifications.setNotificationHandler({
-    handleNotification: async () => ({
-        shouldPlaySound: true,
-        shouldSetBadge: false,
-        shouldShowBanner: true,
-        shouldShowList: true,
-    }),
-});
 
 interface TimerContextType {
     isTracking: boolean;
@@ -66,26 +57,12 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const [clientId, _setClientId] = useState<string | undefined>(undefined);
 
     useEffect(() => {
-        const requestPermissions = async () => {
-            const { status: existingStatus } = await Notifications.getPermissionsAsync();
-            let finalStatus = existingStatus;
-            
-            if (existingStatus !== 'granted') {
-                const { status } = await Notifications.requestPermissionsAsync();
-                finalStatus = status;
-            }
-            
-            if (finalStatus !== 'granted') {
-                console.warn('Notification permissions not granted!');
-            }
-        };
-        
-        requestPermissions();
+        notificationService.requestPermissions();
     }, []);
 
     useEffect(() => {
         if (settings?.notificationsEnabled === false) {
-            Notifications.cancelAllScheduledNotificationsAsync();
+            notificationService.cancelAll();
         }
     }, [settings?.notificationsEnabled]);
 
@@ -98,7 +75,6 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 const storedElapsedTime = await AsyncStorage.getItem(ELAPSED_TIME_KEY);
                 const storedPauseStart = await AsyncStorage.getItem(PAUSE_START_KEY);
                 const storedTotalPaused = await AsyncStorage.getItem(TOTAL_PAUSED_KEY);
-                // 🔥 FIX: Відновлюємо збереженого клієнта
                 const storedClientId = await AsyncStorage.getItem(CLIENT_ID_KEY);
 
                 if (storedClientId) {
@@ -149,13 +125,13 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         // 🔥 FIX: Видаляємо клієнта при ліміті
         await AsyncStorage.multiRemove([IS_TRACKING_KEY, START_TIME_KEY, PAUSE_START_KEY, CLIENT_ID_KEY]);
         await AsyncStorage.setItem(ELAPSED_TIME_KEY, String(MAX_TIME_MS));
+
+        await notificationService.cancelAll();
     };
 
     // 2. Інтервал таймера
     useEffect(() => {
-        if (!isTracking || isPaused || !startTime) {
-            return;
-        }
+        if (!isTracking || isPaused || !startTime) return;
 
         const interval = setInterval(() => {
             const now = Date.now();
@@ -166,7 +142,6 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
                 clearInterval(interval);
                 return;
             }
-
             setElapsedTime(newElapsedTime);
         }, 1000);
 
@@ -198,46 +173,6 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         _setClientId(clientId);
     }, []);
 
-    const scheduleProgressNotifications = useCallback(async (currentElapsedTimeMs: number) => {
-        const shouldNotify = settings?.notificationsEnabled ?? true;
-        if (!shouldNotify) return;
-
-        const fourHoursMs = 4 * 60 * 60 * 1000;
-        const eightHoursMs = 8 * 60 * 60 * 1000;
-
-        if (currentElapsedTimeMs < fourHoursMs) {
-            const secondsRemaining = (fourHoursMs - currentElapsedTimeMs) / 1000;
-            await Notifications.scheduleNotificationAsync({
-                content: {
-                    title: 'The timer is still running ⏱️',
-                    body: '4 hours have already passed. Don\'t forget to stop the timer if you\'ve finished.',
-                    sound: 'default'
-                },
-                trigger: {
-                    type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                    seconds: secondsRemaining, 
-                    repeats: false,
-                },
-            });
-        }
-
-        if (currentElapsedTimeMs < eightHoursMs) {
-            const secondsRemaining = (eightHoursMs - currentElapsedTimeMs) / 1000;
-            await Notifications.scheduleNotificationAsync({
-                content: {
-                    title: 'The timer is still running ⏱️',
-                    body: '8 hours have already passed. Don\'t forget to stop the timer if you\'ve finished.',
-                    sound: 'default'
-                },
-                trigger: {
-                    type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                    seconds: secondsRemaining,
-                    repeats: false,
-                },
-            });
-        }
-    }, [settings]);
-
     // 🔥 FIX: Оновлений startTimer приймає аргумент
     const startTimer = useCallback(async (selectedClientId?: string) => {
         const now = Date.now();
@@ -257,6 +192,8 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             _setClientId(undefined);
             await AsyncStorage.removeItem(CLIENT_ID_KEY);
         }
+
+        notificationService.updateLastActive();
         
         await AsyncStorage.multiSet([
             [START_TIME_KEY, String(now)],
@@ -264,8 +201,10 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         ]);
         await AsyncStorage.multiRemove([ELAPSED_TIME_KEY, PAUSE_START_KEY, TOTAL_PAUSED_KEY]);
 
-        await scheduleProgressNotifications(0);
-    }, [scheduleProgressNotifications]);
+        if (settings?.notificationsEnabled !== false) {
+            await notificationService.scheduleTimerProgress(0);
+        }
+    }, [settings]);
 
     const pauseTimer = useCallback(async () => {
         if (isTracking && !isPaused) {
@@ -276,22 +215,10 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             await AsyncStorage.setItem(IS_TRACKING_KEY, 'false');
             await AsyncStorage.setItem(PAUSE_START_KEY, String(now));
 
-            await Notifications.cancelAllScheduledNotificationsAsync();
-
-            const shouldNotify = settings?.notificationsEnabled ?? true;
-            if (shouldNotify) {
-                await Notifications.scheduleNotificationAsync({
-                    content: {
-                        title: 'Don\'t lose your hours! 💸',
-                        body: 'You have an unsaved session on pause. Save it now to keep your history accurate.',
-                        sound: 'default'
-                    },
-                    trigger: {
-                        type: Notifications.SchedulableTriggerInputTypes.TIME_INTERVAL,
-                        seconds: 1 * 60 * 60,
-                        repeats: false,
-                    },
-                });
+            if (settings?.notificationsEnabled !== false) {
+                await notificationService.schedulePauseReminder();
+            } else {
+                await notificationService.cancelAll();
             }
         }
     }, [isTracking, isPaused, settings]);
@@ -311,10 +238,11 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             await AsyncStorage.setItem(TOTAL_PAUSED_KEY, String(newTotalPaused));
             await AsyncStorage.removeItem(PAUSE_START_KEY);
 
-            await Notifications.cancelAllScheduledNotificationsAsync();
-            await scheduleProgressNotifications(elapsedTime);
+            if (settings?.notificationsEnabled !== false) {
+                await notificationService.scheduleTimerProgress(elapsedTime);
+            }
         }
-    }, [isPaused, pauseStartTime, totalPausedDuration, elapsedTime, scheduleProgressNotifications]);
+    }, [isPaused, pauseStartTime, totalPausedDuration, elapsedTime, settings]);
 
     const stopTimer = useCallback(async (isAutoStop = false) => {
         let finalElapsedTime = 0;
@@ -386,14 +314,16 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         } else {
             await AsyncStorage.setItem(ELAPSED_TIME_KEY, String(MAX_TIME_MS));
         }
+
+        notificationService.updateLastActive();
         
         setStartTime(null);
         setPauseStartTime(null);
         setTotalPausedDuration(0);
         _setClientId(undefined); // Скидаємо стейт
         
-        await Notifications.cancelAllScheduledNotificationsAsync();
-    }, [elapsedTime, settings, startTime, isPaused, pauseStartTime, totalPausedDuration, clientId]);
+        await notificationService.cancelAll();
+    }, [elapsedTime, settings, startTime, isPaused, pauseStartTime, totalPausedDuration, clientId, clients]);
     
     const timeDisplay = useMemo(() => formatTime(elapsedTime), [elapsedTime]);
 

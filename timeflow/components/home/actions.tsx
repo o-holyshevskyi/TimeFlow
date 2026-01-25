@@ -4,15 +4,38 @@ import { Client, useClients } from "@/hooks/use-clients";
 import { useSettings } from "@/hooks/use-settings";
 import { BlurView } from "expo-blur";
 import { router } from "expo-router";
+import * as StoreReview from 'expo-store-review';
 import { Button, Select, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
-import { Dimensions, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, ScrollView, StyleSheet, View } from "react-native";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 const CARD_WIDTH = Dimensions.get('window').width * .9;
 
+export const triggerReview = async () => {
+    try {
+        console.log("Review check started");
+
+        // 1. Перевіряємо, чи платформа взагалі підтримує відгуки (Android 5.0+, iOS non-TestFlight)
+        const isAvailable = await StoreReview.isAvailableAsync(); //
+        
+        // 2. Перевіряємо, чи налаштовані URL магазинів в app.json
+        const hasAction = await StoreReview.hasAction(); //
+
+        if (isAvailable && hasAction) {
+            console.log("Review window requested");
+            await StoreReview.requestReview(); //
+        } else {
+            console.log("Review not available: ", { isAvailable, hasAction });
+        }
+    } catch (error) {
+        console.error("Review request failed", error);
+    }
+};
+
 const Actions = () => {
-    const { isTracking, startTimer, stopTimer, pauseTimer, resumeTimer, isPaused, setClientId } = useTimer();
+    const { isTracking, startTimer, stopTimer, pauseTimer, resumeTimer, isPaused, setClientId, elapsedTime } = useTimer();
     const { toast } = useToast();
     const { settings } = useSettings();
     const { clients } = useClients();
@@ -59,7 +82,11 @@ const Actions = () => {
     const handleStop = useCallback(() => {
         stopTimer();
         showToast('Session Saved', 'Your work time has been recorded and added to the session history.');
-    }, [stopTimer, showToast]);
+
+        if (elapsedTime > 1800) { 
+            setTimeout(() => triggerReview(), 1000); // невелика затримка для плавності
+        }
+    }, [stopTimer, showToast, elapsedTime]);
 
     const handlePause = useCallback(() => {
         pauseTimer();
@@ -227,9 +254,9 @@ const Actions = () => {
                             snapPoints={['60%']}
                         >
                             <View style={{ height: Math.min(clients.length * 80 + 50, 400), paddingVertical: 20 }}>
-                                <Text style={{ color: muted, textAlign: 'center', marginBottom: 10, fontSize: 24, fontWeight: '600' }}>
+                                <AppText style={{ color: muted, textAlign: 'center', marginBottom: 10, fontSize: 24, fontWeight: '600' }}>
                                     Select Client to Start
-                                </Text>
+                                </AppText>
                                 <ScrollView showsVerticalScrollIndicator={false}>
                                     {clients.map((cl) => (
                                         <Select.Item
@@ -252,17 +279,17 @@ const Actions = () => {
                                                         justifyContent: 'center',
                                                         alignItems: 'center'
                                                     }}>
-                                                        <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>
+                                                        <AppText style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>
                                                             {cl.name.charAt(0).toUpperCase()}
-                                                        </Text>
+                                                        </AppText>
                                                     </View>
 
                                                     <View>
-                                                        <Text style={{ color: foreground, fontSize: 20, fontWeight: '700' }}>
+                                                        <AppText style={{ color: foreground, fontSize: 20, fontWeight: '700' }}>
                                                             {cl.name}
-                                                        </Text>
+                                                        </AppText>
                                                         {cl.isDefault && (
-                                                            <Text style={{ color: muted, fontSize: 14 }}>Default</Text>
+                                                            <AppText style={{ color: muted, fontSize: 14 }}>Default</AppText>
                                                         )}
                                                     </View>
                                                 </View>

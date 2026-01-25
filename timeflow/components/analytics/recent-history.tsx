@@ -2,9 +2,10 @@ import { Layout } from "@/constants/layout";
 import { Session } from "@/hooks/use-sessions";
 import { Link } from "expo-router";
 import { Card, useThemeColor } from "heroui-native";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
 import { calculateAmount } from "../sessions/session-card";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 export const RecentHistory = ({ sessions }: { sessions: Session[] }) => {
@@ -21,9 +22,9 @@ export const RecentHistory = ({ sessions }: { sessions: Session[] }) => {
     return (
         <View style={{ gap: Layout.spacing * 2 }}>
             <View style={{ flexDirection: 'row', justifyContent: "space-between", paddingHorizontal: Layout.spacing * 2 }}>
-                <Text style={{ fontSize: 18, fontWeight: '700', color: foreground }}>
+                <AppText style={{ fontSize: 18, fontWeight: '700', color: foreground }}>
                     Recent Activity
-                </Text>
+                </AppText>
                 <Link href="/cards/sessions-list" style={{ fontSize: 18, fontWeight: '700', color: accent }}>
                     View All
                 </Link>
@@ -32,9 +33,9 @@ export const RecentHistory = ({ sessions }: { sessions: Session[] }) => {
             {recentSessions.length === 0 &&
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                     <Icon name="timer-outline" color={muted} />
-                    <Text style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
+                    <AppText style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
                         No saved session. Start the timer to save the first session.
-                    </Text>
+                    </AppText>
                 </View>
             }
 
@@ -55,17 +56,17 @@ export const RecentHistory = ({ sessions }: { sessions: Session[] }) => {
                                 <Icon name="briefcase-outline" color={muted} size={20} />
                             </View>
                             <View>
-                                <Text style={{ color: foreground, fontWeight: '600', fontSize: 16 }}>
+                                <AppText style={{ color: foreground, fontWeight: '600', fontSize: 16 }}>
                                     {dateFormatter.format(new Date(session.startTime))}
-                                </Text>
-                                <Text style={{ color: muted, fontSize: 14 }}>
+                                </AppText>
+                                <AppText style={{ color: muted, fontSize: 14 }}>
                                     {hours} hrs • {rateStr}
-                                </Text>
+                                </AppText>
                             </View>
                         </View>
-                        <Text style={{ color: accent, fontWeight: '700', fontSize: 16 }}>
+                        <AppText style={{ color: accent, fontWeight: '700', fontSize: 16 }}>
                             +{amount}
-                        </Text>
+                        </AppText>
                     </Card>
                 );
             })}

@@ -4,8 +4,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Button, Card, Spinner, Toast, useThemeColor, useToast } from "heroui-native";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, Text, View } from "react-native";
+import { Alert, StyleSheet, View } from "react-native";
 import Purchases, { PACKAGE_TYPE, PurchasesPackage } from "react-native-purchases";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 import RestorePurchase from "./restore-purchase";
 
@@ -99,9 +100,9 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
 
     if (isPro) return <Card style={[styles.premiumCard]}>
         <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
-            <Text style={[{ color: foreground, textAlign: 'center' }, { fontSize: 14, marginBottom: Layout.spacing }]}>
+            <AppText style={[{ color: foreground, textAlign: 'center' }, { fontSize: 14, marginBottom: Layout.spacing }]}>
                 Already bought PRO? Tap &quot;Restore Purchases&quot; to recover your subscription on this device.
-            </Text>
+            </AppText>
             <RestorePurchase isDisabled={isPurchasing || isLoading} onRestoreSuccess={() => router.push('/')} />
         </Card.Body>
     </Card>;
@@ -110,15 +111,15 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
         <Card.Header style={[styles.premiumCardHeader]}>
             <View style={[styles.premiumTextContainer]}>
                 <Icon name="star" color={accent} />
-                <Text style={[{ color: foreground }, styles.premiumCardTitle]}>Go PROductive</Text>
+                <AppText style={[{ color: foreground }, styles.premiumCardTitle]}>Go PROductive</AppText>
             </View>
-            <Text style={[{ color: muted }, styles.premiumCardDescription]}>
+            <AppText style={[{ color: muted }, styles.premiumCardDescription]}>
                 Unlock powerful features to boost your productivity.
-            </Text>
+            </AppText>
             {(!availablePackage && !isLoading) && (
-                <Text style={{color: 'red', textAlign: 'center', marginTop: 10}}>
+                <AppText style={{color: 'red', textAlign: 'center', marginTop: 10}}>
                     {debugInfo || "Product Unavailable"}
-                </Text>
+                </AppText>
             )}
         </Card.Header>
         
@@ -126,39 +127,39 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
              <View style={{ flexDirection: "column", gap: Layout.spacing * 5 }}>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                    <AppText style={[{ color: foreground }, styles.premiumCardDescription]}>
                         Generate PDF Invoices
-                    </Text>
+                    </AppText>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                    <AppText style={[{ color: foreground }, styles.premiumCardDescription]}>
                         Backup & Restore
-                    </Text>
+                    </AppText>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                    <AppText style={[{ color: foreground }, styles.premiumCardDescription]}>
                         Advanced Monthly Analytics
-                    </Text>
+                    </AppText>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                    <AppText style={[{ color: foreground }, styles.premiumCardDescription]}>
                         Unlimited History/CSV Export
-                    </Text>
+                    </AppText>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                    <AppText style={[{ color: foreground }, styles.premiumCardDescription]}>
                         Monthly Income Goals
-                    </Text>
+                    </AppText>
                 </View>
                 <View style={[styles.premiumTextContainer]}>
                     <Icon name="checkmark-circle" color={accent} />
-                    <Text style={[{ color: foreground }, styles.premiumCardDescription]}>
+                    <AppText style={[{ color: foreground }, styles.premiumCardDescription]}>
                         Ad-Free Experience
-                    </Text>
+                    </AppText>
                 </View>
             </View>
         </Card.Body>
@@ -192,9 +193,9 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
                 </Button>
             </LinearGradient>
 
-            <Text style={[{ color: muted, textAlign: 'center' }, { fontSize: 14, marginBottom: Layout.spacing }]}>
+            <AppText style={[{ color: muted, textAlign: 'center' }, { fontSize: 14, marginBottom: Layout.spacing }]}>
                 Already bought PRO? Tap &quot;Restore Purchases&quot; to recover your subscription on this device.
-            </Text>
+            </AppText>
             <RestorePurchase isDisabled={isPurchasing || isLoading} onRestoreSuccess={() => {
                 if (handleSuccess) {
                     handleSubscribe();

@@ -2,8 +2,9 @@ import { Layout } from '@/constants/layout';
 import { BlurView } from 'expo-blur';
 import { Select, TextField, useThemeColor } from "heroui-native";
 import { useCallback, useEffect, useMemo, useState, } from "react";
-import { Dimensions, Keyboard, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Dimensions, Keyboard, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { formatCurrency, getSupportedCurrencies } from "react-native-format-currency";
+import { AppText } from "../ui/app-text";
 import { Icon } from '../ui/icon';
 
 const INPUT_WIDTH = Dimensions.get('window').width * 0.85
@@ -199,17 +200,17 @@ const CurrencySelect = ({ initialCurrency, onCurrencySelect, isDisabled = false 
                                                     height: 60,
                                                 }}
                                             >
-                                                <Text style={{ fontSize: 30, fontWeight: 900, color: foreground }}>
+                                                <AppText style={{ fontSize: 30, fontWeight: 900, color: foreground }}>
                                                     {getSymbol(curr.code)}
-                                                </Text>
+                                                </AppText>
                                             </View>
                                             <View style={{ flexDirection: 'column' }}>
-                                                <Text style={{ color: foreground, fontSize: 25, fontWeight: 700 }}>
+                                                <AppText style={{ color: foreground, fontSize: 25, fontWeight: 700 }}>
                                                     {curr.code}
-                                                </Text>
-                                                <Text style={{ color: muted, fontSize: 18 }}>
+                                                </AppText>
+                                                <AppText style={{ color: muted, fontSize: 18 }}>
                                                     {curr.name}
-                                                </Text>
+                                                </AppText>
                                             </View>
                                         </View>
                                         <Select.ItemIndicator />

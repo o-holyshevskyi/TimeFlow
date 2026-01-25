@@ -7,8 +7,9 @@ import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { Button, Card, Popover, PopoverTriggerRef, Toast, useThemeColor, useToast } from "heroui-native";
 import { useRef } from "react";
-import { Alert, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Alert, Pressable, StyleSheet, View } from 'react-native';
 import { formatCurrency } from "react-native-format-currency";
+import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 const formatTimestampToTime = (timestamp: number): string => {
@@ -84,7 +85,7 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
                             borderRadius: 5, 
                             backgroundColor: client.color || '#2bee6c' 
                         }} />
-                        <Text style={{ 
+                        <AppText style={{ 
                             color: client.color || '#2bee6c', 
                             fontSize: 14, 
                             fontWeight: '700',
@@ -92,23 +93,23 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
                             letterSpacing: 0.5
                         }}>
                             {client.name}
-                        </Text>
+                        </AppText>
                     </View>
                 )}
 
                 <View style={[styles.cardBody]}>
-                    <Text style={[styles.amount, { color: foreground }]}>{amountStr}</Text>
+                    <AppText style={[styles.amount, { color: foreground }]}>{amountStr}</AppText>
                     <SessionItemPopoverOptions item={item} deleteSession={deleteSession} />
                 </View>
                 
-                <Text style={[styles.time, { color: muted }]}>
+                <AppText style={[styles.time, { color: muted }]}>
                     {startTimeStr} - {endTimeStr} ({duration})
-                </Text>
+                </AppText>
                 
-                <Text style={[styles.rate, { color: muted }]}>
+                <AppText style={[styles.rate, { color: muted }]}>
                    {rateStr}
                    {client && item.rate === client.defaultRate && " (Client Rate)"}
-                </Text>
+                </AppText>
             </Card.Body>
             {isFading && (
                 <LinearGradient
