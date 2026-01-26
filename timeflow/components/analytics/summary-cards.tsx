@@ -88,7 +88,7 @@ export const SummaryCards = ({ sessions, isPro }: {sessions: Session[], isPro: b
             value={wFormattedAmount[0]} 
             icon="wallet-outline"
             percent={weekData.percentChange}
-            color={"rgba(70, 183, 0, 0.53)"}
+            color={"#f97316"}
         />
         
         <SummaryCard 
@@ -96,7 +96,7 @@ export const SummaryCards = ({ sessions, isPro }: {sessions: Session[], isPro: b
             value={yFormatted[0]} 
             icon="earth-outline" // або trophy-outline
             percent={yearData.percentChange}
-            color={"rgba(255, 179, 0, 0.53)"} // Золотий колір
+            color={"#3b82f6"} // Золотий колір
             isBlurred={!isPro} // Теж робимо PRO фічею
         />
 
@@ -105,7 +105,7 @@ export const SummaryCards = ({ sessions, isPro }: {sessions: Session[], isPro: b
             value={mFormattedAmount[0]} 
             icon="calendar-outline"
             percent={monthData.percentChange}
-            color={"rgba(224, 57, 255, 0.53)"}
+            color={"#eab308"}
             isBlurred={!isPro}
         />
 
@@ -116,7 +116,7 @@ export const SummaryCards = ({ sessions, isPro }: {sessions: Session[], isPro: b
             // Тут можна додати порівняння годин, якщо розширити логіку, 
             // або просто приховати відсотки
             subText="Total time worked"
-            color={"rgba(0, 173, 214, 0.53)"}
+            color={"#64748b"}
         />
         
     </ScrollView>;
@@ -129,14 +129,14 @@ const SummaryCard = ({ title, value, icon, percent, subText, color, isBlurred }:
     const foreground = useThemeColor('foreground');
 
     return (
-        <View style={styles.wrapper}>
+        <View style={[styles.wrapper]}>
             {/* Основний контент картки */}
-            <Card style={styles.card}>
+            <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
                 <Card.Header style={styles.header}>
-                    <View style={[styles.iconWrapper, { backgroundColor: color }]}>
-                        <Icon name={icon} color={muted} />
+                    <View style={[styles.iconWrapper, { backgroundColor: color + '40' }]}>
+                        <Icon name={icon} color={color} />
                     </View>
-                    <AppText style={{ color: muted }}>{title}</AppText>
+                    <AppText style={{ color: foreground }}>{title}</AppText>
                 </Card.Header>
 
                 <Card.Body>
@@ -181,11 +181,9 @@ const styles = StyleSheet.create({
         position: 'relative',
         borderRadius: 20,
         overflow: 'hidden',
-        backgroundColor: '#1C2D23',
     },
     card: {
-        borderRadius: 20, 
-        backgroundColor: '#1C2D23',
+        borderRadius: 20,
     },
     blurOverlay: {
         ...StyleSheet.absoluteFillObject,

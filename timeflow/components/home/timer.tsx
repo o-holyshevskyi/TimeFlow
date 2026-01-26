@@ -22,10 +22,11 @@ const Timer = () => {
     );
 }
 
-// Допоміжний компонент для чистоти коду
-const TimeBox = ({ value, label, mutedColor }: { value: string, label: string, mutedColor: string }) => (
-    <View style={styles.timeItem}>
-        <Card style={styles.card}>
+const TimeBox = ({ value, label, mutedColor }: { value: string, label: string, mutedColor: string }) => {
+    const accent = useThemeColor('accent');
+
+    return <View style={styles.timeItem}>
+        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
             <Card.Body style={styles.cardBody}>
                 <Ticker value={value} />
             </Card.Body>
@@ -34,7 +35,7 @@ const TimeBox = ({ value, label, mutedColor }: { value: string, label: string, m
             {label}
         </AppText>
     </View>
-);
+};
 
 export const Ticker = ({ value }: { value: string }) => {
     const splitValue = value.split('');
@@ -121,7 +122,6 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     card: {
-        backgroundColor: "rgba(255, 255, 255, 0.05)",
         borderRadius: Layout.borderRadius,
         minWidth: TEXT_SIZE * 2, // Фіксована ширина карток
     },

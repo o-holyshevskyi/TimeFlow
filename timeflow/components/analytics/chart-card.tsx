@@ -88,7 +88,7 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
             data = dailyTotals.map((val, idx) => ({
                 value: parseFloat(val.toFixed(2)),
                 label: labels[idx],
-                frontColor: (val === max && val > 0) ? accent : 'rgba(255, 255, 255, 0.1)',
+                frontColor: (val === max && val > 0) ? accent : foreground + '30',
             }));
 
             return { barData: data, totalMoney: total, maxValue: max };
@@ -112,13 +112,13 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
                 return {
                     value: parseFloat(val.toFixed(2)),
                     label: label,
-                    frontColor: (val === max && val > 0) ? accent : 'rgba(255, 255, 255, 0.1)',
+                    frontColor: (val === max && val > 0) ? accent : foreground + '30',
                 };
             });
 
             return { barData: data, totalMoney: total, maxValue: max };
         }
-    }, [sessions, startDate, finishDate, period, accent]);
+    }, [sessions, startDate, finishDate, period, accent, foreground]);
 
     const formattedAmount = formatCurrency({ amount: parseFloat(totalMoney.toFixed(2)), code: settings?.currency || 'USD' });
 
@@ -164,11 +164,11 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
     }
 
     return (
-        <Card style={[styles.card, { backgroundColor: '#1C2D23' }]}>
+        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
             <Card.Header style={{ flexDirection: 'column', gap: Layout.spacing, paddingHorizontal: Layout.spacing * 2 }}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                     <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Earnings</AppText>
-                    <View style={{ flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: 2 }}>
+                    <View style={{ flexDirection: 'row', backgroundColor: accent + '10', borderRadius: 8, padding: 2 }}>
                         {(['week', 'month'] as PeriodType[]).map((p) => (
                             <TouchableOpacity 
                                 key={p} 
@@ -177,7 +177,7 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
                                     paddingVertical: 4,
                                     paddingHorizontal: 12,
                                     borderRadius: 6,
-                                    backgroundColor: period === p ? 'rgba(255,255,255,0.1)' : 'transparent'
+                                    backgroundColor: period === p ? accent + '30' : 'transparent'
                                 }}
                             >
                                 <AppText style={{ 
@@ -232,7 +232,7 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
                                 initialSpacing={5}
                                 endSpacing={5}
                                 barBorderRadius={9999}
-                                frontColor="#243e2fff"
+                                frontColor={accent}
                                 hideRules={true}
                                 yAxisThickness={0}
                                 xAxisThickness={0}

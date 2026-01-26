@@ -57,6 +57,8 @@ type SessionCardProps = {
 }
 
 const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: SessionCardProps) => {
+    const accent = useThemeColor('accent');
+    
     const startTimeStr = formatTimestampToTime(item.startTime);
     const endTimeStr = formatTimestampToTime(item.endTime);
     const { duration } = formatTime(item.elapsedTime);
@@ -75,7 +77,7 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
     const background = useThemeColor('background');
 
     return (
-        <Card style={[styles.card]}>
+        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
             <Card.Body style={{ flexDirection: 'column', gap: Layout.spacing * 2 }}>
                 {client && (
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: -8 }}>
@@ -83,10 +85,10 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
                             width: 10, 
                             height: 10, 
                             borderRadius: 5, 
-                            backgroundColor: client.color || '#2bee6c' 
+                            backgroundColor: client.color || accent 
                         }} />
                         <AppText style={{ 
-                            color: client.color || '#2bee6c', 
+                            color: client.color || accent, 
                             fontSize: 14, 
                             fontWeight: '700',
                             textTransform: 'uppercase',
@@ -135,6 +137,7 @@ const SessionItemPopoverOptions = ({ item, deleteSession }: { item: Session, del
     const muted = useThemeColor('muted');
     const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
+    const accent = useThemeColor('accent');
 
     const popoverRef = useRef<PopoverTriggerRef>(null);
 
@@ -148,7 +151,12 @@ const SessionItemPopoverOptions = ({ item, deleteSession }: { item: Session, del
     const showToast = () => {
         toast.show({
             component: (props) => (
-                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                <Toast 
+                    variant="default" 
+                    placement="top" 
+                    style={{ backgroundColor: background, borderColor: accent }}
+                    className="border-1 p-5" {...props}
+                >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View>
                             <Toast.Label style={{ fontSize: 22 }}>Session Deleted</Toast.Label>
@@ -215,7 +223,7 @@ const SessionItemPopoverOptions = ({ item, deleteSession }: { item: Session, del
                                 style={{ 
                                     backgroundColor: 'transparent', 
                                     marginTop: Layout.spacing * 2,
-                                    borderColor: '#334155',
+                                    borderColor: accent,
                                     borderWidth: 1,
                                     borderRadius: 9999,
                                     paddingHorizontal: Layout.spacing * 3,
@@ -223,8 +231,8 @@ const SessionItemPopoverOptions = ({ item, deleteSession }: { item: Session, del
                                 }}
                                 onPress={handleEdit}
                             >
-                                <Icon name="pencil-outline" color="white" />
-                                <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
+                                <Icon name="pencil-outline" color={accent} />
+                                <Button.Label style={{ color: accent, fontSize: 18, fontWeight: '700' }}>
                                     Edit Session
                                 </Button.Label>
                             </Button>
@@ -233,8 +241,8 @@ const SessionItemPopoverOptions = ({ item, deleteSession }: { item: Session, del
                                 style={{ marginTop: Layout.spacing * 2 }} 
                                 onPress={handleDelete}
                             >
-                                <Icon name="trash-outline" color="white" />
-                                <Button.Label style={{ fontSize: 18, fontWeight: '700' }}>
+                                <Icon name="trash-outline" color={foreground} />
+                                <Button.Label style={{ fontSize: 18, fontWeight: '700', color: foreground }}>
                                     Delete Session
                                 </Button.Label>
                             </Button>
@@ -252,7 +260,6 @@ const styles = StyleSheet.create({
     },
     card: {
         marginTop: Layout.spacing * 2,
-        backgroundColor: '#1C2D23',
         borderRadius: Layout.borderRadius
     },
     cardBody: {

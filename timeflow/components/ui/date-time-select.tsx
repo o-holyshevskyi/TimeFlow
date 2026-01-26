@@ -13,6 +13,7 @@ const DateTimeSelect = ({ value, label, onDateChange }: { value: Date, label: st
 
     const popoverRef = useRef<PopoverTriggerRef>(null);
     const background = useThemeColor('background');
+    const foreground = useThemeColor('foreground');
     
     useEffect(() => {
         if (value instanceof Date) {
@@ -87,7 +88,7 @@ const DateTimeSelect = ({ value, label, onDateChange }: { value: Date, label: st
                         />
                         <Popover.Description className="self-center">
                             <Button style={{ width: WIDTH }} variant="primary" size="lg" onPress={handleClose}>
-                                <Button.Label style={{ color: 'black', fontSize: 18, fontWeight: '700' }}>Done</Button.Label>
+                                <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>Done</Button.Label>
                             </Button>
                         </Popover.Description>
                     </Popover.Content>
@@ -99,6 +100,8 @@ const DateTimeSelect = ({ value, label, onDateChange }: { value: Date, label: st
 
 const DateTimeInput = ({ value, label }: { value: Date, label: string }) => {
     const foreground = useThemeColor('foreground');
+    const accent = useThemeColor('accent');
+    const danger = useThemeColor('danger');
 
     const parseValue = (date: Date) => {
         return date ? date.toLocaleString(undefined, { 
@@ -127,17 +130,17 @@ const DateTimeInput = ({ value, label }: { value: Date, label: string }) => {
             animation={{
                 backgroundColor: {
                     value: {
-                        blur: '#0f172abf',
-                        focus: '#0f172abf',
-                        error: '#0f172abf',
+                        blur: accent + '20',
+                        focus: accent + '20',
+                        error: accent + '20',
                     },
                     
                 },
                 borderColor: {
                     value: {
-                        blur: '#334155',
-                        focus: '#334155',
-                        error: '#dc2626',
+                        blur: accent + '20',
+                        focus: accent + '20',
+                        error: danger,
                     },
                 },
             }}

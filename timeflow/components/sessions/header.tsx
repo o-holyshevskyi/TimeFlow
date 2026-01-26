@@ -5,6 +5,8 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Button, Chip, Spinner, useThemeColor } from "heroui-native";
 import { StyleSheet, View } from "react-native";
+import { useUniwind } from "uniwind";
+import { THEMES } from "../settings/themes-card";
 import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
@@ -48,28 +50,37 @@ const SessionHeader = () => {
     </View>
 }
 
-export const GetProLabel = ({left = -25, top = 30 }: {left?: number, top?: number}) => <LinearGradient
-    colors={["#f7f455ff", "#22cea9ff"]}
-    start={{ x: 0, y: 0 }}
-    end={{ x: 1, y: 1 }}
-    style={{
-        borderRadius: 999,
-        position: "absolute",
-        left: left,
-        top: top,
-        zIndex: 1,
-    }}
->
-    <Chip
-        size="sm"
-        style={{ backgroundColor: "transparent" }}
+export const GetProLabel = ({left = -25, top = 30 }: {left?: number, top?: number}) => {
+    const foreground = useThemeColor('foreground');
+    const accent = useThemeColor('accent');
+
+    const { theme } = useUniwind();
+    
+    const activeTheme = THEMES.find(t => t.id === theme);
+    
+    return <LinearGradient
+        colors={(activeTheme?.colors || [accent + '50', accent]) as [string, string, ...string[]]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={{
+            borderRadius: 999,
+            position: "absolute",
+            left: left,
+            top: top,
+            zIndex: 1,
+        }}
     >
-        <Chip.Label style={{ color: "black", fontWeight: 'bold', fontSize: 12 }}>
-            Go PRO
-        </Chip.Label>
-        {/* <Ionicons name="star-outline" color='black' size={12} /> */}
-    </Chip>
-</LinearGradient>;
+        <Chip
+            size="sm"
+            style={{ backgroundColor: "transparent" }}
+        >
+            <Chip.Label style={{ color: foreground, fontWeight: 'bold', fontSize: 10 }}>
+                Go PRO
+            </Chip.Label>
+            {/* <Ionicons name="star-outline" color='black' size={12} /> */}
+        </Chip>
+    </LinearGradient>;
+}
 
 const styles = StyleSheet.create({
     headerContainer: {

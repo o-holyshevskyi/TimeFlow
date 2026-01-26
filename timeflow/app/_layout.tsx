@@ -1,7 +1,7 @@
 import { TimerProvider } from '@/contexts/timer-context';
 import '@/global.css';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { notificationService } from '@/services/notification-service';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native';
 import * as Notifications from 'expo-notifications';
 import { SplashScreen, Stack } from 'expo-router';
@@ -18,6 +18,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import mobileAds from 'react-native-google-mobile-ads';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import 'react-native-reanimated';
+import { Uniwind, useUniwind } from 'uniwind';
 
 SplashScreen.preventAutoHideAsync().catch(() => {});
 
@@ -49,13 +50,43 @@ async function initializeAdMobAndATT() {
 }
 
 export default function RootLayout() {
-    const colorScheme = useColorScheme();
+    const { theme } = useUniwind();
 
     const [appIsReady, setAppIsReady] = useState(false);
     const [isConfigured, setIsConfigured] = useState(false);
 
+    const isLightTheme = theme === 'nord' || theme === 'light';
+
+    const loadSavedTheme = async () => {
+        try {
+            const savedTheme = await AsyncStorage.getItem('user_theme');
+            if (savedTheme) {
+                console.log("Loading saved theme:", savedTheme);
+                Uniwind.setTheme(savedTheme as any);
+            }
+        } catch (e) {
+            console.error("Failed to load theme:", e);
+        }
+    };
+
     useEffect(() => {
-        initializeAdMobAndATT();
+        const prepare = async () => {
+            try {
+                // 1. Спочатку вантажимо тему (щоб не було "блимання" інтерфейсу)
+                await loadSavedTheme();
+                
+                // 2. Потім ініціалізуємо рекламу і пермішени
+                await initializeAdMobAndATT();
+            } catch (e) {
+                console.warn(e);
+            } finally {
+                setAppIsReady(true);
+                // 3. Прибираємо сплеш скрін тільки коли все готово
+                await SplashScreen.hideAsync();
+            }
+        };
+
+        prepare();
 
         // 🔥 Викликаємо метод, який і отримує токен, І зберігає його в базу
         const setupNotifications = async () => {
@@ -100,7 +131,7 @@ export default function RootLayout() {
     if (!appIsReady) return null;
 
     return (
-        <GestureHandlerRootView style={{ flex: 1 }}>
+        <GestureHandlerRootView style={{ flex: 1, }} className="bg-background">
             <HeroUINativeProvider
                 config={{
                     textProps: {
@@ -110,13 +141,13 @@ export default function RootLayout() {
                 }}
             >
                 <TimerProvider>
-                    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+                    <ThemeProvider value={isLightTheme ? DefaultTheme : DarkTheme}>
                         <Stack screenOptions={{ headerShown: false }}>
                             <Stack.Screen name="index" options={{ headerShown: false }} />
                             <Stack.Screen name="cards" options={{ headerShown: false, presentation: 'card' }} />
                             <Stack.Screen name="modals" options={{ headerShown: false, presentation: 'modal' }} />
                         </Stack>
-                        <StatusBar style="auto" />
+                        <StatusBar style={isLightTheme ? 'dark' : 'light'} />
                     </ThemeProvider>
                 </TimerProvider>
             </HeroUINativeProvider>

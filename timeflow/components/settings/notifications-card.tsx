@@ -9,6 +9,8 @@ import { AppText } from "../ui/app-text";
 const NotificationsCard = () => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+    const accent = useThemeColor('accent');
+    const background = useThemeColor('background');
     
     const [isEnabled, setIsEnabled] = useState(true);
     
@@ -28,7 +30,12 @@ const NotificationsCard = () => {
     const showToast = useCallback((title: string, message: string) => {
         toast.show({
             component: (props) => (
-                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                <Toast 
+                    variant="default" 
+                    placement="top" 
+                    style={{ backgroundColor: background, borderColor: accent }}
+                    className="border-1 p-5" {...props}
+                >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View>
                             <Toast.Label style={{ fontSize: 22 }}>{title}</Toast.Label>
@@ -39,7 +46,7 @@ const NotificationsCard = () => {
                 </Toast>
             ),
         });
-    }, [toast]);
+    }, [toast, background, accent]);
 
     const toggleSwitch = async (value: boolean) => {
         if (value) {
@@ -62,7 +69,7 @@ const NotificationsCard = () => {
     };
 
     return (
-        <Card style={[styles.card]}>
+        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
             <Card.Header style={[styles.cardHeader]}>
                 <AppText style={[{ color: foreground }, styles.cardTitle]}>Notifications</AppText>
                 <AppText style={[{ color: muted }, styles.cardDescription]}>
@@ -83,8 +90,7 @@ const NotificationsCard = () => {
                     
                     <Switch isSelected={isEnabled} onSelectedChange={toggleSwitch} />
                 </View>
-
-                {/* Тут можна додати ще світчери в майбутньому, наприклад "Weekly Report" */}
+                
             </Card.Body>
         </Card>
     );
@@ -93,7 +99,6 @@ const NotificationsCard = () => {
 const styles = StyleSheet.create({
     card: {
         marginTop: Layout.spacing * 2,
-        backgroundColor: '#1C2D23',
         borderRadius: Layout.borderRadius,
         gap: Layout.spacing * 3
     },

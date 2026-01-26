@@ -20,8 +20,9 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
     const { showToast } = usePremiumToast();
     
     const foreground = useThemeColor('foreground');
+    const background = useThemeColor('background');
     const muted = useThemeColor('muted');
-    const cardBg = '#1C2D23';
+    const accent = useThemeColor('accent');
 
     // Стан для періоду і вибраного шматка пирога
     const [period, setPeriod] = useState<PeriodType>('week');
@@ -88,7 +89,7 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                     if (!clientMap[client.id]) {
                         clientMap[client.id] = {
                             totalAmount: 0,
-                            color: client.color || '#2bee6c',
+                            color: client.color || accent,
                             name: client.name
                         };
                     }
@@ -125,7 +126,7 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
             });
 
         return { data, totalMoney: grandTotalAmount };
-    }, [sessions, clients, settings, period, startDate, finishDate]);
+    }, [sessions, clients, settings, period, startDate, finishDate, accent]);
 
     // Встановлюємо дефолтний вибір (центр бублика)
     useEffect(() => {
@@ -136,7 +137,7 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                 amount: data[0].amount
             });
         }
-    }, [data]); // Видалив selectedSlice з залежностей, щоб уникнути loop
+    }, [data, selectedSlice]); // Видалив selectedSlice з залежностей, щоб уникнути loop
 
     const renderDot = (color: string) => (
         <View style={[styles.dot, { backgroundColor: color }]} />
@@ -151,7 +152,7 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
     if (sessions.length === 0) return null;
 
     return (
-        <Card style={[styles.card, { backgroundColor: cardBg }]}>
+        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
             <Card.Header style={{ flexDirection: 'column', gap: Layout.spacing, paddingHorizontal: Layout.spacing * 2 }}>
                 
                 {/* Верхній рядок: Заголовок + Перемикач */}
@@ -159,7 +160,7 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                     <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Distribution</AppText>
                     
                     {/* Перемикач періодів */}
-                    <View style={{ flexDirection: 'row', backgroundColor: 'rgba(0,0,0,0.2)', borderRadius: 8, padding: 2 }}>
+                    <View style={{ flexDirection: 'row', backgroundColor: accent + '10', borderRadius: 8, padding: 2 }}>
                         {(['week', 'month', 'all'] as PeriodType[]).map((p) => (
                             <TouchableOpacity 
                                 key={p} 
@@ -168,7 +169,7 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                                     paddingVertical: 4,
                                     paddingHorizontal: 12,
                                     borderRadius: 6,
-                                    backgroundColor: period === p ? 'rgba(255,255,255,0.1)' : 'transparent'
+                                    backgroundColor: period === p ? accent + '30' : 'transparent'
                                 }}
                             >
                                 <AppText style={{ 
@@ -200,14 +201,15 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                 ) : (
                     // Графік
                     <View style={{ alignItems: 'center' }}>
-                         <PieChart
+                        <PieChart
                             data={data}
                             donut
                             showGradient
                             sectionAutoFocus
                             radius={100}
-                            innerRadius={70}
-                            innerCircleColor={cardBg}
+                            innerRadius={75}
+                            innerCircleColor={background + '20'}
+                            // inner
                             onPress={(item: any) => {
                                 Haptics.selectionAsync();
                                 setSelectedSlice({
@@ -223,10 +225,10 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
                                         <AppText style={{ fontSize: 24, color: foreground, fontWeight: 'bold' }}>
                                             {selectedSlice.percentage}
                                         </AppText>
-                                        <AppText style={{ fontSize: 13, color: muted, textAlign: 'center', paddingHorizontal: 4, maxWidth: 80 }} numberOfLines={1}>
+                                        <AppText style={{ fontSize: 13, color: foreground, textAlign: 'center', paddingHorizontal: 4, maxWidth: 80 }} numberOfLines={1}>
                                             {selectedSlice.name}
                                         </AppText>
-                                        <AppText style={{ fontSize: 12, color: muted, marginTop: 4 }}>
+                                        <AppText style={{ fontSize: 12, color: foreground, marginTop: 4 }}>
                                             {selectedSlice.amount}
                                         </AppText>
                                     </View>
@@ -240,9 +242,9 @@ export const ClientStats = ({ isPro }: { isPro: boolean }) => {
             {/* Легенда (тільки якщо є дані) */}
             {data.length > 0 && (
                 <Card.Footer style={styles.footer}>
-                     <View style={styles.legendContainer}>
+                     <View style={[styles.legendContainer] }>
                         {data.map((item, index) => (
-                            <View key={index} style={styles.legendItem}>
+                            <View key={index} style={[styles.legendItem, { backgroundColor: accent + '30' }]}>
                                 {renderDot(item.color)}
                                 <AppText style={{ color: foreground, fontSize: 14 }}>
                                     {item.name}
@@ -275,7 +277,6 @@ const styles = StyleSheet.create({
     legendItem: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: 'rgba(255,255,255,0.05)', // Легкий фон для тегів легенди
         paddingVertical: 6,
         paddingHorizontal: 10,
         borderRadius: 8,

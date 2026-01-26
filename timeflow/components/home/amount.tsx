@@ -13,6 +13,8 @@ const CARD_WIDTH = Dimensions.get('screen').width * .9;
 
 const EarnedAmount = () => {
     const muted = useThemeColor('muted');
+    const accent = useThemeColor('accent');
+    const danger = useThemeColor('danger');
 
     const { clientId } = useTimer();
     const { clients } = useClients();
@@ -69,7 +71,7 @@ const EarnedAmount = () => {
     }, [settings, rate]);
 
     return <View>
-        <Card style={[styles.card]}>
+        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
             <Card.Header>
                 <AppText style={[{ color: muted }, styles.title]}>
                     Earned Money
@@ -84,10 +86,10 @@ const EarnedAmount = () => {
                         width: 10, 
                         height: 10, 
                         borderRadius: 5, 
-                        backgroundColor: selectedClient?.color || '#2bee6c' 
+                        backgroundColor: selectedClient?.color || accent 
                     }} />
                     <AppText style={{ 
-                        color: selectedClient?.color || '#2bee6c', 
+                        color: selectedClient?.color || accent, 
                         fontSize: 18, 
                         fontWeight: '700',
                         textTransform: 'uppercase',
@@ -102,8 +104,8 @@ const EarnedAmount = () => {
             </Card.Footer>
         </Card>
         {sessionStoppedByLimit && (
-            <View style={styles.limitWarning}>
-                <AppText style={styles.limitWarningText}>
+            <View style={[styles.limitWarning, { backgroundColor: danger + '20' }]}>
+                <AppText style={[styles.limitWarningText, { color: danger }]}>
                     Timer auto-stopped (16h limit exceeded).
                 </AppText>
             </View>
@@ -116,8 +118,7 @@ const styles = StyleSheet.create({
         gap: Layout.spacing, 
         alignItems: 'center', 
         minWidth: CARD_WIDTH, 
-        padding: Layout.spacing * 4, 
-        backgroundColor: "rgba(43, 238, 108, 0.2)", 
+        padding: Layout.spacing * 4,
         borderRadius: Layout.borderRadius
     },
     title: {
@@ -131,12 +132,10 @@ const styles = StyleSheet.create({
     limitWarning: {
         marginTop: Layout.spacing * 2,
         padding: Layout.spacing * 4,
-        backgroundColor: 'rgba(255, 0, 0, 0.1)',
         borderRadius: Layout.borderRadius,
         alignItems: 'center',
     },
     limitWarningText: {
-        color: '#FF4500',
         fontWeight: '600' as '600' | 'bold',
         fontSize: 16,
     }

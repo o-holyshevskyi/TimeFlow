@@ -10,6 +10,7 @@ const BackupCard = () => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');    
     const accent = useThemeColor('accent');
+    const background = useThemeColor('background');
 
     const { createBackup, restoreBackup, isLoading } = useDataBackup();
     const { toast } = useToast();
@@ -17,7 +18,12 @@ const BackupCard = () => {
     const showToast = useCallback((label: string, description: string) => {
         toast.show({
             component: (props) => (
-                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                <Toast 
+                    variant="default" 
+                    placement="top" 
+                    style={{ backgroundColor: background, borderColor: accent }}
+                    className="border-1 p-5" {...props}
+                >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View>
                             <Toast.Label style={{ fontSize: 22 }}>{label}</Toast.Label>
@@ -28,7 +34,7 @@ const BackupCard = () => {
                 </Toast>
             ),
         });
-    }, [toast]);
+    }, [toast, background, accent]);
 
     const handleCreateBackup = useCallback(async () => {
         await createBackup();
@@ -41,7 +47,7 @@ const BackupCard = () => {
     }, [restoreBackup, showToast]);
 
     return (
-        <Card style={[styles.settingsCard]}>
+        <Card style={[styles.settingsCard, { backgroundColor: accent + '20' }]}>
             <Card.Header style={[styles.settingsCardHeader]}>
                 <AppText style={[{ color: foreground }, styles.settingsCardTitle]}>Data Backup</AppText>
                 <AppText style={[{ color: muted }, styles.settingsCardDescription]}>
@@ -79,10 +85,10 @@ const BackupCard = () => {
                     style={{
                         borderRadius: 9999,
                         borderWidth: 1,
-                        borderColor: '#2bee6c',
+                        borderColor: accent,
                         backgroundColor: 'transparent',
                         width: '100%',
-                        paddingHorizontal: Layout.spacing * 3,
+                        paddingHorizontal: Layout.spacing * 4,
                         paddingVertical: Layout.spacing / 1.5,
                     }}
                     isDisabled={isLoading}
@@ -92,8 +98,8 @@ const BackupCard = () => {
                         <Spinner color="default" />
                     ) : (
                         <View style={{ flexDirection: 'row', gap: Layout.spacing, alignItems: 'center', justifyContent: 'center' }}>
-                            <Icon name="cloud-download-outline" color="#2bee6c" />
-                            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: '#2bee6c' }}>
+                            <Icon name="cloud-download-outline" color={foreground} />
+                            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: foreground }}>
                                 Import Backup
                             </Button.Label>
                         </View>
@@ -109,7 +115,7 @@ const BackupCard = () => {
                     size="lg"
                     animation={{
                         ripple: {
-                            backgroundColor: { value: "black" },
+                            backgroundColor: { value: foreground },
                             opacity: { value: [0, 0.3, 0] },
                         },
                         scale: {
@@ -121,8 +127,8 @@ const BackupCard = () => {
                         <Spinner color="default" />
                     ) : (
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                             <Icon name="cloud-upload-outline" color="black" size={24} />
-                            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: 'black' }}>
+                             <Icon name="cloud-upload-outline" color={foreground} size={24} />
+                            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: foreground }}>
                                 Create Backup
                             </Button.Label>
                         </View>
@@ -136,7 +142,6 @@ const BackupCard = () => {
 const styles = StyleSheet.create({
     settingsCard: {
         marginTop: Layout.spacing * 2,
-        backgroundColor: '#1C2D23',
         borderRadius: Layout.borderRadius,
         gap: Layout.spacing * 4
     },

@@ -62,11 +62,11 @@ export default function HomeScreen() {
             <BlurView
                 intensity={30}
                 tint="dark"
-                style={styles.overlay}
+                style={[styles.overlay, { backgroundColor: background + '20'}]}
             >
-                <Card style={[styles.welcomeCard, { backgroundColor: background }]}>
+                <Card style={[styles.welcomeCard, { backgroundColor: background, borderColor: accent }]}>
                     <Card.Body style={styles.center}>
-                        <View style={styles.iconCircle}>
+                        <View style={[styles.iconCircle, { backgroundColor: accent + '20' }]}>
                             <Icon name="ribbon" size={50} color={accent} />
                         </View>
                         <AppText style={[styles.title, { color: foreground }]}>
@@ -77,9 +77,9 @@ export default function HomeScreen() {
                         </AppText>
                         <Button 
                             onPress={handleCloseWelcome}
-                            style={styles.button}
+                            style={[styles.button, { backgroundColor: accent }]}
                         >
-                            <Button.Label style={{ color: 'black', fontWeight: '800' }}>
+                            <Button.Label style={{ color: foreground, fontWeight: '800' }}>
                                 Start Tracking
                             </Button.Label>
                         </Button>
@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     },
     overlay: {
         flex: 1,
-        backgroundColor: 'rgba(23, 23, 23, 0.62)',
         justifyContent: 'center',
         alignItems: 'center',
         padding: 24
@@ -107,7 +106,6 @@ const styles = StyleSheet.create({
         width: '100%',
         borderRadius: 24,
         borderWidth: 1,
-        borderColor: '#2bee6c',
     },
     center: {
         alignItems: 'center',
@@ -117,7 +115,6 @@ const styles = StyleSheet.create({
         width: 100,
         height: 100,
         borderRadius: 50,
-        backgroundColor: 'rgba(78, 250, 21, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
         marginBottom: 20
@@ -137,7 +134,6 @@ const styles = StyleSheet.create({
     button: {
         width: '100%',
         height: 56,
-        backgroundColor: '#2bee6c',
         borderRadius: 16
     }
 });

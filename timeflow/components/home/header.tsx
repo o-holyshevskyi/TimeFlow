@@ -131,7 +131,7 @@ const Header = () => {
                                         exiting={ZoomOut.duration(200)}
                                     >
                                         <Button onPress={handleMenuClose} isIconOnly variant="primary" style={{ borderRadius: 9999 }}>
-                                            <Icon name='close-outline' color="black" />
+                                            <Icon name='close-outline' color={foreground} />
                                         </Button>
                                     </Animated.View>
                                 </View>

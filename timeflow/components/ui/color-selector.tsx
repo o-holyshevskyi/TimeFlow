@@ -51,7 +51,7 @@ export const ColorSelector = ({ selectedColor, onSelect, label = "Color Marker" 
                             ]}
                         >
                             {isSelected && (
-                                <Icon name="checkmark" size={20} color={color === '#ffffff' ? 'black' : 'white'} />
+                                <Icon name="checkmark" size={20} color={color === '#ffffff' ? 'white' : 'white'} />
                             )}
                         </TouchableOpacity>
                     );

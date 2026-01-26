@@ -18,7 +18,11 @@ export default function EditClientModal() {
     const { toast } = useToast();
 
     const clientId = Array.isArray(id) ? id[0] : id;
+
     const accent = useThemeColor('accent');
+    const background = useThemeColor('background');
+    const foreground = useThemeColor('foreground');
+    const danger = useThemeColor('danger');
 
     const client = useMemo(() => clients.find(cl => cl.id === clientId), [clients, clientId]);
 
@@ -55,7 +59,12 @@ export default function EditClientModal() {
     const showToast = () => {
         toast.show({
             component: (props) => (
-                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                <Toast 
+                    variant="default" 
+                    placement="top"
+                    style={{ backgroundColor: background, borderColor: accent }} 
+                    className="border-1 p-5" {...props}
+                >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View>
                             <Toast.Label style={{ fontSize: 22 }}>Client Updated</Toast.Label>
@@ -97,17 +106,17 @@ export default function EditClientModal() {
         />
         <HourlyRateInput rate={rate} setRate={setRate} width={WIDTH + Layout.spacing * 4 } />
         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: Layout.spacing, width: WIDTH }}>
-            <AppText style={{ color: 'white', fontSize: 18 }}>Set as Default Client</AppText>
+            <AppText style={{ color: foreground, fontSize: 18 }}>Set as Default Client</AppText>
             <Switch 
                 isSelected={isDefault} 
                 onSelectedChange={setIsDefault}
             />
         </View>
         <Button isDisabled={!canSave} style={{ width: WIDTH, marginTop: Layout.spacing * 5 }} onPress={handleEdit}>
-            <Button.Label style={{ color: 'black', fontSize: 22, fontWeight: '700' }}>Save Client</Button.Label>
+            <Button.Label style={{ color: foreground, fontSize: 22, fontWeight: '700' }}>Save Client</Button.Label>
         </Button>
         {saveError && 
-            <AppText style={{ color: '#b91c1c', fontSize: 16, fontWeight: '600' }}>{saveError}</AppText>
+            <AppText style={{ color: danger, fontSize: 16, fontWeight: '600' }}>{saveError}</AppText>
         }
     </BaseModal>
 }

@@ -50,10 +50,10 @@ export const RecentHistory = ({ sessions }: { sessions: Session[] }) => {
                 const rateStr = `${formatted} / hr`;
 
                 return (
-                    <Card key={session.id} style={[styles.item, { backgroundColor: '#1C2D23' }]}>
+                    <Card key={session.id} style={[styles.item, { backgroundColor: accent + '20' }]}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', gap: Layout.spacing * 2 }}>
-                            <View style={{ padding: 10, backgroundColor: 'rgba(255,255,255,0.05)', borderRadius: 12 }}>
-                                <Icon name="briefcase-outline" color={muted} size={20} />
+                            <View style={{ padding: 10, backgroundColor: accent + '40', borderRadius: 12 }}>
+                                <Icon name="briefcase-outline" color={accent} size={20} />
                             </View>
                             <View>
                                 <AppText style={{ color: foreground, fontWeight: '600', fontSize: 16 }}>

@@ -7,14 +7,6 @@ import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon"; // 🔥 IMPORT ICON
 import { usePremiumToast } from "../ui/premium-toast";
 
-const HEATMAP_COLORS = {
-    0: 'rgba(255, 255, 255, 0.05)',
-    1: '#0e4429', 
-    2: '#006d32', 
-    3: '#26a641', 
-    4: '#39d353', 
-};
-
 const SQUARE_SIZE = 14;
 const GAP = 4;
 const WEEKS_TO_SHOW = 18;
@@ -33,7 +25,14 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
     const muted = useThemeColor('muted');
     const foreground = useThemeColor('foreground');
     const accent = useThemeColor('accent');
-    const cardBg = '#1C2D23';
+
+    const HEATMAP_COLORS = {
+        0: accent + 20,
+        1: accent + 50, 
+        2: accent + 70, 
+        3: accent + 90, 
+        4: accent, 
+    };
 
     const { showToast } = usePremiumToast();
 
@@ -95,7 +94,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
 
     const renderLegend = () => (
         <View style={styles.legendContainer}>
-            <AppText style={{ color: muted, fontSize: 10, marginRight: 4 }}>Less</AppText>
+            <AppText style={{ color: foreground, fontSize: 10, marginRight: 4 }}>Less</AppText>
             {[0, 1, 2, 3, 4].map((level) => (
                 <View 
                     key={level} 
@@ -105,13 +104,13 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
                     ]} 
                 />
             ))}
-            <AppText style={{ color: muted, fontSize: 10, marginLeft: 4 }}>More</AppText>
+            <AppText style={{ color: foreground, fontSize: 10, marginLeft: 4 }}>More</AppText>
         </View>
     );
 
     if (!isPro) {
         return (
-            <Card style={[styles.card, { backgroundColor: cardBg, overflow: 'hidden' }]}>
+            <Card style={[styles.card, { backgroundColor: accent + '20', overflow: 'hidden' }]}>
                 <Card.Header style={{ paddingHorizontal: Layout.spacing * 2, paddingTop: Layout.spacing * 2 }}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center', opacity: 0.5 }}>
                         <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Consistency</AppText>
@@ -122,7 +121,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
                 <View style={{ padding: Layout.spacing * 4, alignItems: 'center', justifyContent: 'center', gap: Layout.spacing }}>
                     <View style={{ 
                         width: 60, height: 60, borderRadius: 30, 
-                        backgroundColor: 'rgba(255,255,255,0.1)', 
+                        backgroundColor: accent + '40', 
                         alignItems: 'center', justifyContent: 'center',
                         marginBottom: 4
                     }}>
@@ -145,7 +144,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
                             )
                         }}
                     >
-                        <AppText style={{ color: '#000', fontWeight: '700', fontSize: 16 }}>Go PRO</AppText>
+                        <AppText style={{ color: foreground, fontWeight: '700', fontSize: 16 }}>Go PRO</AppText>
                     </Button>
                 </View>
             </Card>
@@ -153,7 +152,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
     }
 
     return (
-        <Card style={[styles.card, { backgroundColor: cardBg }]}>
+        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
             <Card.Header style={{ paddingHorizontal: Layout.spacing * 2, paddingTop: Layout.spacing * 2 }}>
                  <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                     <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Consistency</AppText>
@@ -167,7 +166,7 @@ export const WorkHeatmap = ({ sessions, isPro }: { sessions: Session[], isPro: b
                         {WEEK_DAYS.map((day, index) => (
                             <View key={index} style={styles.dayLabelContainer}>
                                 {day.show && (
-                                    <AppText style={{ color: muted, fontSize: 10, lineHeight: SQUARE_SIZE }}>
+                                    <AppText style={{ color: foreground, fontSize: 10, lineHeight: SQUARE_SIZE }}>
                                         {day.label}
                                     </AppText>
                                 )}
