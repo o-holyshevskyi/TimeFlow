@@ -42,15 +42,6 @@ class NotificationService {
             return false;
         }
 
-        if (Platform.OS === 'android') {
-            await Notifications.setNotificationChannelAsync('default', {
-                name: 'default',
-                importance: Notifications.AndroidImportance.MAX,
-                vibrationPattern: [0, 250, 250, 250],
-                lightColor: '#FF231F7C',
-            });
-        }
-
         return true;
     }
 
@@ -135,8 +126,6 @@ class NotificationService {
             const projectId = Constants.expoConfig?.extra?.eas?.projectId || Constants.easConfig?.projectId;
             const tokenData = await Notifications.getExpoPushTokenAsync({ projectId });
             const token = tokenData.data;
-
-            console.log("Push Token:", token);
             
             // Зберігаємо в базу
             await this.saveTokenToFirebase(token);

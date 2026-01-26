@@ -1,4 +1,4 @@
-// import AdBanner from '@/components/advertisment/ad-banner';
+import AdBanner from '@/components/advertisment/ad-banner';
 import Actions from '@/components/home/actions';
 import MainContent from '@/components/home/content';
 import Header from '@/components/home/header';
@@ -51,7 +51,7 @@ export default function HomeScreen() {
         >
             <MainContent />
         </Animated.View>
-        {/* <AdBanner isPro={!isChecking && isPro} /> */}
+        <AdBanner isPro={!isChecking && isPro} />
         <Animated.View
             entering={FadeInDown.delay(500).easing(Easing.ease).duration(600).damping(80)}
         >
