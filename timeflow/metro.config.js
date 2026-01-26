@@ -9,5 +9,11 @@ config.resolver.sourceExts.push('cjs');
 
 module.exports = withUniwindConfig(config, {  
     cssEntryFile: './global.css',
-    dtsFile: './uniwind-types.d.ts'
+    dtsFile: './uniwind-types.d.ts',
+    extraThemes: [
+        'ocean',
+        'midnight',
+        'aura',
+        'nord',
+    ],
 });

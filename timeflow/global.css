@@ -1,23 +1,251 @@
 @import 'tailwindcss';
 @import 'uniwind';
-
 @import 'heroui-native/styles';
 
 @source './node_modules/heroui-native/lib';
 
+@theme {
+  /* Константи (Primitive Colors) залишаємо тут, це не змінні теми */
+  --white: oklch(100% 0 0);
+  --black: oklch(0% 0 0);
+  --snow: oklch(0.9911 0 0);
+  --eclipse: oklch(0.2103 0.0059 285.89);
+  --radius: 0.75rem;
+  --opacity-disabled: 0.5;
+}
+
 @layer theme {
-  :root {
-    @variant light {
-      --accent: oklch(0.8321 0.2271 148.51);
-      --background: oklch(0.232 0.0335 153.81);
-      --foreground: oklch(1 0.0363 261.26);
-      --muted: oklch(0.862 0.0363 261.26);
-    }
-    @variant dark {
-      --accent: oklch(0.8321 0.2271 148.51);
-      --background: oklch(0.232 0.0335 153.81);
-      --foreground: oklch(1 0.0363 261.26);
-      --muted: oklch(0.862 0.0363 261.26);
-    }
+  /* ВАЖЛИВО: Ми прибрали змінні з :root і перенесли їх у @variant light.
+     :root залишаємо пустим або для глобальних налаштувань.
+  */
+  :root {}
+
+  /* 1. ТЕМА LIGHT (Явне визначення) */
+  @variant light {
+    /* Основні кольори */
+    --background: oklch(0.9702 0 0);
+    --foreground: var(--eclipse);
+    --surface: var(--white);
+    --surface-foreground: var(--foreground);
+    --overlay: var(--white);
+    --overlay-foreground: var(--foreground);
+    --muted: oklch(0.55 0.016 285.938);
+    --default: oklch(0.94 0.001 286.375);
+    --default-foreground: var(--eclipse);
+    --accent: oklch(0.6204 0.195 253.83);
+    --accent-foreground: var(--snow);
+    
+    --field-background: var(--white);
+    --field-foreground: var(--eclipse);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+    
+    --divider: oklch(0.91 0.015 230);
+    --link: var(--foreground);
+
+    /* Спільні змінні (Success/Warning/Danger/Border) */
+    --success: oklch(0.72 0.14 165);
+    --success-foreground: var(--white);
+    --warning: oklch(0.78 0.12 85);
+    --warning-foreground: var(--eclipse);
+    --danger: oklch(0.68 0.18 15);
+    --danger-foreground: var(--white);
+    
+    --border: oklch(0 0 0 / 0%);
+    --segment: oklch(0.5 0.01 285);
+    --segment-foreground: var(--white);
+
+    /* Тіні (Ті самі, що були в root) */
+    --surface-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+    --overlay-shadow: 0 4px 16px 0 rgba(0, 0, 0, 0.08);
+    --field-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+
+  /* 2. ТЕМА DARK */
+  @variant dark {
+    --background: var(--black);
+    --foreground: var(--snow);
+    --surface: var(--eclipse);
+    --surface-foreground: var(--foreground);
+    --overlay: oklch(0.25 0.005 271);
+    --overlay-foreground: var(--foreground);
+    --muted: oklch(0.7 0.015 286);
+    --default: oklch(0.27 0.006 286);
+    --default-foreground: var(--snow);
+    --accent: oklch(0.6204 0.195 253.83);
+    --accent-foreground: var(--snow);
+    
+    --field-background: var(--default);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+    
+    --divider: oklch(0.38 0.006 286);
+    --link: var(--foreground);
+
+    /* Дублікати спільних */
+    --success: oklch(0.72 0.14 165);
+    --success-foreground: var(--white);
+    --warning: oklch(0.78 0.12 85);
+    --warning-foreground: var(--eclipse);
+    --danger: oklch(0.68 0.18 15);
+    --danger-foreground: var(--white);
+    --border: oklch(0 0 0 / 0%);
+    --segment: oklch(0.5 0.01 285);
+    --segment-foreground: var(--white);
+
+    /* Тіні (для темної теми зазвичай прозорі) */
+    --surface-shadow: 0 0 0 0 transparent;
+    --overlay-shadow: 0 0 0 0 transparent;
+    --field-shadow: 0 0 0 0 transparent;
+  }
+
+  /* 3. ТЕМА MIDNIGHT */
+  @variant midnight {
+    --background: oklch(0.18 0.02 153.81);
+    --foreground: oklch(0.98 0.01 153.81);
+    --surface: oklch(0.23 0.03 153.81);
+    --surface-foreground: var(--foreground);
+    --overlay: oklch(0.28 0.03 153.81);
+    --overlay-foreground: var(--foreground);
+    --muted: oklch(0.55 0.03 153.81);
+    --default: oklch(0.25 0.04 153.81);
+    --default-foreground: var(--foreground);
+    --accent: oklch(0.83 0.22 148.51);
+    --accent-foreground: oklch(0.2 0.05 148.51);
+    
+    --field-background: var(--default);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+    
+    --divider: oklch(0.3 0.03 153.81);
+    --link: var(--accent);
+    
+    --success: oklch(0.72 0.14 165);
+    --success-foreground: var(--white);
+    --warning: oklch(0.78 0.12 85);
+    --warning-foreground: var(--eclipse);
+    --danger: oklch(0.68 0.18 15);
+    --danger-foreground: var(--white);
+    --border: oklch(0 0 0 / 0%);
+    --segment: oklch(0.5 0.01 285);
+    --segment-foreground: var(--white);
+
+    --surface-shadow: 0 0 0 0 transparent;
+    --overlay-shadow: 0 0 0 0 transparent;
+    --field-shadow: 0 0 0 0 transparent;
+  }
+
+  /* 4. ТЕМА OCEAN */
+  @variant ocean {
+    --background: oklch(0.15 0.04 230);
+    --foreground: oklch(0.95 0.01 230);
+    --surface: oklch(0.2 0.048 230);
+    --surface-foreground: var(--foreground);
+    --overlay: oklch(0.25 0.045 230);
+    --overlay-foreground: var(--foreground);
+    --muted: oklch(0.5 0.04 230);
+    --default: oklch(0.25 0.05 230);
+    --default-foreground: var(--foreground);
+    --accent: oklch(0.72 0.21 230);
+    --accent-foreground: oklch(0.15 0.04 230);
+    
+    --field-background: var(--default);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+    
+    --divider: oklch(0.28 0.045 230);
+    --link: var(--accent);
+    
+    --success: oklch(0.72 0.14 165);
+    --success-foreground: var(--white);
+    --warning: oklch(0.78 0.12 85);
+    --warning-foreground: var(--eclipse);
+    --danger: oklch(0.68 0.18 15);
+    --danger-foreground: var(--white);
+    --border: oklch(0 0 0 / 0%);
+    --segment: oklch(0.5 0.01 285);
+    --segment-foreground: var(--white);
+
+    --surface-shadow: 0 0 0 0 transparent;
+    --overlay-shadow: 0 0 0 0 transparent;
+    --field-shadow: 0 0 0 0 transparent;
+  }
+
+  /* 5. ТЕМА AURA */
+  @variant aura {
+    --background: oklch(0.14 0.05 285);
+    --foreground: oklch(0.96 0.02 285);
+    --surface: oklch(0.19 0.06 285);
+    --surface-foreground: var(--foreground);
+    --overlay: oklch(0.24 0.06 285);
+    --overlay-foreground: var(--foreground);
+    --muted: oklch(0.55 0.05 285);
+    --default: oklch(0.25 0.07 285);
+    --default-foreground: var(--foreground);
+    --accent: oklch(0.7 0.25 310);
+    --accent-foreground: var(--white);
+    
+    --field-background: var(--default);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+    
+    --divider: oklch(0.28 0.07 285);
+    --link: var(--accent);
+    
+    --success: oklch(0.72 0.14 165);
+    --success-foreground: var(--white);
+    --warning: oklch(0.78 0.12 85);
+    --warning-foreground: var(--eclipse);
+    --danger: oklch(0.68 0.18 15);
+    --danger-foreground: var(--white);
+    --border: oklch(0 0 0 / 0%);
+    --segment: oklch(0.5 0.01 285);
+    --segment-foreground: var(--white);
+
+    --surface-shadow: 0 0 0 0 transparent;
+    --overlay-shadow: 0 0 0 0 transparent;
+    --field-shadow: 0 0 0 0 transparent;
+  }
+
+  /* 6. ТЕМА NORD */
+  @variant nord {
+    --background: oklch(0.98 0.01 220);
+    --foreground: oklch(0.25 0.03 220);
+    --surface: var(--white);
+    --surface-foreground: var(--foreground);
+    --overlay: var(--white);
+    --overlay-foreground: var(--foreground);
+    --muted: oklch(0.6 0.02 220);
+    --default: oklch(0.94 0.01 220);
+    --default-foreground: var(--foreground);
+    --accent: oklch(0.55 0.15 220);
+    --accent-foreground: var(--white);
+    
+    --field-background: oklch(0.96 0.01 220);
+    --field-foreground: var(--foreground);
+    --field-placeholder: var(--muted);
+    --field-border: oklch(0.9 0.01 220);
+    
+    --divider: oklch(0.92 0.01 220);
+    --link: var(--accent);
+    
+    --success: oklch(0.72 0.14 165);
+    --success-foreground: var(--white);
+    --warning: oklch(0.78 0.12 85);
+    --warning-foreground: var(--eclipse);
+    --danger: oklch(0.68 0.18 15);
+    --danger-foreground: var(--white);
+    --border: oklch(0 0 0 / 0%);
+    --segment: oklch(0.5 0.01 285);
+    --segment-foreground: var(--white);
+
+    /* Тіні для світлої теми */
+    --surface-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    --overlay-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    --field-shadow: 0 1px 2px rgba(0,0,0,0.05);
   }
 }
