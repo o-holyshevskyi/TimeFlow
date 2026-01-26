@@ -57,8 +57,8 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
         
         {sessions.length === 0 &&
             <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                <Icon name="timer-outline" color={muted} />
-                <AppText style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
+                <Icon name="timer-outline" color={foreground} />
+                <AppText style={{ color: foreground, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
                     No saved session. Start the timer to save the first session.
                 </AppText>
             </View>
@@ -72,16 +72,16 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
                 paddingRight: Layout.spacing * 2
             }}
         >
-            <Card style={styles.insightCard}>
-                <AppText style={[styles.label, { color: muted }]}>Projected Earnings</AppText>
+            <Card style={[styles.insightCard, { backgroundColor: accent + '20' }]}>
+                <AppText style={[styles.label, { color: foreground }]}>Projected Earnings</AppText>
                 <AppText style={[styles.value, { color: foreground }]}>
                     {formatCurrency({ amount: parseFloat(insights?.projected || '0') ?? 0, code: settings?.currency || 'USD' })[0]}
                 </AppText>
                 <AppText style={[styles.subtext, { color: accent }]}>by end of month</AppText>
             </Card>
             {topClient && (
-                <Card style={styles.insightCard}>
-                    <AppText style={[styles.label, { color: muted }]}>Top Client</AppText>
+                <Card style={[styles.insightCard, { backgroundColor: accent + '20' }]}>
+                    <AppText style={[styles.label, { color: foreground }]}>Top Client</AppText>
                     <AppText numberOfLines={1} style={[styles.value, { color: foreground, fontSize: 22 }]}>
                         {topClient.name}
                     </AppText>
@@ -90,29 +90,29 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
                     </AppText>
                 </Card>
             )}
-            <Card style={styles.insightCard}>
-                <AppText style={[styles.label, { color: muted }]}>Most Profitable Day</AppText>
+            <Card style={[styles.insightCard, { backgroundColor: accent + '20' }]}>
+                <AppText style={[styles.label, { color: foreground }]}>Most Profitable Day</AppText>
                 <AppText style={[styles.value, { color: foreground }]}>
                     {insights?.bestDay || '—'}
                 </AppText>
                 <AppText style={[styles.subtext, { color: accent }]}>keep pushing!</AppText>
             </Card>
-            <Card style={styles.insightCard}>
-                <AppText style={[styles.label, { color: muted }]}>Daily Average</AppText>
+            <Card style={[styles.insightCard, { backgroundColor: accent + '20' }]}>
+                <AppText style={[styles.label, { color: foreground }]}>Daily Average</AppText>
                 <AppText style={[styles.value, { color: foreground }]}>
                     {formatCurrency({ amount: parseFloat(insights?.dailyAverage ?? '0') ?? 0, code: settings?.currency || 'USD' })[0]}
                 </AppText>
                 <AppText style={[styles.subtext, { color: accent }]}>per day</AppText>
             </Card>
-            <Card style={styles.insightCard}>
-                <AppText style={[styles.label, { color: muted }]}>Avg Session</AppText>
+            <Card style={[styles.insightCard, { backgroundColor: accent + '20' }]}>
+                <AppText style={[styles.label, { color: foreground }]}>Avg Session</AppText>
                 <AppText style={[styles.value, { color: foreground }]}>
                     {insights?.avgSession || '0'} hrs
                 </AppText>
                 <AppText style={[styles.subtext, { color: accent }]}>focus time</AppText>
             </Card>
-            <Card style={styles.insightCard}>
-                <AppText style={[styles.label, { color: muted }]}>Your Rhythm</AppText>
+            <Card style={[styles.insightCard, { backgroundColor: accent + '20' }]}>
+                <AppText style={[styles.label, { color: foreground }]}>Your Rhythm</AppText>
                 <AppText style={[styles.value, { color: foreground, fontSize: 22 }]}>
                     {insights?.persona?.emoji} {insights?.persona?.title || '—'}
                 </AppText>
@@ -122,8 +122,6 @@ export const InsightsCard = ({sessions}: {sessions: Session[]}) => {
     </View>
 }
 
-
-
 const styles = StyleSheet.create({
     sectionTitle: {
         fontSize: 20,
@@ -132,7 +130,6 @@ const styles = StyleSheet.create({
         marginTop: Layout.spacing,
     },
     insightCard: {
-        backgroundColor: '#1C2D23',
         borderRadius: Layout.borderRadius,
         padding: Layout.spacing * 4,
         minWidth: 160,

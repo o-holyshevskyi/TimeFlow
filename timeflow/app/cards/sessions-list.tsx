@@ -269,13 +269,15 @@ const AnimatedSessionCard = ({
     );
 };
 
-const AddManualSession = ({ handleAddSession }: { handleAddSession: () => void }) => (
-    <View>
+const AddManualSession = ({ handleAddSession }: { handleAddSession: () => void }) => {
+    const foreground = useThemeColor('foreground');
+    
+    return <View>
         <Button isIconOnly variant="primary" size="lg" onPress={handleAddSession}>
-            <Icon name="add-outline" color="black" />
+            <Icon name="add-outline" color={foreground} />
         </Button>
     </View>
-);
+};
 
 const styles = StyleSheet.create({
     container: { 

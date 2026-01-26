@@ -10,7 +10,9 @@ import CurrencySelect from "./currency-select";
 
 const SettingsCard = () => {
     const foreground = useThemeColor('foreground');
-    const muted = useThemeColor('muted');    
+    const muted = useThemeColor('muted');
+    const accent = useThemeColor('accent');    
+    const background = useThemeColor('background');
     
     const [rate, setRate] = useState<undefined | string>(undefined);
     const [currency, setCurrency] = useState<undefined | string>(undefined);
@@ -29,7 +31,12 @@ const SettingsCard = () => {
     const showToast = useCallback(() => {
         toast.show({
             component: (props) => (
-                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                <Toast 
+                    variant="default" 
+                    placement="top" 
+                    style={{ backgroundColor: background, borderColor: accent }}
+                    className="border-1 p-5" {...props}
+                >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View>
                             <Toast.Label style={{ fontSize: 22 }}>Settings saved!</Toast.Label>
@@ -40,7 +47,7 @@ const SettingsCard = () => {
                 </Toast>
             ),
         });
-    }, [toast]);
+    }, [toast, background, accent]);
 
     const handleSaveRate = useCallback(async () => {
         await saveSettings({ currency, rate, notificationsEnabled: settings?.notificationsEnabled ?? true });
@@ -49,7 +56,7 @@ const SettingsCard = () => {
         Keyboard.dismiss();
     }, [currency, rate, saveSettings, showToast, settings]);
 
-    return <Card style={[styles.settingsCard]}>
+    return <Card style={[styles.settingsCard, { backgroundColor: accent + '20' }]}>
         <Card.Header style={[styles.settingsCardHeader]}>
             <AppText style={[{ color: foreground }, styles.settingsCardTitle]}>Set Your Hourly Rate</AppText>
             <AppText style={[{ color: muted }, styles.settingsCardDescription]}>This will be used to calculate your earnings.</AppText>
@@ -70,7 +77,7 @@ const SettingsCard = () => {
                 size="lg"
                 animation={{
                     ripple: {
-                        backgroundColor: { value: "black" },
+                        backgroundColor: { value: foreground },
                         opacity: { value: [0, 0.3, 0] },
                     },
                     scale: {
@@ -78,7 +85,7 @@ const SettingsCard = () => {
                     }
                 }}
             >
-                <Button.Label style={{ fontSize: 24, fontWeight: 600, color: 'black' }}>Save Rate</Button.Label>
+                <Button.Label style={{ fontSize: 24, fontWeight: 600, color: foreground }}>Save Rate</Button.Label>
             </Button>
         </Card.Footer>
     </Card>
@@ -87,7 +94,6 @@ const SettingsCard = () => {
 const styles = StyleSheet.create({
     settingsCard: {
         marginTop: Layout.spacing * 2,
-        backgroundColor: '#1C2D23',
         borderRadius: Layout.borderRadius,
         gap: Layout.spacing * 5
     },

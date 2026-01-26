@@ -4,15 +4,21 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Button, Popover, PopoverTriggerRef, Toast, useThemeColor, useToast } from "heroui-native";
 import { useRef } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
+import { useUniwind } from "uniwind";
 import PremiumCard from "../settings/premium-card";
+import { THEMES } from "../settings/themes-card";
 import { AppText } from "../ui/app-text";
 
 export const usePremiumToast = () => {
     const { toast } = useToast();
+    const { theme } = useUniwind();
 
     const popoverRef = useRef<PopoverTriggerRef>(null);
     const timeoutRef = useRef<number | null>(null);
     const background = useThemeColor('background');
+    const accent = useThemeColor('accent');
+    const foreground = useThemeColor('foreground');
+    const activeTheme = THEMES.find(t => t.id === theme);
 
     const handleClose = () => {
         popoverRef.current?.close();
@@ -27,7 +33,12 @@ export const usePremiumToast = () => {
         toast.show({
             duration: 0,
             component: (props) => (
-                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                <Toast 
+                    style={{ backgroundColor: background, borderColor: accent }}
+                    variant="default" 
+                    placement="top" 
+                    className='border-1 p-5' {...props}
+                >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                         <View style={{ flex: 3 }}>
                             <Toast.Label style={{ fontSize: 22 }}>{label}</Toast.Label>
@@ -38,7 +49,7 @@ export const usePremiumToast = () => {
                                 <Popover.Trigger ref={popoverRef} asChild>
                                     <Pressable>
                                         <LinearGradient
-                                            colors={["#f7f455ff", "#22cea9ff"]}
+                                            colors={(activeTheme?.colors || [accent + '50', accent]) as [string, string, ...string[]]}
                                             start={{ x: 0, y: 0 }}
                                             end={{ x: 1, y: 1 }}
                                             style={{ borderRadius: 9999, flex: 1.05 }}
@@ -53,7 +64,7 @@ export const usePremiumToast = () => {
                                                     popoverRef.current?.open();
                                                 }}
                                             >
-                                                <AppText numberOfLines={1} style={{ fontSize: 16, fontWeight: '600', color: "black" }}>Upgrade</AppText>
+                                                <AppText numberOfLines={1} style={{ fontSize: 16, fontWeight: '600', color: foreground }}>Upgrade</AppText>
                                             </Toast.Action>
                                         </LinearGradient>
                                     </Pressable>
@@ -85,7 +96,7 @@ export const usePremiumToast = () => {
                                                 style={{
                                                     borderRadius: 9999,
                                                     borderWidth: 1,
-                                                    borderColor: '#2bee6c',
+                                                    borderColor: accent,
                                                     backgroundColor: 'transparent',
                                                     width: '100%',
                                                     paddingHorizontal: Layout.spacing * 3,
@@ -97,7 +108,7 @@ export const usePremiumToast = () => {
                                                     style={{ 
                                                         fontSize: 24, 
                                                         fontWeight: '600', 
-                                                        color: "#2bee6c" 
+                                                        color: accent 
                                                     }}
                                                 >
                                                     Close

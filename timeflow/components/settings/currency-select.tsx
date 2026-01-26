@@ -19,6 +19,7 @@ const CurrencySelect = ({ initialCurrency, onCurrencySelect, isDisabled = false 
     const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+    const accent = useThemeColor('accent');
     const supportedCurrencies = getSupportedCurrencies();
 
     const sortedCurrencies = useMemo(() => {
@@ -124,39 +125,39 @@ const CurrencySelect = ({ initialCurrency, onCurrencySelect, isDisabled = false 
                                     placeholder="Search currency (e.g. USD, Euro)"
                                     keyboardType='default'
                                     returnKeyType='search'
-                                    placeholderTextColor='#92c9a4'
+                                    placeholderTextColor={foreground}
                                     className="rounded-full"
                                     value={searchFilter}
                                     onChangeText={(val) => setSearchFilter(val)}
                                     style={{
                                         fontSize: 18,
                                         textAlignVertical: 'center',
-                                        color: '#92c9a4',
+                                        color: foreground,
                                     }}
                                     animation={{
                                         backgroundColor: {
                                             value: {
-                                                blur: '#23482f',
-                                                focus: '#23482f',
-                                                error: '#23482f',
+                                                blur: accent + '20',
+                                                focus: accent + '20',
+                                                error: accent + '20',
                                             },
                                             
                                         },
                                         borderColor: {
                                             value: {
-                                                blur: '#23482f',
-                                                focus: '#23482f',
-                                                error: '#23482f',
+                                                blur: accent + '20',
+                                                focus: accent + '20',
+                                                error: accent + '20',
                                             },
                                         },
                                     }}
                                 >
                                     <TextField.InputStartContent>
-                                        <Icon name='search-outline' color='#92c9a4'/>
+                                        <Icon name='search-outline' color={foreground}/>
                                     </TextField.InputStartContent>
                                     <TextField.InputEndContent>
                                         <Pressable onPress={handleClearFilter}>
-                                            <Icon name='close-outline' color='#92c9a4'/>
+                                            <Icon name='close-outline' color={foreground}/>
                                         </Pressable>
                                     </TextField.InputEndContent>
                                 </TextField.Input>
@@ -181,7 +182,7 @@ const CurrencySelect = ({ initialCurrency, onCurrencySelect, isDisabled = false 
                                             borderRadius: Layout.borderRadius,
                                             paddingHorizontal: curr.code === selectedCurrency.code ? Layout.spacing * 2 : 0,
                                             paddingVertical: curr.code === selectedCurrency.code ? Layout.spacing * 2 : 0,
-                                            backgroundColor: curr.code === selectedCurrency.code ? '#23482f4b' : '',
+                                            backgroundColor: curr.code === selectedCurrency.code ? accent + '20' : '',
                                         }}
                                     >
                                         <View style={{ 
@@ -192,7 +193,7 @@ const CurrencySelect = ({ initialCurrency, onCurrencySelect, isDisabled = false 
                                         >
                                             <View 
                                                 style={{ 
-                                                    backgroundColor: '#23482f', 
+                                                    backgroundColor: accent + '40', 
                                                     justifyContent: "center",
                                                     alignItems: "center",
                                                     borderRadius: Layout.borderRadius,
@@ -227,6 +228,8 @@ const CurrencySelect = ({ initialCurrency, onCurrencySelect, isDisabled = false 
 
 const CurrencyInput = ({ code, symbol, isDisabled }: { code: string, symbol: string, isDisabled?: boolean }) => {
     const foreground = useThemeColor('foreground');
+    const accent = useThemeColor('accent');
+    const danger = useThemeColor('danger');
 
     return <TextField isDisabled={isDisabled}>
         <TextField.Label style={{ color: foreground, fontSize: 20 }}>Currency</TextField.Label>
@@ -240,22 +243,22 @@ const CurrencyInput = ({ code, symbol, isDisabled }: { code: string, symbol: str
                 fontWeight: '900',
                 fontSize: 20,
                 textAlignVertical: 'center',
-                color: 'white',
+                color: foreground,
             }}
             animation={{
                 backgroundColor: {
                     value: {
-                        blur: '#0f172abf',
-                        focus: '#0f172abf',
-                        error: '#0f172abf',
+                        blur: accent + '20',
+                        focus: accent + '20',
+                        error: accent + '20',
                     },
                     
                 },
                 borderColor: {
                     value: {
-                        blur: '#334155',
-                        focus: '#334155',
-                        error: '#dc2626',
+                        blur: accent + '20',
+                        focus: accent + '20',
+                        error: danger + '20',
                     },
                 },
             }}

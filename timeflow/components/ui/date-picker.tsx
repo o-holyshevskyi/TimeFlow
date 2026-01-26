@@ -2,6 +2,8 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { TextField, useThemeColor } from "heroui-native";
 import { useState } from "react";
 import { Dimensions, Modal, Platform, Pressable, StyleSheet, TouchableOpacity, View } from "react-native";
+import { useUniwind } from 'uniwind';
+import { THEMES } from '../settings/themes-card';
 import { AppText } from "../ui/app-text";
 
 interface DatePickerProps {
@@ -22,6 +24,14 @@ export const DatePicker = ({
     width 
 }: DatePickerProps) => {
     const foreground = useThemeColor('foreground');
+    const accent = useThemeColor('accent');
+    const danger = useThemeColor('danger');
+    const background = useThemeColor('background');
+
+    const { theme } = useUniwind();
+    
+    const activeTheme = THEMES.find(t => t.id === theme);
+
     const [showPicker, setShowPicker] = useState(false);
 
     const handleDateChange = (event: any, selectedDate?: Date) => {
@@ -51,11 +61,11 @@ export const DatePicker = ({
                                 fontWeight: '900',
                                 fontSize: 24,
                                 textAlignVertical: 'center',
-                                color: 'white',
+                                color: foreground,
                             }}
                             animation={{
-                                backgroundColor: { value: { blur: '#0f172abf', focus: '#0f172abf', error: '#0f172abf' } },
-                                borderColor: { value: { blur: '#334155', focus: '#334155', error: '#dc2626' } },
+                                backgroundColor: { value: { blur: accent + '20', focus: accent + '20', error: accent + '20' } },
+                                borderColor: { value: { blur: accent + '20', focus: accent + '20', error: danger } },
                             }}
                         />
                     </TextField>
@@ -74,21 +84,23 @@ export const DatePicker = ({
                         activeOpacity={1} 
                         onPress={() => setShowPicker(false)}
                     >
-                        <View style={styles.modalContent} onStartShouldSetResponder={() => true}>
+                        <View style={[styles.modalContent, { backgroundColor: background }]} onStartShouldSetResponder={() => true}>
                             <DateTimePicker
                                 value={date}
                                 mode="date"
                                 display="inline" // ВАЖЛИВО: 'inline' показує календар відразу
                                 onChange={handleDateChange}
-                                style={{ height: 320, width: 320 }} // Стилі календаря
-                                themeVariant="dark" // або "light", залежно від вашої теми
+                                style={{ height: 320, width: 320, backgroundColor: 'transparent' }}
+                                textColor={foreground}
+                                accentColor={accent}
+                                themeVariant={activeTheme?.id === "nord" ? "light" : "dark"} // або "light", залежно від вашої теми
                             />
                             
                             <TouchableOpacity 
-                                style={styles.closeButton} 
+                                style={[styles.closeButton, { backgroundColor: accent }]} 
                                 onPress={() => setShowPicker(false)}
                             >
-                                <AppText style={styles.closeButtonText}>Done</AppText>
+                                <AppText style={[styles.closeButtonText, { color: foreground }]}>Done</AppText>
                             </TouchableOpacity>
                         </View>
                     </TouchableOpacity>
@@ -106,7 +118,6 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     modalContent: {
-        backgroundColor: '#1E293B',
         borderRadius: 20,
         padding: 20,
         alignItems: 'center',
@@ -120,11 +131,9 @@ const styles = StyleSheet.create({
         marginTop: 15,
         paddingVertical: 10,
         paddingHorizontal: 30,
-        backgroundColor: '#2bee6c', // Ваш зелений колір
         borderRadius: 10,
     },
     closeButtonText: {
-        color: 'white',
         fontWeight: 'bold',
         fontSize: 16,
     }

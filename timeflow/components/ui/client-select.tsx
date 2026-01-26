@@ -21,6 +21,8 @@ const ClientSelect = ({ selectedClientId, onClientSelect, isDisabled = false }: 
     const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+    const accent = useThemeColor('accent');
+    const danger = useThemeColor('danger');
 
     const [isOpen, setIsOpen] = useState<boolean>(false);
     const [searchFilter, setSearchFilter] = useState<string | undefined>(undefined);
@@ -110,25 +112,25 @@ const ClientSelect = ({ selectedClientId, onClientSelect, isDisabled = false }: 
                                         <TextField style={{ width: INPUT_WIDTH }}>
                                             <TextField.Input
                                                 placeholder="Search client..."
-                                                placeholderTextColor='#92c9a4'
+                                                placeholderTextColor={foreground}
                                                 className="rounded-full"
                                                 value={searchFilter}
                                                 onChangeText={setSearchFilter}
                                                 style={{
                                                     fontSize: 18,
-                                                    color: '#92c9a4',
+                                                    color: foreground,
                                                 }}
                                                 animation={{
-                                                    backgroundColor: { value: { blur: '#23482f', focus: '#23482f', error: '#23482f' } },
-                                                    borderColor: { value: { blur: '#23482f', focus: '#23482f', error: '#dc2626' } },
+                                                    backgroundColor: { value: { blur: accent + '20', focus: accent + '20', error: accent + '20' } },
+                                                    borderColor: { value: { blur: accent + '20', focus: accent + '20', error: danger } },
                                                 }}
                                             >
                                                 <TextField.InputStartContent>
-                                                    <Icon name='search-outline' color='#92c9a4'/>
+                                                    <Icon name='search-outline' color={foreground}/>
                                                 </TextField.InputStartContent>
                                                 <TextField.InputEndContent>
                                                     <Pressable onPress={handleClearFilter}>
-                                                        <Icon name='close-outline' color='#92c9a4'/>
+                                                        <Icon name='close-outline' color={foreground}/>
                                                     </Pressable>
                                                 </TextField.InputEndContent>
                                             </TextField.Input>
@@ -151,13 +153,13 @@ const ClientSelect = ({ selectedClientId, onClientSelect, isDisabled = false }: 
                                                 alignSelf: 'center',
                                                 paddingVertical: 10,
                                                 borderRadius: Layout.borderRadius,
-                                                backgroundColor: client.id === selectedClientId ? '#23482f4b' : 'transparent',
+                                                backgroundColor: client.id === selectedClientId ? accent + '40' : 'transparent',
                                                 paddingHorizontal: client.id === selectedClientId ? Layout.spacing : 0
                                             }}>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
                                                     <View style={{ 
                                                         width: 40, height: 40, borderRadius: 20, 
-                                                        backgroundColor: client.color || '#808080',
+                                                        backgroundColor: client.color || accent + '40',
                                                         justifyContent: 'center', alignItems: 'center'
                                                     }}>
                                                         <AppText style={{ fontSize: 16, fontWeight: 'bold', color: 'black' }}>
@@ -189,6 +191,8 @@ const ClientSelect = ({ selectedClientId, onClientSelect, isDisabled = false }: 
 
 const ClientInput = ({ clientName, clientColor, isDisabled, onClear, hasSelection }: { clientName?: string, clientColor?: string, isDisabled?: boolean, onClear: () => void, hasSelection: boolean}) => {
     const foreground = useThemeColor('foreground');
+    const accent = useThemeColor('accent');
+    const danger = useThemeColor('danger');
 
     return (
         <TextField isDisabled={isDisabled}>
@@ -203,11 +207,11 @@ const ClientInput = ({ clientName, clientColor, isDisabled, onClear, hasSelectio
                     fontWeight: '900',
                     fontSize: 20,
                     textAlignVertical: 'center',
-                    color: clientName ? (clientColor || 'white') : '#94a3b8',
+                    color: clientName ? (clientColor || accent) : foreground,
                 }}
                 animation={{
-                    backgroundColor: { value: { blur: '#0f172abf', focus: '#0f172abf', error: '#0f172abf' } },
-                    borderColor: { value: { blur: '#334155', focus: '#334155', error: '#dc2626' } },
+                    backgroundColor: { value: { blur: accent + '20', focus: accent + '20', error: accent + '20' } },
+                    borderColor: { value: { blur: accent + '20', focus: accent + '20', error: danger } },
                 }}
             >
                 {hasSelection && (

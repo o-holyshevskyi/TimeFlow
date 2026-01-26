@@ -66,7 +66,7 @@ export const GoalCard = ({ sessions, isPro }: GoalCardProps) => {
 
     return (
         <TouchableOpacity activeOpacity={0.8} onPress={handlePress}>
-            <Card style={[styles.card, { backgroundColor: '#1C2D23' }]}>
+            <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
                 <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginBottom: Layout.spacing }}>
                     <View style={{flexDirection: 'row', alignItems: 'center', gap: 6}}>
                         <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Monthly Goal</AppText>
@@ -84,7 +84,7 @@ export const GoalCard = ({ sessions, isPro }: GoalCardProps) => {
                     </AppText>
                 </View>
 
-                <View style={{ height: 12, backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: 99 }}>
+                <View style={{ height: 12, backgroundColor: accent + '30', borderRadius: 99 }}>
                     <View 
                         style={{ 
                             height: '100%', 

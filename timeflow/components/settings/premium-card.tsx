@@ -6,14 +6,18 @@ import { Button, Card, Spinner, Toast, useThemeColor, useToast } from "heroui-na
 import { useEffect, useState } from "react";
 import { Alert, StyleSheet, View } from "react-native";
 import Purchases, { PACKAGE_TYPE, PurchasesPackage } from "react-native-purchases";
+import { useUniwind } from "uniwind";
 import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 import RestorePurchase from "./restore-purchase";
+import { THEMES } from "./themes-card";
 
 const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
     const accent = useThemeColor('accent');
+    const danger = useThemeColor('danger');
+    const background = useThemeColor('background');
 
     const [availablePackage, setAvailablePackage] = useState<PurchasesPackage | null>(null);
     const [isPurchasing, setIsPurchasing] = useState(false);
@@ -22,6 +26,9 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
 
     const { toast } = useToast();
     const { isPro, isChecking } = useUserStatus();
+    const { theme } = useUniwind();
+
+    const activeTheme = THEMES.find(t => t.id === theme);
 
     const priceString = availablePackage ? availablePackage.product.priceString : "";
     const router = useRouter();
@@ -71,9 +78,14 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
             if (customerInfo.entitlements.active["PROductive"]) { 
                 toast.show({
                     component: (props) => (
-                        <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                        <Toast 
+                            variant="default" 
+                            placement="top" 
+                            style={{ backgroundColor: background, borderColor: accent }}
+                            className="border-1 p-5" {...props}
+                        >
                             <View>
-                                <Toast.Label style={{ fontSize: 22, color: '#4caf50' }}>Success!</Toast.Label>
+                                <Toast.Label style={{ fontSize: 22, color: accent }}>Success!</Toast.Label>
                                 <Toast.Description style={{ fontSize: 16 }}>Premium Activated.</Toast.Description>
                             </View>
                         </Toast>
@@ -98,7 +110,7 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
     if (!availablePackage) return null;
     if (isChecking) return null;
 
-    if (isPro) return <Card style={[styles.premiumCard]}>
+    if (isPro) return <Card style={[styles.premiumCard, { backgroundColor: accent + '20' }]}>
         <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
             <AppText style={[{ color: foreground, textAlign: 'center' }, { fontSize: 14, marginBottom: Layout.spacing }]}>
                 Already bought PRO? Tap &quot;Restore Purchases&quot; to recover your subscription on this device.
@@ -107,7 +119,7 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
         </Card.Body>
     </Card>;
     
-    return <Card style={[styles.premiumCard]}>
+    return <Card style={[styles.premiumCard, { backgroundColor: accent + '20' }]}>
         <Card.Header style={[styles.premiumCardHeader]}>
             <View style={[styles.premiumTextContainer]}>
                 <Icon name="star" color={accent} />
@@ -117,7 +129,7 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
                 Unlock powerful features to boost your productivity.
             </AppText>
             {(!availablePackage && !isLoading) && (
-                <AppText style={{color: 'red', textAlign: 'center', marginTop: 10}}>
+                <AppText style={{color: danger, textAlign: 'center', marginTop: 10}}>
                     {debugInfo || "Product Unavailable"}
                 </AppText>
             )}
@@ -166,7 +178,7 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
 
         <Card.Footer style={{ paddingHorizontal: Layout.spacing, flexDirection: "column", gap: Layout.spacing * 2 }}>
             <LinearGradient
-                colors={["#f7f455ff", "#22cea9ff"]}
+                colors={(activeTheme?.colors || [accent + '50', accent]) as [string, string, ...string[]]}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
                 style={{ borderRadius: 9999, padding: 2 }}
@@ -182,8 +194,8 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
                         <Spinner color="danger" />
                     ) : (
                         <View style={{ flexDirection: "row", gap: Layout.spacing, alignItems: 'center' }}>
-                            <Icon name="sparkles" color="black" />
-                            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: "black" }}>
+                            <Icon name="sparkles" color={foreground} />
+                            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: foreground }}>
                                 {availablePackage 
                                     ? `Unlock for ${priceString}` 
                                     : "Unavailable"}
@@ -210,7 +222,6 @@ const PremiumCard = ({ handleSuccess }: {handleSuccess?: () => void}) => {
 const styles = StyleSheet.create({
     premiumCard: {
         marginTop: Layout.spacing * 2,
-        backgroundColor: '#1C2D23',
         borderRadius: Layout.borderRadius,
         gap: Layout.spacing * 5
     },

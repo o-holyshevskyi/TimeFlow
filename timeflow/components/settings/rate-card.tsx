@@ -9,6 +9,8 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 export default function RateCard() {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+    const accent = useThemeColor('accent');
+    const warning = useThemeColor('warning');
 
     const handleRate = async () => {
         // Отримуємо посилання на App Store
@@ -23,10 +25,10 @@ export default function RateCard() {
 
     return (
         <TouchableOpacity onPress={handleRate} activeOpacity={0.7}>
-            <Card style={styles.card}>
+            <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
                 <Card.Body style={styles.body}>
-                    <View style={styles.iconContainer}>
-                        <Icon name="star" size={24} color="#facc15" />
+                    <View style={[styles.iconContainer, {backgroundColor: warning + '50' }]}>
+                        <Icon name="star" size={24} color={warning} />
                     </View>
                     <View style={{ flex: 1 }}>
                         <AppText style={[styles.title, { color: foreground }]}>
@@ -45,7 +47,6 @@ export default function RateCard() {
 
 const styles = StyleSheet.create({
     card: {
-        backgroundColor: "rgba(255, 255, 255, 0.05)",
         borderRadius: Layout.borderRadius,
     },
     body: {
@@ -58,7 +59,6 @@ const styles = StyleSheet.create({
         width: 40,
         height: 40,
         borderRadius: 10,
-        backgroundColor: 'rgba(250, 204, 21, 0.1)',
         justifyContent: 'center',
         alignItems: 'center',
     },

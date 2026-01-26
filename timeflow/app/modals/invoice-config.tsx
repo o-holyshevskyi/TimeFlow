@@ -25,7 +25,9 @@ export default function InvoiceConfigModal() {
     
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
-    const cardBg = useThemeColor('default');
+    const cardBg = useThemeColor('accent');
+    const danger = useThemeColor('danger');
+
     const { settings } = useSettings();
     const { sessions } = useSessions();
     const { clients } = useClients();
@@ -110,13 +112,13 @@ export default function InvoiceConfigModal() {
                     onStartDateChange={setStartDate}
                     onEndDateChange={setEndDate}
                 />
-                <View style={[styles.summary, { backgroundColor: '#1e293b', borderColor: muted }]}>
+                <View style={[styles.summary, { backgroundColor: cardBg + '40', borderColor: cardBg }]}>
                     <AppText style={{ color: muted, fontSize: 24, fontWeight: '700' }}>Selected Period:</AppText>
                     <AppText style={{ color: foreground, fontSize: 20, fontWeight: 'bold', marginVertical: 4 }}>
                         {filteredSessions.length} Sessions
                     </AppText>
                     {filteredSessions.length === 0 && (
-                        <AppText style={{ color: '#ef4444', fontSize: 12 }}>
+                        <AppText style={{ color: danger, fontSize: 12 }}>
                             No sessions found for this client in this range.
                         </AppText>
                     )}
@@ -129,7 +131,7 @@ export default function InvoiceConfigModal() {
                     variant="secondary"
                     onPress={handlePreview}
                     isDisabled={isDisabled}
-                    style={{ width: WIDTH, marginBottom: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: muted }}
+                    style={{ width: WIDTH, marginBottom: 12, backgroundColor: 'transparent', borderWidth: 1, borderColor: cardBg }}
                 >
                      <Icon name="eye-outline" size={22} color={foreground} />
                      <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '600' }}>Preview Document</Button.Label>
@@ -141,11 +143,11 @@ export default function InvoiceConfigModal() {
                     style={{ width: WIDTH }}
                 >
                     {isGenerating ? (
-                        <Spinner color="black"/>
+                        <Spinner color={foreground} />
                     ) : (
                         <>
-                            <Icon name="document-outline" size={22} color="black" />
-                            <Button.Label style={{ color: 'black', fontSize: 22, fontWeight: '700' }}>Generate PDF</Button.Label>
+                            <Icon name="document-outline" size={22} color={foreground} />
+                            <Button.Label style={{ color: foreground, fontSize: 22, fontWeight: '700' }}>Generate PDF</Button.Label>
                         </>
                     )}
                 </Button>
@@ -157,14 +159,14 @@ export default function InvoiceConfigModal() {
                 onRequestClose={() => setShowPreview(false)}
             >
                 <View style={[styles.previewModalContainer, { paddingTop: insets.top, backgroundColor: cardBg }]}>
-                    <View style={styles.previewHeader}>
+                    <View style={[styles.previewHeader, { borderBottomColor: cardBg + '80' }]}>
                         <AppText style={[styles.previewTitle, {color: foreground}]}>Invoice Preview</AppText>
                         <TouchableOpacity onPress={() => setShowPreview(false)} style={styles.closeBtn}>
                             <Icon name="close" size={24} color={foreground} />
                         </TouchableOpacity>
                     </View>
                     
-                    <View style={styles.webviewWrapper}>
+                    <View style={[styles.webviewWrapper, { backgroundColor: cardBg + '40' }]}>
                         <WebView
                             originWhitelist={['*']}
                             source={{ html: previewHtml }}
@@ -214,7 +216,6 @@ const styles = StyleSheet.create({
     dateBtn: {
         marginTop: 8,
         borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.1)',
         alignItems: 'flex-start'
     },
     summary: {
@@ -239,7 +240,6 @@ const styles = StyleSheet.create({
         paddingHorizontal: 20,
         paddingBottom: 15,
         borderBottomWidth: 1,
-        borderBottomColor: 'rgba(255,255,255,0.1)',
     },
     previewTitle: {
         fontSize: 18,

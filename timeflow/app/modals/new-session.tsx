@@ -11,7 +11,7 @@ import { useClients } from "@/hooks/use-clients"; // 🔥 IMPORT
 import { useSessions } from "@/hooks/use-sessions";
 import { useSettings } from "@/hooks/use-settings";
 import { router } from "expo-router";
-import { Button, Toast, useToast } from "heroui-native";
+import { Button, Toast, useThemeColor, useToast } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
 import { Dimensions, View } from "react-native";
 import BaseModal from "./base-modal";
@@ -32,6 +32,11 @@ export default function NewSessionModal() {
     const { addManualSession } = useSessions();
     const { toast } = useToast();
     const { clients } = useClients();
+
+    const foreground = useThemeColor('foreground');
+    const danger = useThemeColor('danger');
+    const accent = useThemeColor('accent');
+    const background = useThemeColor('background');
 
     useEffect(() => {
         if (settings) {
@@ -91,7 +96,12 @@ export default function NewSessionModal() {
             router.back();
             toast.show({
                 component: (props) => (
-                    <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                    <Toast 
+                        variant="default" 
+                        placement="top" 
+                        style={{ backgroundColor: background, borderColor: accent }}
+                        className="border-1 p-5" {...props}
+                    >
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                             <View>
                                 <Toast.Label style={{ fontSize: 22 }}>Session Saved</Toast.Label>
@@ -130,10 +140,10 @@ export default function NewSessionModal() {
             </View>
         </View>
         <Button isDisabled={!canSave} style={{ width: WIDTH, marginTop: Layout.spacing * 5 }} onPress={handleSave}>
-            <Button.Label style={{ color: 'black', fontSize: 22, fontWeight: '700' }}>Save New Session</Button.Label>
+            <Button.Label style={{ color: foreground, fontSize: 22, fontWeight: '700' }}>Save New Session</Button.Label>
         </Button>
         {saveError && 
-            <AppText style={{ color: '#b91c1c', fontSize: 16, fontWeight: '600' }}>{saveError}</AppText>
+            <AppText style={{ color: danger, fontSize: 16, fontWeight: '600' }}>{saveError}</AppText>
         }
     </BaseModal>
 }

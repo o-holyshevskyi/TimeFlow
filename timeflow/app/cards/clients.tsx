@@ -31,6 +31,7 @@ export default function Clients() {
 
     const muted = useThemeColor('muted');
     const accent = useThemeColor('accent');
+    const foreground = useThemeColor('foreground');
 
     const handleAddClient = () => {
         if (isPro || clients.length < 3) {
@@ -54,7 +55,7 @@ export default function Clients() {
         const sessionsCount = sessions.filter(s => s.clientId === item.id).length;
 
         return (
-            <Card style={[styles.card, item.isDefault && { borderColor: accent, borderWidth: 1 }]}>
+            <Card style={[styles.card, item.isDefault && { borderColor: accent, borderWidth: 1 }, { backgroundColor: accent + '20' }]}>
                 <Card.Body style={{ flexDirection: 'column', gap: Layout.spacing * 2 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: Layout.spacing, justifyContent: 'space-between' }}>
                         <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", gap: Layout.spacing }}>
@@ -62,10 +63,10 @@ export default function Clients() {
                                 width: 14, 
                                 height: 14, 
                                 borderRadius: 999, 
-                                backgroundColor: item.color || '#2bee6c' 
+                                backgroundColor: item.color || accent + '20' 
                             }} />
                             <AppText style={{ 
-                                color: item.color || '#2bee6c', 
+                                color: item.color || accent + '20', 
                                 fontSize: 28, 
                                 fontWeight: '700',
                                 textTransform: 'uppercase',
@@ -125,7 +126,7 @@ export default function Clients() {
         >
             {showGetProLabel && <GetProLabel left={15} top={-5} />}
             <Button isIconOnly variant="primary" size="lg" onPress={handleAddClient}>
-                <Icon name="add-outline" color="black" />
+                <Icon name="add-outline" color={foreground} />
             </Button>
         </View>
     </SafeAreaView>
@@ -165,7 +166,11 @@ const ClientItemPopoverOptions = ({
     const showToast = (label: string) => {
         toast.show({
             component: (props) => (
-                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                <Toast 
+                    variant="default" 
+                    placement="top"
+                    style={{ backgroundColor: background, borderColor: accent }} 
+                    className="border-1 p-5" {...props}>
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View>
                             <Toast.Label style={{ fontSize: 22 }}>{label}</Toast.Label>
@@ -296,8 +301,8 @@ const ClientItemPopoverOptions = ({
                                 }}
                                 onPress={handleEdit}
                             >
-                                <Icon name="pencil-outline" color={foreground} />
-                                <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
+                                <Icon name="pencil-outline" color={accent} />
+                                <Button.Label style={{ color: accent, fontSize: 18, fontWeight: '700' }}>
                                     Edit Client
                                 </Button.Label>
                             </Button>
@@ -313,8 +318,8 @@ const ClientItemPopoverOptions = ({
                                 }}
                                 onPress={handleCreateInvoice}
                             >
-                                <Icon name="document-AppText-outline" color={foreground} />
-                                <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>Create Invoice</Button.Label>
+                                <Icon name="document-text-outline" color={accent} />
+                                <Button.Label style={{ color: accent, fontSize: 18, fontWeight: '700' }}>Create Invoice</Button.Label>
                             </Button>}
                             {hasSessions && <Button 
                                 variant="tertiary" 
@@ -329,8 +334,8 @@ const ClientItemPopoverOptions = ({
                                 }}
                                 onPress={handleViewSessions}
                             >
-                                <Icon name="list-outline" color={foreground} />
-                                <Button.Label style={{ color: foreground, fontSize: 18, fontWeight: '700' }}>
+                                <Icon name="list-outline" color={accent} />
+                                <Button.Label style={{ color: accent, fontSize: 18, fontWeight: '700' }}>
                                     View Sessions
                                 </Button.Label>
                             </Button>}
@@ -339,7 +344,7 @@ const ClientItemPopoverOptions = ({
                                 style={{ marginTop: Layout.spacing * 2 }} 
                                 onPress={handleDelete}
                             >
-                                <Icon name="trash-outline" color="white" />
+                                <Icon name="trash-outline" color={foreground} />
                                 <Button.Label style={{ fontSize: 18, fontWeight: '700' }}>
                                     Delete Client
                                 </Button.Label>
@@ -411,7 +416,6 @@ const styles = StyleSheet.create({
     },
     card: {
         marginTop: Layout.spacing * 2,
-        backgroundColor: '#1C2D23',
         borderRadius: Layout.borderRadius
     },
     cardBody: {

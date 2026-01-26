@@ -47,6 +47,9 @@ const Actions = () => {
     const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+    const accent = useThemeColor('accent');
+    const warning = useThemeColor('warning');
+    const danger = useThemeColor('danger');
 
     useEffect(() => {
         if (clients.length > 0 && !selectedClient) {
@@ -61,7 +64,12 @@ const Actions = () => {
     const showToast = useCallback((label: string, description: string) => {
         toast.show({
             component: (props) => (
-                <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                <Toast 
+                    variant="default" 
+                    placement="top" 
+                    style={{ backgroundColor: background, borderColor: accent }}
+                    className="border-1 p-5" {...props}
+                >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View>
                             <Toast.Label style={{ fontSize: 22 }}>{label}</Toast.Label>
@@ -71,7 +79,7 @@ const Actions = () => {
                 </Toast>
             ),
         });
-    }, [toast]);
+    }, [toast, background, accent]);
 
     const handleStart = useCallback((overrideClientId?: string) => {
         const idToUse = overrideClientId || selectedClient?.id;
@@ -110,8 +118,8 @@ const Actions = () => {
             feedbackVariant="ripple"
             onPress={handleSetRate}
         >
-            <Icon name="time-outline" color="black" />
-            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: 'black' }}>Set Hourly Rate</Button.Label>
+            <Icon name="time-outline" color={foreground} />
+            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: foreground }}>Set Hourly Rate</Button.Label>
         </Button>
     );
 
@@ -120,12 +128,12 @@ const Actions = () => {
         <Button 
             key="start"
             size="lg" 
-            style={{ minWidth: CARD_WIDTH, backgroundColor: '#2bee6c' }}
+            style={{ minWidth: CARD_WIDTH, backgroundColor: accent }}
             isDisabled={settings?.currency === undefined}
             feedbackVariant="ripple"
         >
-            <Icon name="play-outline" color="black" />
-            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: 'black' }}>
+            <Icon name="play-outline" color={foreground} />
+            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: foreground }}>
                 Start Tracking
             </Button.Label>
         </Button>
@@ -136,10 +144,10 @@ const Actions = () => {
             key="pause"
             onPress={handlePause}
             size="lg"
-            style={[styles.outlineButton, { borderColor: '#FFEB3B' }]}
+            style={[styles.outlineButton, { borderColor: warning }]}
         >
-            <Icon name="pause-outline" color="#FFEB3B" />
-            <Button.Label style={[styles.outlineButtonText, { color: '#FFEB3B' }]}>Pause Session</Button.Label>
+            <Icon name="pause-outline" color={warning} />
+            <Button.Label style={[styles.outlineButtonText, { color: warning }]}>Pause Session</Button.Label>
         </Button>
     );
     
@@ -148,10 +156,10 @@ const Actions = () => {
             key="resume"
             onPress={handleResume}
             size="lg"
-            style={[styles.outlineButton, { borderColor: '#2bee6c' }]}
+            style={[styles.outlineButton, { borderColor: accent }]}
         >
-            <Icon name="play-outline" color="#2bee6c" />
-            <Button.Label style={[styles.outlineButtonText, { color: '#2bee6c' }]}>Resume Session</Button.Label>
+            <Icon name="play-outline" color={accent} />
+            <Button.Label style={[styles.outlineButtonText, { color: accent }]}>Resume Session</Button.Label>
         </Button>
     );
 
@@ -160,10 +168,10 @@ const Actions = () => {
             key="stop"
             onPress={handleStop}
             size="lg"
-            style={[styles.outlineButton, { borderColor: '#fe5959ff' }]}
+            style={[styles.outlineButton, { borderColor: danger }]}
         >
-            <Icon name="stop-outline" color="#fe5959ff" />
-            <Button.Label style={[styles.outlineButtonText, { color: '#fe5959ff' }]}>Stop Session</Button.Label>
+            <Icon name="stop-outline" color={danger} />
+            <Button.Label style={[styles.outlineButtonText, { color: danger }]}>Stop Session</Button.Label>
         </Button>
     );
 
@@ -196,13 +204,13 @@ const Actions = () => {
             <Button 
                 key="start"
                 size="lg" 
-                style={{ minWidth: CARD_WIDTH, backgroundColor: '#2bee6c' }}
+                style={{ minWidth: CARD_WIDTH, backgroundColor: accent }}
                 isDisabled={settings?.currency === undefined}
                 feedbackVariant="ripple"
                 onPress={() => handleStart()}
             >
-                <Icon name="play-outline" color="black" />
-                <Button.Label style={{ fontSize: 24, fontWeight: '600', color: 'black' }}>
+                <Icon name="play-outline" color={foreground} />
+                <Button.Label style={{ fontSize: 24, fontWeight: '600', color: foreground }}>
                     Start Tracking
                 </Button.Label>
             </Button>
@@ -272,7 +280,7 @@ const Actions = () => {
                                             }}>
                                                 <View style={{ flexDirection: 'row', alignItems: 'center', gap: 15 }}>
                                                     <View style={{ 
-                                                        backgroundColor: cl.color || '#2bee6c', 
+                                                        backgroundColor: cl.color || accent, 
                                                         width: 40, 
                                                         height: 40, 
                                                         borderRadius: 20,

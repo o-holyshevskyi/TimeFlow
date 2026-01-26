@@ -1,6 +1,6 @@
 import { Layout } from '@/constants/layout';
 import { useRouter } from 'expo-router';
-import { Button, Spinner, Toast, useToast } from 'heroui-native';
+import { Button, Spinner, Toast, useThemeColor, useToast } from 'heroui-native';
 import React, { useState } from 'react';
 import { Alert, View } from 'react-native';
 import Purchases from 'react-native-purchases';
@@ -16,6 +16,9 @@ const RestorePurchase = ({ isDisabled, onRestoreSuccess }: Props) => {
     const { toast } = useToast();
     const router = useRouter();
 
+    const accent = useThemeColor('accent');
+    const background = useThemeColor('background');
+
     const handleRestore = async () => {
         setIsRestoring(true);
         try {
@@ -24,9 +27,14 @@ const RestorePurchase = ({ isDisabled, onRestoreSuccess }: Props) => {
             if (customerInfo.entitlements.active['PROductive']) {
                 toast.show({
                     component: (props) => (
-                        <Toast variant="default" placement="top" className="bg-[#0f172aff] border-[#334155] border-1 p-5" {...props}>
+                        <Toast 
+                            variant="default" 
+                            placement="top" 
+                            style={{ backgroundColor: background, borderColor: accent }}
+                            className="border-1 p-5" {...props}
+                        >
                             <View>
-                                <Toast.Label style={{ fontSize: 22, color: '#4caf50' }}>Restored!</Toast.Label>
+                                <Toast.Label style={{ fontSize: 22, color: accent }}>Restored!</Toast.Label>
                                 <Toast.Description style={{ fontSize: 16 }}>Your PROductive subscription has been successfully restored.</Toast.Description>
                             </View>
                         </Toast>
@@ -56,7 +64,7 @@ const RestorePurchase = ({ isDisabled, onRestoreSuccess }: Props) => {
                 style={{
                     borderRadius: 9999,
                     borderWidth: 1,
-                    borderColor: '#2bee6c',
+                    borderColor: accent,
                     backgroundColor: 'transparent',
                     width: '100%',
                     paddingHorizontal: Layout.spacing * 3,
@@ -69,8 +77,8 @@ const RestorePurchase = ({ isDisabled, onRestoreSuccess }: Props) => {
                     <Spinner color="default" />
                 ) : (
                     <View style={{ flexDirection: 'row', gap: Layout.spacing, alignItems: 'center', justifyContent: 'center' }}>
-                        <Icon name="refresh" color="#2bee6c" />
-                        <Button.Label style={{ fontSize: 24, fontWeight: '600', color: '#2bee6c' }}>
+                        <Icon name="refresh" color={accent} />
+                        <Button.Label style={{ fontSize: 24, fontWeight: '600', color: accent }}>
                             Restore Purchases
                         </Button.Label>
                     </View>
