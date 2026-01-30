@@ -1,7 +1,7 @@
 {
   "name": "timeflow",
   "main": "expo-router/entry",
-  "version": "1.6.197",
+  "version": "1.6.203",
   "scripts": {
     "start": "expo start",
     "reset-project": "node ./scripts/reset-project.js",
