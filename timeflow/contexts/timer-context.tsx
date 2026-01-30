@@ -1,6 +1,7 @@
 import { useClients } from '@/hooks/use-clients';
 import { Session, SESSIONS_STORAGE_KEY } from '@/hooks/use-sessions';
 import { useSettings } from '@/hooks/use-settings';
+import { startLiveActivity, stopLiveActivity, updateLiveActivity } from '@/modules/activity-controller';
 import { notificationService } from '@/services/notification-service';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
@@ -41,6 +42,11 @@ const formatTime = (ms: number): { hours: string; minutes: string; seconds: stri
     const totalHours = Math.floor(totalMinutes / 60);
     const hours = totalHours.toString().padStart(2, '0');
     return { hours, minutes, seconds };
+};
+
+const formatTimeString = (ms: number): string => {
+    const { hours, minutes, seconds } = formatTime(ms);
+    return `${hours}:${minutes}:${seconds}`;
 };
 
 export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -127,6 +133,7 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         await AsyncStorage.setItem(ELAPSED_TIME_KEY, String(MAX_TIME_MS));
 
         await notificationService.cancelAll();
+        await stopLiveActivity();
     };
 
     // 2. Інтервал таймера
@@ -185,9 +192,21 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setPauseStartTime(null);
         
         // Логіка збереження ID клієнта
-        if (selectedClientId) {
-            _setClientId(selectedClientId);
-            await AsyncStorage.setItem(CLIENT_ID_KEY, selectedClientId);
+        let clientName = "My Task";
+        // if (selectedClientId) {
+        //     _setClientId(selectedClientId);
+        //     await AsyncStorage.setItem(CLIENT_ID_KEY, selectedClientId);
+        // } else {
+        //     _setClientId(undefined);
+        //     await AsyncStorage.removeItem(CLIENT_ID_KEY);
+        // }
+
+        const targetId = selectedClientId || clientId;
+        if (targetId) {
+            _setClientId(targetId);
+            await AsyncStorage.setItem(CLIENT_ID_KEY, targetId);
+            const found = clients.find(c => c.id === targetId);
+            if (found) clientName = found.name;
         } else {
             _setClientId(undefined);
             await AsyncStorage.removeItem(CLIENT_ID_KEY);
@@ -204,7 +223,20 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (settings?.notificationsEnabled !== false) {
             await notificationService.scheduleTimerProgress(0);
         }
-    }, [settings]);
+
+        try {
+            await startLiveActivity({
+                clientName: clientName,
+                state: {
+                    referenceDateMs: now, // We pass NOW as the start time
+                    isPaused: false,
+                    staticElapsedTime: "00:00:00"
+                }
+            });
+        } catch (e) {
+            console.error("Failed to start Live Activity", e);
+        }
+    }, [settings, clientId, clients]);
 
     const pauseTimer = useCallback(async () => {
         if (isTracking && !isPaused) {
@@ -220,8 +252,19 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             } else {
                 await notificationService.cancelAll();
             }
+
+            const currentStart = startTime || now;
+            const calculatedElapsed = now - currentStart - totalPausedDuration;
+
+            await updateLiveActivity({
+                state: {
+                    referenceDateMs: now, // Not used visually when paused
+                    isPaused: true,
+                    staticElapsedTime: formatTimeString(calculatedElapsed) // Send "01:22:15"
+                }
+            });
         }
-    }, [isTracking, isPaused, settings]);
+    }, [isTracking, isPaused, settings, startTime, totalPausedDuration]);
 
     const resumeTimer = useCallback(async () => {
         if (isPaused && pauseStartTime) {
@@ -241,8 +284,21 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             if (settings?.notificationsEnabled !== false) {
                 await notificationService.scheduleTimerProgress(elapsedTime);
             }
+
+            if (startTime) {
+                const actuallyElapsed = now - startTime - newTotalPaused;
+                const effectiveStartDateMs = now - actuallyElapsed;
+
+                await updateLiveActivity({
+                    state: {
+                        referenceDateMs: effectiveStartDateMs, // iOS will count up from this new date
+                        isPaused: false,
+                        staticElapsedTime: ""
+                    }
+                });
+            }
         }
-    }, [isPaused, pauseStartTime, totalPausedDuration, elapsedTime, settings]);
+    }, [isPaused, pauseStartTime, totalPausedDuration, elapsedTime, settings, startTime]);
 
     const stopTimer = useCallback(async (isAutoStop = false) => {
         let finalElapsedTime = 0;
@@ -323,6 +379,7 @@ export const TimerProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         _setClientId(undefined); // Скидаємо стейт
         
         await notificationService.cancelAll();
+        await stopLiveActivity();
     }, [elapsedTime, settings, startTime, isPaused, pauseStartTime, totalPausedDuration, clientId, clients]);
     
     const timeDisplay = useMemo(() => formatTime(elapsedTime), [elapsedTime]);
