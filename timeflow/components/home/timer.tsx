@@ -1,40 +1,36 @@
-import { Layout } from "@/constants/layout";
 import { useTimer } from "@/contexts/timer-context";
-import { Card, useThemeColor } from "heroui-native";
+import { useThemeColor } from "heroui-native";
 import { MotiView } from 'moti';
 import { StyleSheet, TextProps, View } from "react-native";
 import { AppText } from "../ui/app-text";
 
-// Фіксований розмір для стабільної анімації
-const TEXT_SIZE = 36;
-const LINE_HEIGHT = TEXT_SIZE * 1.1; // Трохи більше для візуального комфорту
+const TEXT_SIZE = 80;
+const LINE_HEIGHT = TEXT_SIZE * 1.15;
 
 const Timer = () => {
     const muted = useThemeColor('muted');
     const { hours, minutes, seconds } = useTimer();
-    
+
     return (
         <View style={styles.timerContainer}>
-            <TimeBox value={hours} label="Hours" mutedColor={muted} />
-            <TimeBox value={minutes} label="Minutes" mutedColor={muted} />
-            <TimeBox value={seconds} label="Seconds" mutedColor={muted} />
+            <TimeBox value={hours} label="HRS" mutedColor={muted} />
+            <AppText style={[styles.colon, { color: muted }]}>:</AppText>
+            <TimeBox value={minutes} label="MIN" mutedColor={muted} />
+            <AppText style={[styles.colon, { color: muted }]}>:</AppText>
+            <TimeBox value={seconds} label="SEC" mutedColor={muted} />
         </View>
     );
 }
 
 const TimeBox = ({ value, label, mutedColor }: { value: string, label: string, mutedColor: string }) => {
-    const accent = useThemeColor('accent');
-
-    return <View style={styles.timeItem}>
-        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
-            <Card.Body style={styles.cardBody}>
-                <Ticker value={value} />
-            </Card.Body>
-        </Card>
-        <AppText style={[{ color: mutedColor }, styles.timeItemDescription]}>
-            {label}
-        </AppText>
-    </View>
+    return (
+        <View style={styles.timeItem}>
+            <Ticker value={value} />
+            <AppText style={[{ color: mutedColor }, styles.timeItemDescription]}>
+                {label}
+            </AppText>
+        </View>
+    );
 };
 
 export const Ticker = ({ value }: { value: string }) => {
@@ -68,11 +64,10 @@ const TickerList = ({ number, index }: { number: number; index: number }) => {
         <View style={{ height: LINE_HEIGHT, overflow: "hidden" }}>
             <MotiView
                 animate={{
-                    // Рухаємо на точну висоту рядка
                     translateY: -LINE_HEIGHT * number
                 }}
                 transition={{
-                    delay: index * 50, // Швидша реакція
+                    delay: index * 50,
                     type: 'spring',
                     damping: 20,
                     stiffness: 90
@@ -90,17 +85,17 @@ const TickerList = ({ number, index }: { number: number; index: number }) => {
 
 const Tick = ({ children, fontSize, style, ...rest }: TextProps & { fontSize: number }) => {
     return (
-        <AppText 
-            {...rest} 
+        <AppText
+            {...rest}
             style={[
-                style, 
+                style,
                 {
                     fontSize,
                     lineHeight: LINE_HEIGHT,
                     fontVariant: ['tabular-nums'],
-                    fontWeight: '900', // Важливо: стрінг для fontWeight в деяких версіях
+                    fontWeight: '900',
                     textAlign: 'center',
-                    minWidth: fontSize * 0.6, // Запобігає "стрибкам" ширини
+                    minWidth: fontSize * 0.6,
                 }
             ]}
         >
@@ -112,34 +107,33 @@ const Tick = ({ children, fontSize, style, ...rest }: TextProps & { fontSize: nu
 const styles = StyleSheet.create({
     timerContainer: {
         flexDirection: 'row',
-        alignItems: 'center',
+        alignItems: 'flex-end',
         justifyContent: 'center',
-        gap: Layout.spacing * 3,
+        gap: 4,
     },
     tickerRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
     },
-    card: {
-        borderRadius: Layout.borderRadius,
-        minWidth: TEXT_SIZE * 2, // Фіксована ширина карток
-    },
-    cardBody: {
-        padding: Layout.spacing * 2.5,
-        alignItems: 'center',
-        justifyContent: 'center',
+    colon: {
+        fontSize: TEXT_SIZE * 0.6,
+        fontWeight: '300',
+        lineHeight: LINE_HEIGHT,
+        marginBottom: 28,
+        opacity: 0.5,
     },
     timeItem: {
-        gap: Layout.spacing * 2, 
-        flexDirection: 'column', 
-        alignItems: 'center'
+        gap: 8,
+        flexDirection: 'column',
+        alignItems: 'center',
     },
     timeItemDescription: {
-        fontSize: 12, // Фіксований розмір для підписів
+        fontSize: 11,
         fontWeight: '600',
         textTransform: 'uppercase',
-        letterSpacing: 1,
+        letterSpacing: 1.5,
+        opacity: 0.6,
     }
 });
 

@@ -143,7 +143,7 @@ export default function RootLayout() {
                 <TimerProvider>
                     <ThemeProvider value={isLightTheme ? DefaultTheme : DarkTheme}>
                         <Stack screenOptions={{ headerShown: false }}>
-                            <Stack.Screen name="index" options={{ headerShown: false }} />
+                            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                             <Stack.Screen name="cards" options={{ headerShown: false, presentation: 'card' }} />
                             <Stack.Screen name="modals" options={{ headerShown: false, presentation: 'modal' }} />
                         </Stack>
