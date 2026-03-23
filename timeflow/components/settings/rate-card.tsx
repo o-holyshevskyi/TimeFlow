@@ -2,71 +2,68 @@ import { AppText } from '@/components/ui/app-text';
 import { Icon } from '@/components/ui/icon';
 import { Layout } from '@/constants/layout';
 import * as StoreReview from 'expo-store-review';
-import { Card, useThemeColor } from 'heroui-native';
-import React from 'react';
-import { StyleSheet, TouchableOpacity, View } from 'react-native';
+import { useThemeColor } from 'heroui-native';
+import { Linking, Pressable, StyleSheet, View } from 'react-native';
 
 export default function RateCard() {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
-    const accent = useThemeColor('accent');
-    const warning = useThemeColor('warning');
+    const surface = useThemeColor('surface');
+    const warning = '#eab308';
 
     const handleRate = async () => {
-        // Отримуємо посилання на App Store
         const url = StoreReview.storeUrl();
-        
-        if (url) {
-            // Використовуємо Linking для відкриття сторінки додатка
-            const { Linking } = require('react-native');
-            Linking.openURL(url);
-        }
+        if (url) Linking.openURL(url);
     };
 
     return (
-        <TouchableOpacity onPress={handleRate} activeOpacity={0.7}>
-            <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
-                <Card.Body style={styles.body}>
-                    <View style={[styles.iconContainer, {backgroundColor: warning + '50' }]}>
-                        <Icon name="star" size={24} color={warning} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                        <AppText style={[styles.title, { color: foreground }]}>
-                            Rate ClariRate
-                        </AppText>
-                        <AppText style={[styles.subtitle, { color: muted }]}>
-                            Support an indie developer
-                        </AppText>
-                    </View>
-                    <Icon name="chevron-forward" size={20} color={muted} />
-                </Card.Body>
-            </Card>
-        </TouchableOpacity>
+        <View>
+            <AppText style={[styles.sectionLabel, { color: muted }]}>FEEDBACK</AppText>
+            <Pressable
+                onPress={handleRate}
+                style={({ pressed }) => [styles.row, { backgroundColor: surface, opacity: pressed ? 0.7 : 1 }]}
+            >
+                <View style={[styles.iconBox, { backgroundColor: warning + '25' }]}>
+                    <Icon name="star" size={18} color={warning} />
+                </View>
+                <View style={{ flex: 1 }}>
+                    <AppText style={[styles.rowTitle, { color: foreground }]}>Rate ClariRate</AppText>
+                    <AppText style={[styles.rowSubtitle, { color: muted }]}>Support an indie developer ❤️</AppText>
+                </View>
+                <Icon name="chevron-forward-outline" size={16} color={muted} />
+            </Pressable>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
-    card: {
-        borderRadius: Layout.borderRadius,
+    sectionLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        marginBottom: 8,
+        marginLeft: 4,
     },
-    body: {
+    row: {
         flexDirection: 'row',
         alignItems: 'center',
-        padding: Layout.spacing * 4,
-        gap: Layout.spacing * 4,
+        gap: 12,
+        padding: 16,
+        borderRadius: 16,
     },
-    iconContainer: {
-        width: 40,
-        height: 40,
+    iconBox: {
+        width: 36,
+        height: 36,
         borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    title: {
-        fontSize: 16,
+    rowTitle: {
+        fontSize: 15,
         fontWeight: '600',
     },
-    subtitle: {
-        fontSize: 13,
-    }
+    rowSubtitle: {
+        fontSize: 12,
+    },
 });

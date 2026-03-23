@@ -9,29 +9,37 @@ const LINE_HEIGHT = TEXT_SIZE * 1.15;
 
 const Timer = () => {
     const muted = useThemeColor('muted');
+    const accent = useThemeColor('accent');
     const { hours, minutes, seconds } = useTimer();
 
     return (
-        <View style={styles.timerContainer}>
-            <TimeBox value={hours} label="HRS" mutedColor={muted} />
-            <AppText style={[styles.colon, { color: muted }]}>:</AppText>
-            <TimeBox value={minutes} label="MIN" mutedColor={muted} />
-            <AppText style={[styles.colon, { color: muted }]}>:</AppText>
-            <TimeBox value={seconds} label="SEC" mutedColor={muted} />
-        </View>
-    );
-}
-
-const TimeBox = ({ value, label, mutedColor }: { value: string, label: string, mutedColor: string }) => {
-    return (
-        <View style={styles.timeItem}>
-            <Ticker value={value} />
-            <AppText style={[{ color: mutedColor }, styles.timeItemDescription]}>
-                {label}
-            </AppText>
+        /* Glow ring around the whole timer */
+        <View style={[styles.glowRing, {
+            shadowColor: accent,
+            shadowOffset: { width: 0, height: 0 },
+            shadowOpacity: 0.35,
+            shadowRadius: 40,
+            elevation: 20,
+        }]}>
+            <View style={styles.timerContainer}>
+                <TimeBox value={hours} label="HRS" mutedColor={muted} />
+                <AppText style={[styles.colon, { color: muted }]}>:</AppText>
+                <TimeBox value={minutes} label="MIN" mutedColor={muted} />
+                <AppText style={[styles.colon, { color: muted }]}>:</AppText>
+                <TimeBox value={seconds} label="SEC" mutedColor={muted} />
+            </View>
         </View>
     );
 };
+
+const TimeBox = ({ value, label, mutedColor }: { value: string, label: string, mutedColor: string }) => (
+    <View style={styles.timeItem}>
+        <Ticker value={value} />
+        <AppText style={[{ color: mutedColor }, styles.timeItemDescription]}>
+            {label}
+        </AppText>
+    </View>
+);
 
 export const Ticker = ({ value }: { value: string }) => {
     const splitValue = value.split('');
@@ -39,21 +47,20 @@ export const Ticker = ({ value }: { value: string }) => {
 
     return (
         <View style={styles.tickerRow}>
-            {splitValue.map((number, index) => {
-                const _number = parseInt(number);
-                if (!isNaN(_number)) {
-                    return <TickerList key={index} number={_number} index={index} />;
-                } else {
-                    return (
-                        <Tick key={index} fontSize={TEXT_SIZE} style={{ color: foreground }}>
-                            {number}
-                        </Tick>
-                    );
+            {splitValue.map((char, index) => {
+                const num = parseInt(char);
+                if (!isNaN(num)) {
+                    return <TickerList key={index} number={num} index={index} />;
                 }
+                return (
+                    <Tick key={index} fontSize={TEXT_SIZE} style={{ color: foreground }}>
+                        {char}
+                    </Tick>
+                );
             })}
         </View>
     );
-}
+};
 
 const numbersToNice = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -63,15 +70,8 @@ const TickerList = ({ number, index }: { number: number; index: number }) => {
     return (
         <View style={{ height: LINE_HEIGHT, overflow: "hidden" }}>
             <MotiView
-                animate={{
-                    translateY: -LINE_HEIGHT * number
-                }}
-                transition={{
-                    delay: index * 50,
-                    type: 'spring',
-                    damping: 20,
-                    stiffness: 90
-                }}
+                animate={{ translateY: -LINE_HEIGHT * number }}
+                transition={{ delay: index * 50, type: 'spring', damping: 20, stiffness: 90 }}
             >
                 {numbersToNice.map((num) => (
                     <Tick key={num} fontSize={TEXT_SIZE} style={{ color: foreground }}>
@@ -81,30 +81,30 @@ const TickerList = ({ number, index }: { number: number; index: number }) => {
             </MotiView>
         </View>
     );
-}
+};
 
-const Tick = ({ children, fontSize, style, ...rest }: TextProps & { fontSize: number }) => {
-    return (
-        <AppText
-            {...rest}
-            style={[
-                style,
-                {
-                    fontSize,
-                    lineHeight: LINE_HEIGHT,
-                    fontVariant: ['tabular-nums'],
-                    fontWeight: '900',
-                    textAlign: 'center',
-                    minWidth: fontSize * 0.6,
-                }
-            ]}
-        >
-            {children}
-        </AppText>
-    );
-}
+const Tick = ({ children, fontSize, style, ...rest }: TextProps & { fontSize: number }) => (
+    <AppText
+        {...rest}
+        style={[style, {
+            fontSize,
+            lineHeight: LINE_HEIGHT,
+            fontVariant: ['tabular-nums'],
+            fontWeight: '900',
+            textAlign: 'center',
+            minWidth: fontSize * 0.6,
+        }]}
+    >
+        {children}
+    </AppText>
+);
 
 const styles = StyleSheet.create({
+    glowRing: {
+        paddingHorizontal: 24,
+        paddingVertical: 20,
+        borderRadius: 40,
+    },
     timerContainer: {
         flexDirection: 'row',
         alignItems: 'flex-end',
@@ -117,11 +117,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     colon: {
-        fontSize: TEXT_SIZE * 0.6,
-        fontWeight: '300',
+        fontSize: TEXT_SIZE * 0.55,
+        fontWeight: '200',
         lineHeight: LINE_HEIGHT,
         marginBottom: 28,
-        opacity: 0.5,
+        opacity: 0.4,
     },
     timeItem: {
         gap: 8,
@@ -133,8 +133,8 @@ const styles = StyleSheet.create({
         fontWeight: '600',
         textTransform: 'uppercase',
         letterSpacing: 1.5,
-        opacity: 0.6,
-    }
+        opacity: 0.5,
+    },
 });
 
 export default Timer;

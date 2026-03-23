@@ -9,12 +9,14 @@ import { useUserStatus } from '@/hooks/user-status';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
+import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Button, Card, useThemeColor } from 'heroui-native';
 import { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import Animated, { Easing, FadeInDown, FadeInLeft, FadeInUp } from "react-native-reanimated";
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useUniwind } from 'uniwind';
 
 function getGreeting(): string {
     const hour = new Date().getHours();
@@ -37,6 +39,8 @@ export default function TimerTab() {
     const muted = useThemeColor('muted');
     const accent = useThemeColor('accent');
     const surface = useThemeColor('surface');
+
+    const { theme } = useUniwind();
 
     const { isPro, isChecking } = useUserStatus();
     const { isTracking, isPaused } = useTimer();
@@ -63,79 +67,94 @@ export default function TimerTab() {
     };
 
     const statusLabel = useMemo(() => {
-        if (isTracking && !isPaused) return { text: 'Tracking', color: accent };
-        if (isPaused) return { text: 'Paused', color: '#eab308' };
+        if (isTracking && !isPaused) return { text: '● Tracking', color: accent };
+        if (isPaused) return { text: '⏸ Paused', color: '#eab308' };
         return null;
     }, [isTracking, isPaused, accent]);
 
+    const isLightTheme = theme === 'light' || theme === 'nord';
+
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
-            {/* Top bar */}
-            <Animated.View
-                style={styles.topBar}
-                entering={FadeInUp.delay(200).easing(Easing.ease).duration(500)}
-            >
-                <View style={styles.topBarLeft}>
-                    <AppText style={[styles.greeting, { color: foreground }]}>
-                        {getGreeting()}
-                    </AppText>
-                    <View style={styles.dateRow}>
-                        <AppText style={[styles.dateText, { color: muted }]}>
-                            {getFormattedDate()}
+        <View style={styles.root}>
+            {/* Full-screen gradient */}
+            <LinearGradient
+                colors={[background, accent + '28', background]}
+                locations={[0.0, 0.42, 1.0]}
+                start={{ x: 0.5, y: 0 }}
+                end={{ x: 0.5, y: 1 }}
+                style={StyleSheet.absoluteFillObject}
+            />
+
+            <SafeAreaView style={styles.container}>
+                {/* Top bar */}
+                <Animated.View
+                    style={styles.topBar}
+                    entering={FadeInUp.delay(150).easing(Easing.ease).duration(500)}
+                >
+                    <View>
+                        <AppText style={[styles.greeting, { color: foreground }]}>
+                            {getGreeting()}
                         </AppText>
-                        {statusLabel && (
-                            <View style={[styles.statusChip, { backgroundColor: statusLabel.color + '20' }]}>
-                                <View style={[styles.statusDot, { backgroundColor: statusLabel.color }]} />
+                        <View style={styles.dateRow}>
+                            <AppText style={[styles.dateText, { color: muted }]}>
+                                {getFormattedDate()}
+                            </AppText>
+                            {statusLabel && (
                                 <AppText style={[styles.statusText, { color: statusLabel.color }]}>
                                     {statusLabel.text}
                                 </AppText>
-                            </View>
-                        )}
+                            )}
+                        </View>
                     </View>
-                </View>
-                <Pressable
-                    onPress={handleAddSession}
-                    style={[styles.addButton, { backgroundColor: surface }]}
+                    <Pressable
+                        onPress={handleAddSession}
+                        style={[styles.addButton, { backgroundColor: surface, borderColor: muted + '30', borderWidth: 1 }]}
+                    >
+                        <Icon name="add-outline" color={muted} size={20} />
+                    </Pressable>
+                </Animated.View>
+
+                {/* Timer + earnings */}
+                <Animated.View
+                    style={{ flex: 1 }}
+                    entering={FadeInLeft.delay(250).easing(Easing.ease).duration(600).damping(80)}
                 >
-                    <Icon name="add-outline" color={muted} size={22} />
-                </Pressable>
-            </Animated.View>
+                    <MainContent />
+                </Animated.View>
 
-            {/* Timer + earnings */}
-            <Animated.View
-                style={{ flex: 1 }}
-                entering={FadeInLeft.delay(300).easing(Easing.ease).duration(600).damping(80)}
-            >
-                <MainContent />
-            </Animated.View>
+                <AdBanner isPro={!isChecking && isPro} />
 
-            <AdBanner isPro={!isChecking && isPro} />
-
-            {/* Action buttons */}
-            <Animated.View
-                entering={FadeInDown.delay(300).easing(Easing.ease).duration(600).damping(80)}
-                style={styles.actionsWrapper}
-            >
-                <Actions />
-            </Animated.View>
+                {/* Action buttons */}
+                <Animated.View
+                    entering={FadeInDown.delay(250).easing(Easing.ease).duration(600).damping(80)}
+                    style={styles.actionsWrapper}
+                >
+                    <Actions />
+                </Animated.View>
+            </SafeAreaView>
 
             {/* PRO welcome modal */}
             <Modal visible={showWelcome} animationType="fade" transparent={true}>
                 <BlurView
                     intensity={30}
-                    tint="dark"
-                    style={[styles.overlay, { backgroundColor: background + '20' }]}
+                    tint={isLightTheme ? 'systemThinMaterialLight' : 'systemThinMaterialDark'}
+                    style={[styles.overlay]}
                 >
-                    <Card style={[styles.welcomeCard, { backgroundColor: background, borderColor: accent }]}>
+                    <Card style={[styles.welcomeCard, { backgroundColor: background, borderColor: accent + '50', borderWidth: 1 }]}>
                         <Card.Body style={styles.welcomeBody}>
-                            <View style={[styles.welcomeIconCircle, { backgroundColor: accent + '20' }]}>
+                            <LinearGradient
+                                colors={[accent + '40', accent + '10']}
+                                start={{ x: 0, y: 0 }}
+                                end={{ x: 1, y: 1 }}
+                                style={styles.welcomeIconCircle}
+                            >
                                 <Icon name="ribbon" size={44} color={accent} />
-                            </View>
+                            </LinearGradient>
                             <AppText style={[styles.welcomeTitle, { color: foreground }]}>
                                 You're PRO! 🚀
                             </AppText>
                             <AppText style={[styles.welcomeDesc, { color: muted }]}>
-                                Lifetime access is active. Unlimited invoices, clients, and analytics are all yours.
+                                Lifetime access is active. Unlimited invoices, clients, and analytics — all yours.
                             </AppText>
                             <Button
                                 onPress={handleCloseWelcome}
@@ -149,11 +168,14 @@ export default function TimerTab() {
                     </Card>
                 </BlurView>
             </Modal>
-        </SafeAreaView>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+    },
     container: {
         flex: 1,
         flexDirection: 'column',
@@ -167,11 +189,8 @@ const styles = StyleSheet.create({
         paddingTop: Layout.spacing * 2,
         paddingBottom: Layout.spacing,
     },
-    topBarLeft: {
-        gap: 4,
-    },
     greeting: {
-        fontSize: 24,
+        fontSize: 22,
         fontWeight: '700',
         letterSpacing: -0.3,
     },
@@ -179,38 +198,24 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        marginTop: 2,
     },
     dateText: {
         fontSize: 13,
     },
-    statusChip: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 5,
-        paddingHorizontal: 8,
-        paddingVertical: 3,
-        borderRadius: 20,
-    },
-    statusDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-    },
     statusText: {
-        fontSize: 11,
+        fontSize: 12,
         fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
     },
     addButton: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         justifyContent: 'center',
         alignItems: 'center',
     },
     actionsWrapper: {
-        paddingBottom: Layout.spacing * 3,
+        paddingBottom: Layout.spacing * 4,
     },
     overlay: {
         flex: 1,
@@ -220,8 +225,7 @@ const styles = StyleSheet.create({
     },
     welcomeCard: {
         width: '100%',
-        borderRadius: 24,
-        borderWidth: 1,
+        borderRadius: 28,
     },
     welcomeBody: {
         alignItems: 'center',
