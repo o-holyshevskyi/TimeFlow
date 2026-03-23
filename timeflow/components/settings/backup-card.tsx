@@ -1,15 +1,16 @@
 import { Layout } from "@/constants/layout";
 import { useDataBackup } from "@/hooks/use-data-backup";
-import { Button, Card, Spinner, Toast, useThemeColor, useToast } from "heroui-native";
+import { Spinner, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback } from "react";
-import { StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 const BackupCard = () => {
     const foreground = useThemeColor('foreground');
-    const muted = useThemeColor('muted');    
+    const muted = useThemeColor('muted');
     const accent = useThemeColor('accent');
+    const surface = useThemeColor('surface');
     const background = useThemeColor('background');
 
     const { createBackup, restoreBackup, isLoading } = useDataBackup();
@@ -18,17 +19,18 @@ const BackupCard = () => {
     const showToast = useCallback((label: string, description: string) => {
         toast.show({
             component: (props) => (
-                <Toast 
-                    variant="default" 
-                    placement="top" 
+                <Toast
+                    variant="default"
+                    placement="top"
                     style={{ backgroundColor: background, borderColor: accent }}
-                    className="border-1 p-5" {...props}
+                    className="border-1 p-5"
+                    {...props}
                 >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View>
                             <Toast.Label style={{ fontSize: 22 }}>{label}</Toast.Label>
                             <Toast.Description style={{ fontSize: 16 }}>{description}</Toast.Description>
-                        </View>                       
+                        </View>
                         <Toast.Close />
                     </View>
                 </Toast>
@@ -47,129 +49,92 @@ const BackupCard = () => {
     }, [restoreBackup, showToast]);
 
     return (
-        <Card style={[styles.settingsCard, { backgroundColor: accent + '20' }]}>
-            <Card.Header style={[styles.settingsCardHeader]}>
-                <AppText style={[{ color: foreground }, styles.settingsCardTitle]}>Data Backup</AppText>
-                <AppText style={[{ color: muted }, styles.settingsCardDescription]}>
-                    Save your history to a file or restore from one.
-                </AppText>
-            </Card.Header>
-
-            <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
-                {/* <View style={styles.restoreRow}>
-                    <View style={{ flex: 1, gap: 4 }}>
-                        <AppText style={{ color: foreground, fontSize: 18, fontWeight: '600' }}>Restore Data</AppText>
-                        <AppText style={{ color: muted, fontSize: 14 }}>Import .json file</AppText>
+        <View>
+            <AppText style={[styles.sectionLabel, { color: muted }]}>DATA & BACKUP</AppText>
+            <View style={[styles.section, { backgroundColor: surface }]}>
+                <Pressable
+                    onPress={handleCreateBackup}
+                    disabled={isLoading}
+                    style={({ pressed }) => [styles.row, { opacity: pressed ? 0.6 : 1 }]}
+                >
+                    <View style={[styles.iconBox, { backgroundColor: '#3b82f6' + '20' }]}>
+                        {isLoading
+                            ? <Spinner size="sm" />
+                            : <Icon name="cloud-upload-outline" color="#3b82f6" size={18} />
+                        }
                     </View>
-                    
-                    <Button 
-                        size="lg" 
-                        variant="ghost" 
-                        onPress={handleRestoreBackup}
-                        isDisabled={isLoading}
-                        style={{ borderColor: 'rgba(255,255,255,0.1)', borderWidth: 1 }}
-                    >
-                        {isLoading ? (
-                            <ActivityIndicator color={accent} /> 
-                        ) : (
-                            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-                                <Icon name="cloud-download-outline" color={accent} size={24} />
-                                <AppText style={{ color: accent, fontWeight: '600' }}>Import</AppText>
-                            </View>
-                        )}
-                    </Button>
-                </View> */}
-                <Button
+                    <View style={{ flex: 1, gap: 2 }}>
+                        <AppText style={[styles.rowTitle, { color: foreground }]}>Create Backup</AppText>
+                        <AppText style={[styles.rowSubtitle, { color: muted }]}>
+                            Export your data to a file
+                        </AppText>
+                    </View>
+                    <Icon name="chevron-forward-outline" color={muted} size={16} />
+                </Pressable>
+
+                <View style={[styles.divider, { backgroundColor: muted + '20', marginLeft: 64 }]} />
+
+                <Pressable
                     onPress={handleRestoreBackup}
-                    size="lg"
-                    style={{
-                        borderRadius: 9999,
-                        borderWidth: 1,
-                        borderColor: accent,
-                        backgroundColor: 'transparent',
-                        width: '100%',
-                        paddingHorizontal: Layout.spacing * 4,
-                        paddingVertical: Layout.spacing / 1.5,
-                    }}
-                    isDisabled={isLoading}
+                    disabled={isLoading}
+                    style={({ pressed }) => [styles.row, { opacity: pressed ? 0.6 : 1 }]}
                     testID="restore-button"
                 >
-                    {isLoading ? (
-                        <Spinner color="default" />
-                    ) : (
-                        <View style={{ flexDirection: 'row', gap: Layout.spacing, alignItems: 'center', justifyContent: 'center' }}>
-                            <Icon name="cloud-download-outline" color={foreground} />
-                            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: foreground }}>
-                                Import Backup
-                            </Button.Label>
-                        </View>
-                    )}
-                </Button>
-            </Card.Body>
-
-            <Card.Footer style={{ paddingHorizontal: Layout.spacing }}>
-                <Button 
-                    isDisabled={isLoading}
-                    onPress={handleCreateBackup}
-                    feedbackVariant="ripple" 
-                    size="lg"
-                    animation={{
-                        ripple: {
-                            backgroundColor: { value: foreground },
-                            opacity: { value: [0, 0.3, 0] },
-                        },
-                        scale: {
-                            value: 1.05
+                    <View style={[styles.iconBox, { backgroundColor: '#22c55e' + '20' }]}>
+                        {isLoading
+                            ? <Spinner size="sm" />
+                            : <Icon name="cloud-download-outline" color="#22c55e" size={18} />
                         }
-                    }}
-                >
-                    {isLoading ? (
-                        <Spinner color="default" />
-                    ) : (
-                        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
-                             <Icon name="cloud-upload-outline" color={foreground} size={24} />
-                            <Button.Label style={{ fontSize: 24, fontWeight: '600', color: foreground }}>
-                                Create Backup
-                            </Button.Label>
-                        </View>
-                    )}
-                </Button>
-            </Card.Footer>
-        </Card>
+                    </View>
+                    <View style={{ flex: 1, gap: 2 }}>
+                        <AppText style={[styles.rowTitle, { color: foreground }]}>Import Backup</AppText>
+                        <AppText style={[styles.rowSubtitle, { color: muted }]}>
+                            Restore from a .json file
+                        </AppText>
+                    </View>
+                    <Icon name="chevron-forward-outline" color={muted} size={16} />
+                </Pressable>
+            </View>
+        </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
-    settingsCard: {
-        marginTop: Layout.spacing * 2,
-        borderRadius: Layout.borderRadius,
-        gap: Layout.spacing * 4
+    sectionLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        marginBottom: 8,
+        marginLeft: 4,
     },
-    settingsCardHeader: {
-        gap: Layout.spacing * 2,
-        flexDirection: 'column',
-        alignItems: 'center',
-        alignContent: 'center'
+    section: {
+        borderRadius: 16,
+        overflow: 'hidden',
     },
-    settingsCardTitle: {
-        fontSize: 28, 
-        fontWeight: '700'
-    },
-    settingsCardDescription: {
-        fontSize: 22, 
-        fontWeight: '500', 
-        textAlign: 'center'
-    },
-    restoreRow: {
+    row: {
         flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: 'rgba(0,0,0,0.2)',
+        gap: 12,
         padding: 16,
-        borderRadius: 24,
-        borderWidth: 1,
-        borderColor: 'rgba(255,255,255,0.05)'
-    }
+    },
+    iconBox: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    rowTitle: {
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    rowSubtitle: {
+        fontSize: 12,
+    },
+    divider: {
+        height: 1,
+    },
 });
 
 export default BackupCard;

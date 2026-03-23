@@ -2,7 +2,7 @@ import { Layout } from "@/constants/layout";
 import { Session } from "@/hooks/use-sessions";
 import { useSettings } from "@/hooks/use-settings";
 import { BlurView } from "expo-blur";
-import { Card, useThemeColor } from "heroui-native";
+import { useThemeColor } from "heroui-native";
 import { StyleSheet, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
 import { ScrollView } from "react-native-gesture-handler";
@@ -11,9 +11,7 @@ import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
 const getHours = (ms: number) => ms / 1000 / 3600;
-
-const getSessionEarnings = (session: Session) => 
-    getHours(session.elapsedTime) * parseFloat(session.rate);
+const getSessionEarnings = (session: Session) => getHours(session.elapsedTime) * parseFloat(session.rate);
 
 export const calculatePeriodData = (sessions: Session[], period: 'week' | 'month' | 'year') => {
     const now = new Date();
@@ -23,29 +21,24 @@ export const calculatePeriodData = (sessions: Session[], period: 'week' | 'month
     let previousPeriodStart = new Date(now);
 
     if (period === 'week') {
-        // ... (ваш код для тижня)
-        const day = now.getDay(); 
+        const day = now.getDay();
         const diffToMonday = day === 0 ? 6 : day - 1;
         currentPeriodStart.setDate(now.getDate() - diffToMonday);
         previousPeriodStart = new Date(currentPeriodStart);
         previousPeriodStart.setDate(currentPeriodStart.getDate() - 7);
     } else if (period === 'month') {
-        // ... (ваш код для місяця)
         currentPeriodStart = new Date(now.getFullYear(), now.getMonth(), 1);
         previousPeriodStart = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     } else {
-        // 🔥 НОВА ЛОГІКА ДЛЯ РОКУ
-        currentPeriodStart = new Date(now.getFullYear(), 0, 1); // 1 січня цього року
-        previousPeriodStart = new Date(now.getFullYear() - 1, 0, 1); // 1 січня минулого року
+        currentPeriodStart = new Date(now.getFullYear(), 0, 1);
+        previousPeriodStart = new Date(now.getFullYear() - 1, 0, 1);
     }
 
-    // ... (решта функції calculatePeriodData залишається такою ж)
     const currentStartTime = currentPeriodStart.getTime();
     const previousStartTime = previousPeriodStart.getTime();
 
     const thisPeriodSessions = sessions.filter(s => s.startTime >= currentStartTime);
-    // Для року порівнюємо з повним минулим роком (або тим самим періодом минулого року - тут повний)
-    const lastPeriodSessions = sessions.filter(s => 
+    const lastPeriodSessions = sessions.filter(s =>
         s.startTime >= previousStartTime && s.startTime < currentStartTime
     );
 
@@ -63,109 +56,108 @@ export const calculatePeriodData = (sessions: Session[], period: 'week' | 'month
     return { money: thisPeriodMoney, hours: thisPeriodHours, percentChange };
 };
 
-export const SummaryCards = ({ sessions, isPro }: {sessions: Session[], isPro: boolean}) => {
+export const SummaryCards = ({ sessions, isPro }: { sessions: Session[], isPro: boolean }) => {
     const weekData = calculatePeriodData(sessions, 'week');
     const monthData = calculatePeriodData(sessions, 'month');
     const yearData = calculatePeriodData(sessions, 'year');
-
     const { settings } = useSettings();
-    
-    const wFormattedAmount = formatCurrency({ amount: parseFloat(weekData.money.toFixed(2)), code: settings?.currency || 'USD' });
-    const mFormattedAmount = formatCurrency({ amount: parseFloat(monthData.money.toFixed(2)), code: settings?.currency || 'USD' });
-    const yFormatted = formatCurrency({ amount: parseFloat(yearData.money.toFixed(2)), code: settings?.currency || 'USD' });
 
-    return <ScrollView 
-        contentContainerStyle={{
-            flexDirection: 'row',
-            gap: Layout.spacing * 2,
-        }} 
-        horizontal
-        showsHorizontalScrollIndicator={false}
-    >
-        {/* Картка 1: Гроші за тиждень */}
-        <SummaryCard 
-            title="THIS WEEK" 
-            value={wFormattedAmount[0]} 
-            icon="wallet-outline"
-            percent={weekData.percentChange}
-            color={"#f97316"}
-        />
-        
-        <SummaryCard 
-            title="THIS YEAR" 
-            value={yFormatted[0]} 
-            icon="earth-outline" // або trophy-outline
-            percent={yearData.percentChange}
-            color={"#3b82f6"} // Золотий колір
-            isBlurred={!isPro} // Теж робимо PRO фічею
-        />
+    const [wAmount] = formatCurrency({ amount: parseFloat(weekData.money.toFixed(2)), code: settings?.currency || 'USD' });
+    const [mAmount] = formatCurrency({ amount: parseFloat(monthData.money.toFixed(2)), code: settings?.currency || 'USD' });
+    const [yAmount] = formatCurrency({ amount: parseFloat(yearData.money.toFixed(2)), code: settings?.currency || 'USD' });
 
-        <SummaryCard 
-            title="THIS MONTH" 
-            value={mFormattedAmount[0]} 
-            icon="calendar-outline"
-            percent={monthData.percentChange}
-            color={"#eab308"}
-            isBlurred={!isPro}
-        />
-
-        <SummaryCard 
-            title="HOURS PER WEEK" 
-            value={`${weekData.hours.toFixed(1)} h`} 
-            icon="time-outline"
-            // Тут можна додати порівняння годин, якщо розширити логіку, 
-            // або просто приховати відсотки
-            subText="Total time worked"
-            color={"#64748b"}
-        />
-        
-    </ScrollView>;
+    return (
+        <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}
+        >
+            <SummaryCard
+                title="This Week"
+                value={wAmount}
+                icon="wallet-outline"
+                percent={weekData.percentChange}
+                accentColor="#f97316"
+            />
+            <SummaryCard
+                title="This Month"
+                value={mAmount}
+                icon="calendar-outline"
+                percent={monthData.percentChange}
+                accentColor="#eab308"
+                isBlurred={!isPro}
+            />
+            <SummaryCard
+                title="This Year"
+                value={yAmount}
+                icon="earth-outline"
+                percent={yearData.percentChange}
+                accentColor="#3b82f6"
+                isBlurred={!isPro}
+            />
+            <SummaryCard
+                title="Hours / Week"
+                value={`${weekData.hours.toFixed(1)}h`}
+                icon="time-outline"
+                subText="Total time worked"
+                accentColor="#64748b"
+            />
+        </ScrollView>
+    );
 };
 
-const SummaryCard = ({ title, value, icon, percent, subText, color, isBlurred }: any) => {   
+const SummaryCard = ({ title, value, icon, percent, subText, accentColor, isBlurred }: {
+    title: string;
+    value: string;
+    icon: string;
+    percent?: number;
+    subText?: string;
+    accentColor: string;
+    isBlurred?: boolean;
+}) => {
     const muted = useThemeColor('muted');
     const accent = useThemeColor('accent');
     const danger = useThemeColor('danger');
     const foreground = useThemeColor('foreground');
+    const surface = useThemeColor('surface');
 
     return (
-        <View style={[styles.wrapper]}>
-            {/* Основний контент картки */}
-            <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
-                <Card.Header style={styles.header}>
-                    <View style={[styles.iconWrapper, { backgroundColor: color + '40' }]}>
-                        <Icon name={icon} color={color} />
+        <View style={[styles.cardWrapper, { overflow: 'hidden' }]}>
+            <View style={[styles.card, { backgroundColor: surface }]}>
+                {/* Icon + title row */}
+                <View style={styles.cardTop}>
+                    <View style={[styles.iconBox, { backgroundColor: accentColor + '20' }]}>
+                        <Icon name={icon as any} color={accentColor} size={16} />
                     </View>
-                    <AppText style={{ color: foreground }}>{title}</AppText>
-                </Card.Header>
+                    <AppText style={[styles.cardTitle, { color: muted }]}>{title}</AppText>
+                </View>
 
-                <Card.Body>
-                    <AppText style={{ fontSize: 26, fontWeight: '900', color: foreground }}>
-                        {value}
-                    </AppText>
-                </Card.Body>
+                {/* Value */}
+                <AppText style={[styles.cardValue, { color: foreground }]}>{value}</AppText>
 
-                <Card.Footer style={styles.footer}>
+                {/* Footer: trend or subtext */}
+                <View style={styles.cardFooter}>
                     {percent !== undefined ? (
                         <>
                             <Icon
                                 name={percent >= 0 ? 'trending-up-outline' : 'trending-down-outline'}
                                 color={percent >= 0 ? accent : danger}
-                                size={20}
+                                size={14}
                             />
-                            <AppText style={{ color: percent >= 0 ? accent : danger }}>
+                            <AppText style={[styles.trendText, { color: percent >= 0 ? accent : danger }]}>
                                 {Math.abs(percent).toFixed(1)}%
                             </AppText>
+                            <AppText style={[styles.trendLabel, { color: muted }]}>vs last period</AppText>
                         </>
                     ) : (
-                        <AppText style={{ color: muted }}>{subText}</AppText>
+                        <AppText style={[styles.trendLabel, { color: muted }]}>{subText}</AppText>
                     )}
-                </Card.Footer>
-            </Card>
+                </View>
+            </View>
 
             {isBlurred && (
                 <BlurView
-                    intensity={30}
+                    intensity={20}
                     tint="dark"
                     style={styles.blurOverlay}
                 >
@@ -174,36 +166,61 @@ const SummaryCard = ({ title, value, icon, percent, subText, color, isBlurred }:
             )}
         </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
-    wrapper: {
-        position: 'relative',
-        borderRadius: 20,
-        overflow: 'hidden',
+    scrollContent: {
+        flexDirection: 'row',
+        gap: Layout.spacing * 2,
+        paddingVertical: 4,
+    },
+    cardWrapper: {
+        borderRadius: 16,
     },
     card: {
-        borderRadius: 20,
+        width: 160,
+        borderRadius: 16,
+        padding: 14,
+        gap: 8,
+    },
+    cardTop: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    iconBox: {
+        width: 30,
+        height: 30,
+        borderRadius: 9,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    cardTitle: {
+        fontSize: 12,
+        fontWeight: '600',
+        flex: 1,
+    },
+    cardValue: {
+        fontSize: 22,
+        fontWeight: '800',
+        letterSpacing: -0.5,
+    },
+    cardFooter: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 4,
+    },
+    trendText: {
+        fontSize: 12,
+        fontWeight: '700',
+    },
+    trendLabel: {
+        fontSize: 11,
     },
     blurOverlay: {
         ...StyleSheet.absoluteFillObject,
         zIndex: 10,
         justifyContent: 'center',
         alignItems: 'center',
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Layout.spacing,
-    },
-    iconWrapper: {
-        borderRadius: 999,
-        padding: Layout.spacing,
-    },
-    footer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: Layout.spacing,
-        marginTop: Layout.spacing,
     },
 });

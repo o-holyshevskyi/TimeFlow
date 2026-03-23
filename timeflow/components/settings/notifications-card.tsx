@@ -1,26 +1,26 @@
 import { Layout } from "@/constants/layout";
 import { useSettings } from "@/hooks/use-settings";
 import * as Notifications from 'expo-notifications';
-import { Card, Switch, Toast, useThemeColor, useToast } from "heroui-native";
+import { Switch, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
 import { Linking, StyleSheet, View } from "react-native";
 import { AppText } from "../ui/app-text";
+import { Icon } from "../ui/icon";
 
 const NotificationsCard = () => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
     const accent = useThemeColor('accent');
+    const surface = useThemeColor('surface');
     const background = useThemeColor('background');
-    
+
     const [isEnabled, setIsEnabled] = useState(true);
-    
     const { settings, saveSettings } = useSettings();
     const { toast } = useToast();
 
     useEffect(() => {
         const checkStatus = async () => {
             const { status } = await Notifications.getPermissionsAsync();
-            console.log(settings)
             const settingsEnabled = settings?.notificationsEnabled ?? true;
             setIsEnabled(status === 'granted' && settingsEnabled);
         };
@@ -30,17 +30,18 @@ const NotificationsCard = () => {
     const showToast = useCallback((title: string, message: string) => {
         toast.show({
             component: (props) => (
-                <Toast 
-                    variant="default" 
-                    placement="top" 
+                <Toast
+                    variant="default"
+                    placement="top"
                     style={{ backgroundColor: background, borderColor: accent }}
-                    className="border-1 p-5" {...props}
+                    className="border-1 p-5"
+                    {...props}
                 >
                     <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
                         <View>
                             <Toast.Label style={{ fontSize: 22 }}>{title}</Toast.Label>
                             <Toast.Description style={{ fontSize: 16 }}>{message}</Toast.Description>
-                        </View>                      
+                        </View>
                         <Toast.Close />
                     </View>
                 </Toast>
@@ -69,63 +70,59 @@ const NotificationsCard = () => {
     };
 
     return (
-        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
-            <Card.Header style={[styles.cardHeader]}>
-                <AppText style={[{ color: foreground }, styles.cardTitle]}>Notifications</AppText>
-                <AppText style={[{ color: muted }, styles.cardDescription]}>
-                    Get reminders if your timer runs for too long (e.g. 8+ hours).
-                </AppText>
-            </Card.Header>
-            
-            <Card.Body style={{ paddingHorizontal: Layout.spacing }}>
+        <View>
+            <AppText style={[styles.sectionLabel, { color: muted }]}>NOTIFICATIONS</AppText>
+            <View style={[styles.section, { backgroundColor: surface }]}>
                 <View style={styles.row}>
-                    <View style={{ flex: 2, gap: 4 }}>
-                        <AppText style={{ fontSize: 20, fontWeight: '600', color: foreground }}>
-                            Enable Reminders
-                        </AppText>
-                        <AppText style={{ fontSize: 16, color: muted }}>
-                            Send a push notification if timer is running &gt; 8h
+                    <View style={[styles.iconBox, { backgroundColor: '#f97316' + '20' }]}>
+                        <Icon name="notifications-outline" color="#f97316" size={18} />
+                    </View>
+                    <View style={{ flex: 1, gap: 2 }}>
+                        <AppText style={[styles.rowTitle, { color: foreground }]}>Timer Reminders</AppText>
+                        <AppText style={[styles.rowSubtitle, { color: muted }]}>
+                            Alert when timer runs &gt; 8 hours
                         </AppText>
                     </View>
-                    
                     <Switch isSelected={isEnabled} onSelectedChange={toggleSwitch} />
                 </View>
-                
-            </Card.Body>
-        </Card>
+            </View>
+        </View>
     );
-}
+};
 
 const styles = StyleSheet.create({
-    card: {
-        marginTop: Layout.spacing * 2,
-        borderRadius: Layout.borderRadius,
-        gap: Layout.spacing * 3
+    sectionLabel: {
+        fontSize: 12,
+        fontWeight: '700',
+        letterSpacing: 1,
+        textTransform: 'uppercase',
+        marginBottom: 8,
+        marginLeft: 4,
     },
-    cardHeader: {
-        gap: Layout.spacing * 2,
-        flexDirection: 'column',
-        alignItems: 'center',
-        alignContent: 'center'
-    },
-    cardTitle: {
-        fontSize: 28, 
-        fontWeight: '700'
-    },
-    cardDescription: {
-        fontSize: 20, 
-        fontWeight: '500', 
-        textAlign: 'center'
+    section: {
+        borderRadius: 16,
+        overflow: 'hidden',
     },
     row: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingVertical: Layout.spacing,
-        gap: Layout.spacing * 5
-        // borderBottomWidth: 1, // Якщо буде кілька рядків
-        // borderBottomColor: 'rgba(255,255,255,0.1)'
-    }
+        gap: 12,
+        padding: 16,
+    },
+    iconBox: {
+        width: 36,
+        height: 36,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    rowTitle: {
+        fontSize: 15,
+        fontWeight: '600',
+    },
+    rowSubtitle: {
+        fontSize: 12,
+    },
 });
 
 export default NotificationsCard;

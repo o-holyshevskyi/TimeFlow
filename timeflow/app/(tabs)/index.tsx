@@ -4,33 +4,49 @@ import MainContent from '@/components/home/content';
 import { AppText } from '@/components/ui/app-text';
 import { Icon } from '@/components/ui/icon';
 import { Layout } from '@/constants/layout';
+import { useTimer } from '@/contexts/timer-context';
 import { useUserStatus } from '@/hooks/user-status';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { Button, Card, useThemeColor } from 'heroui-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { Easing, FadeInDown, FadeInLeft } from "react-native-reanimated";
+import Animated, { Easing, FadeInDown, FadeInLeft, FadeInUp } from "react-native-reanimated";
 import { SafeAreaView } from 'react-native-safe-area-context';
+
+function getGreeting(): string {
+    const hour = new Date().getHours();
+    if (hour < 12) return 'Good morning';
+    if (hour < 17) return 'Good afternoon';
+    return 'Good evening';
+}
+
+function getFormattedDate(): string {
+    return new Date().toLocaleDateString('en-US', {
+        weekday: 'long',
+        month: 'short',
+        day: 'numeric',
+    });
+}
 
 export default function TimerTab() {
     const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
     const accent = useThemeColor('accent');
+    const surface = useThemeColor('surface');
 
     const { isPro, isChecking } = useUserStatus();
+    const { isTracking, isPaused } = useTimer();
     const [showWelcome, setShowWelcome] = useState(false);
 
     useEffect(() => {
         const checkFirstProTime = async () => {
             if (isPro && !isChecking) {
                 const hasSeen = await AsyncStorage.getItem('has_seen_pro_welcome');
-                if (!hasSeen) {
-                    setShowWelcome(true);
-                }
+                if (!hasSeen) setShowWelcome(true);
             }
         };
         checkFirstProTime();
@@ -46,15 +62,46 @@ export default function TimerTab() {
         router.push('/modals/new-session');
     };
 
+    const statusLabel = useMemo(() => {
+        if (isTracking && !isPaused) return { text: 'Tracking', color: accent };
+        if (isPaused) return { text: 'Paused', color: '#eab308' };
+        return null;
+    }, [isTracking, isPaused, accent]);
+
     return (
         <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
-            <View style={styles.topBar}>
-                <AppText style={[styles.appName, { color: foreground }]}>TimeFlow</AppText>
-                <Pressable onPress={handleAddSession} style={[styles.addButton, { backgroundColor: accent + '20' }]}>
-                    <Icon name="add-outline" color={accent} size={22} />
+            {/* Top bar */}
+            <Animated.View
+                style={styles.topBar}
+                entering={FadeInUp.delay(200).easing(Easing.ease).duration(500)}
+            >
+                <View style={styles.topBarLeft}>
+                    <AppText style={[styles.greeting, { color: foreground }]}>
+                        {getGreeting()}
+                    </AppText>
+                    <View style={styles.dateRow}>
+                        <AppText style={[styles.dateText, { color: muted }]}>
+                            {getFormattedDate()}
+                        </AppText>
+                        {statusLabel && (
+                            <View style={[styles.statusChip, { backgroundColor: statusLabel.color + '20' }]}>
+                                <View style={[styles.statusDot, { backgroundColor: statusLabel.color }]} />
+                                <AppText style={[styles.statusText, { color: statusLabel.color }]}>
+                                    {statusLabel.text}
+                                </AppText>
+                            </View>
+                        )}
+                    </View>
+                </View>
+                <Pressable
+                    onPress={handleAddSession}
+                    style={[styles.addButton, { backgroundColor: surface }]}
+                >
+                    <Icon name="add-outline" color={muted} size={22} />
                 </Pressable>
-            </View>
+            </Animated.View>
 
+            {/* Timer + earnings */}
             <Animated.View
                 style={{ flex: 1 }}
                 entering={FadeInLeft.delay(300).easing(Easing.ease).duration(600).damping(80)}
@@ -64,6 +111,7 @@ export default function TimerTab() {
 
             <AdBanner isPro={!isChecking && isPro} />
 
+            {/* Action buttons */}
             <Animated.View
                 entering={FadeInDown.delay(300).easing(Easing.ease).duration(600).damping(80)}
                 style={styles.actionsWrapper}
@@ -71,6 +119,7 @@ export default function TimerTab() {
                 <Actions />
             </Animated.View>
 
+            {/* PRO welcome modal */}
             <Modal visible={showWelcome} animationType="fade" transparent={true}>
                 <BlurView
                     intensity={30}
@@ -78,22 +127,22 @@ export default function TimerTab() {
                     style={[styles.overlay, { backgroundColor: background + '20' }]}
                 >
                     <Card style={[styles.welcomeCard, { backgroundColor: background, borderColor: accent }]}>
-                        <Card.Body style={styles.center}>
-                            <View style={[styles.iconCircle, { backgroundColor: accent + '20' }]}>
-                                <Icon name="ribbon" size={50} color={accent} />
+                        <Card.Body style={styles.welcomeBody}>
+                            <View style={[styles.welcomeIconCircle, { backgroundColor: accent + '20' }]}>
+                                <Icon name="ribbon" size={44} color={accent} />
                             </View>
-                            <AppText style={[styles.title, { color: foreground }]}>
-                                You are PRO! 🚀
+                            <AppText style={[styles.welcomeTitle, { color: foreground }]}>
+                                You're PRO! 🚀
                             </AppText>
-                            <AppText style={[styles.description, { color: muted }]}>
-                                Your lifetime access is active. Generate unlimited PDF invoices and manage your clients with no limits.
+                            <AppText style={[styles.welcomeDesc, { color: muted }]}>
+                                Lifetime access is active. Unlimited invoices, clients, and analytics are all yours.
                             </AppText>
                             <Button
                                 onPress={handleCloseWelcome}
-                                style={[styles.button, { backgroundColor: accent }]}
+                                style={[styles.welcomeBtn, { backgroundColor: accent }]}
                             >
-                                <Button.Label style={{ color: foreground, fontWeight: '800' }}>
-                                    Start Tracking
+                                <Button.Label style={{ color: foreground, fontWeight: '700', fontSize: 16 }}>
+                                    Let's Go
                                 </Button.Label>
                             </Button>
                         </Card.Body>
@@ -115,12 +164,43 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: Layout.spacing * 4,
-        paddingVertical: Layout.spacing * 2,
+        paddingTop: Layout.spacing * 2,
+        paddingBottom: Layout.spacing,
     },
-    appName: {
-        fontSize: 22,
+    topBarLeft: {
+        gap: 4,
+    },
+    greeting: {
+        fontSize: 24,
         fontWeight: '700',
-        letterSpacing: -0.5,
+        letterSpacing: -0.3,
+    },
+    dateRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 8,
+    },
+    dateText: {
+        fontSize: 13,
+    },
+    statusChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 20,
+    },
+    statusDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
+    },
+    statusText: {
+        fontSize: 11,
+        fontWeight: '700',
+        textTransform: 'uppercase',
+        letterSpacing: 0.5,
     },
     addButton: {
         width: 38,
@@ -143,33 +223,32 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         borderWidth: 1,
     },
-    center: {
+    welcomeBody: {
         alignItems: 'center',
-        padding: 32,
+        padding: 28,
+        gap: 16,
     },
-    iconCircle: {
-        width: 100,
-        height: 100,
-        borderRadius: 50,
+    welcomeIconCircle: {
+        width: 88,
+        height: 88,
+        borderRadius: 44,
         justifyContent: 'center',
         alignItems: 'center',
-        marginBottom: 20,
     },
-    title: {
-        fontSize: 28,
+    welcomeTitle: {
+        fontSize: 26,
         fontWeight: '900',
-        marginBottom: 12,
         textAlign: 'center',
     },
-    description: {
-        fontSize: 16,
+    welcomeDesc: {
+        fontSize: 15,
         textAlign: 'center',
-        lineHeight: 24,
-        marginBottom: 24,
+        lineHeight: 22,
     },
-    button: {
+    welcomeBtn: {
         width: '100%',
-        height: 56,
-        borderRadius: 16,
+        height: 52,
+        borderRadius: 14,
+        marginTop: 4,
     },
 });
