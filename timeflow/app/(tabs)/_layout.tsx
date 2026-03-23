@@ -7,6 +7,7 @@ export default function TabsLayout() {
     const accent = useThemeColor('accent');
     const muted = useThemeColor('muted');
     const background = useThemeColor('background');
+    const surface = useThemeColor('surface');
 
     return (
         <Tabs
@@ -15,8 +16,9 @@ export default function TabsLayout() {
                 tabBarActiveTintColor: accent,
                 tabBarInactiveTintColor: muted,
                 tabBarStyle: {
-                    backgroundColor: background,
-                    borderTopWidth: 0,
+                    backgroundColor: surface,
+                    borderTopWidth: 1,
+                    borderTopColor: muted + '25',
                     elevation: 0,
                     shadowOpacity: 0,
                     height: Platform.OS === 'ios' ? 85 : 65,
@@ -25,8 +27,8 @@ export default function TabsLayout() {
                 },
                 tabBarLabelStyle: {
                     fontSize: 11,
-                    fontWeight: '600',
-                    letterSpacing: 0.3,
+                    fontWeight: '500',
+                    letterSpacing: 0.2,
                 },
             }}
         >

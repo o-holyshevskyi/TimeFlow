@@ -123,11 +123,14 @@ const SummaryCard = ({ title, value, icon, percent, subText, accentColor, isBlur
 
     return (
         <View style={[styles.cardWrapper, { overflow: 'hidden' }]}>
-            <View style={[styles.card, { backgroundColor: surface }]}>
+            <View style={[styles.card, { backgroundColor: surface, borderColor: muted + '20', borderWidth: 1 }]}>
+                {/* Accent top bar */}
+                <View style={[styles.accentBar, { backgroundColor: accentColor }]} />
+
                 {/* Icon + title row */}
-                <View style={styles.cardTop}>
-                    <View style={[styles.iconBox, { backgroundColor: accentColor + '20' }]}>
-                        <Icon name={icon as any} color={accentColor} size={16} />
+                <View style={[styles.cardTop, { marginTop: 10 }]}>
+                    <View style={[styles.iconBox, { backgroundColor: accentColor + '18' }]}>
+                        <Icon name={icon as any} color={accentColor} size={15} />
                     </View>
                     <AppText style={[styles.cardTitle, { color: muted }]}>{title}</AppText>
                 </View>
@@ -180,8 +183,17 @@ const styles = StyleSheet.create({
     card: {
         width: 160,
         borderRadius: 16,
-        padding: 14,
+        paddingHorizontal: 14,
+        paddingBottom: 14,
+        paddingTop: 0,
         gap: 8,
+        overflow: 'hidden',
+    },
+    accentBar: {
+        height: 3,
+        marginHorizontal: -14,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
     },
     cardTop: {
         flexDirection: 'row',
@@ -189,9 +201,9 @@ const styles = StyleSheet.create({
         gap: 8,
     },
     iconBox: {
-        width: 30,
-        height: 30,
-        borderRadius: 9,
+        width: 28,
+        height: 28,
+        borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
     },

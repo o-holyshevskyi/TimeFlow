@@ -27,6 +27,7 @@ export default function SettingsTab() {
         <SafeAreaView style={styles.container}>
             <View style={styles.header}>
                 <AppText style={[styles.title, { color: foreground }]}>Settings</AppText>
+                <View style={[styles.headerDivider, { backgroundColor: muted + '15' }]} />
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
@@ -86,12 +87,17 @@ const styles = StyleSheet.create({
     },
     header: {
         paddingHorizontal: Layout.spacing * 4,
-        paddingVertical: Layout.spacing * 2,
+        paddingTop: Layout.spacing * 2,
+        paddingBottom: 0,
+        gap: Layout.spacing * 2,
+    },
+    headerDivider: {
+        height: 1,
     },
     title: {
-        fontSize: 28,
+        fontSize: 26,
         fontWeight: '800',
-        letterSpacing: -0.5,
+        letterSpacing: -0.3,
     },
     content: {
         paddingHorizontal: Layout.spacing * 3,

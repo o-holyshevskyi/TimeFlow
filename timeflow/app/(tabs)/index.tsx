@@ -9,7 +9,6 @@ import { useUserStatus } from '@/hooks/user-status';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
 import { Button, Card, useThemeColor } from 'heroui-native';
 import { useEffect, useMemo, useState } from 'react';
@@ -67,31 +66,22 @@ export default function TimerTab() {
     };
 
     const statusLabel = useMemo(() => {
-        if (isTracking && !isPaused) return { text: '● Tracking', color: accent };
-        if (isPaused) return { text: '⏸ Paused', color: '#eab308' };
+        if (isTracking && !isPaused) return { text: 'Tracking', color: accent };
+        if (isPaused) return { text: 'Paused', color: '#eab308' };
         return null;
     }, [isTracking, isPaused, accent]);
 
     const isLightTheme = theme === 'light' || theme === 'nord';
 
     return (
-        <View style={styles.root}>
-            {/* Full-screen gradient */}
-            <LinearGradient
-                colors={[background, accent + '28', background]}
-                locations={[0.0, 0.42, 1.0]}
-                start={{ x: 0.5, y: 0 }}
-                end={{ x: 0.5, y: 1 }}
-                style={StyleSheet.absoluteFillObject}
-            />
-
+        <View style={[styles.root, { backgroundColor: background }]}>
             <SafeAreaView style={styles.container}>
                 {/* Top bar */}
                 <Animated.View
                     style={styles.topBar}
                     entering={FadeInUp.delay(150).easing(Easing.ease).duration(500)}
                 >
-                    <View>
+                    <View style={styles.topBarLeft}>
                         <AppText style={[styles.greeting, { color: foreground }]}>
                             {getGreeting()}
                         </AppText>
@@ -100,19 +90,32 @@ export default function TimerTab() {
                                 {getFormattedDate()}
                             </AppText>
                             {statusLabel && (
-                                <AppText style={[styles.statusText, { color: statusLabel.color }]}>
-                                    {statusLabel.text}
-                                </AppText>
+                                <View style={[styles.statusChip, {
+                                    backgroundColor: statusLabel.color + '15',
+                                    borderColor: statusLabel.color + '40',
+                                }]}>
+                                    <View style={[styles.statusDot, { backgroundColor: statusLabel.color }]} />
+                                    <AppText style={[styles.statusText, { color: statusLabel.color }]}>
+                                        {statusLabel.text}
+                                    </AppText>
+                                </View>
                             )}
                         </View>
                     </View>
                     <Pressable
                         onPress={handleAddSession}
-                        style={[styles.addButton, { backgroundColor: surface, borderColor: muted + '30', borderWidth: 1 }]}
+                        style={[styles.addButton, {
+                            backgroundColor: surface,
+                            borderColor: muted + '30',
+                            borderWidth: 1,
+                        }]}
                     >
-                        <Icon name="add-outline" color={muted} size={20} />
+                        <Icon name="add-outline" color={foreground} size={18} />
                     </Pressable>
                 </Animated.View>
+
+                {/* Thin accent divider */}
+                <View style={[styles.headerDivider, { backgroundColor: muted + '15' }]} />
 
                 {/* Timer + earnings */}
                 <Animated.View
@@ -140,18 +143,17 @@ export default function TimerTab() {
                     tint={isLightTheme ? 'systemThinMaterialLight' : 'systemThinMaterialDark'}
                     style={[styles.overlay]}
                 >
-                    <Card style={[styles.welcomeCard, { backgroundColor: background, borderColor: accent + '50', borderWidth: 1 }]}>
+                    <Card style={[styles.welcomeCard, {
+                        backgroundColor: background,
+                        borderColor: muted + '30',
+                        borderWidth: 1,
+                    }]}>
                         <Card.Body style={styles.welcomeBody}>
-                            <LinearGradient
-                                colors={[accent + '40', accent + '10']}
-                                start={{ x: 0, y: 0 }}
-                                end={{ x: 1, y: 1 }}
-                                style={styles.welcomeIconCircle}
-                            >
-                                <Icon name="ribbon" size={44} color={accent} />
-                            </LinearGradient>
+                            <View style={[styles.welcomeIconCircle, { backgroundColor: accent + '15', borderColor: accent + '30', borderWidth: 1 }]}>
+                                <Icon name="ribbon" size={40} color={accent} />
+                            </View>
                             <AppText style={[styles.welcomeTitle, { color: foreground }]}>
-                                You're PRO! 🚀
+                                You're PRO
                             </AppText>
                             <AppText style={[styles.welcomeDesc, { color: muted }]}>
                                 Lifetime access is active. Unlimited invoices, clients, and analytics — all yours.
@@ -160,7 +162,7 @@ export default function TimerTab() {
                                 onPress={handleCloseWelcome}
                                 style={[styles.welcomeBtn, { backgroundColor: accent }]}
                             >
-                                <Button.Label style={{ color: foreground, fontWeight: '700', fontSize: 16 }}>
+                                <Button.Label style={{ color: 'white', fontWeight: '600', fontSize: 16 }}>
                                     Let's Go
                                 </Button.Label>
                             </Button>
@@ -187,12 +189,20 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         paddingHorizontal: Layout.spacing * 4,
         paddingTop: Layout.spacing * 2,
-        paddingBottom: Layout.spacing,
+        paddingBottom: Layout.spacing * 2,
+    },
+    topBarLeft: {
+        gap: 4,
+    },
+    headerDivider: {
+        height: 1,
+        marginHorizontal: Layout.spacing * 4,
+        marginBottom: Layout.spacing,
     },
     greeting: {
-        fontSize: 22,
+        fontSize: 20,
         fontWeight: '700',
-        letterSpacing: -0.3,
+        letterSpacing: -0.2,
     },
     dateRow: {
         flexDirection: 'row',
@@ -202,15 +212,31 @@ const styles = StyleSheet.create({
     },
     dateText: {
         fontSize: 13,
+        fontWeight: '400',
+    },
+    statusChip: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 5,
+        paddingHorizontal: 8,
+        paddingVertical: 3,
+        borderRadius: 20,
+        borderWidth: 1,
+    },
+    statusDot: {
+        width: 6,
+        height: 6,
+        borderRadius: 3,
     },
     statusText: {
-        fontSize: 12,
-        fontWeight: '700',
+        fontSize: 11,
+        fontWeight: '600',
+        letterSpacing: 0.2,
     },
     addButton: {
         width: 36,
         height: 36,
-        borderRadius: 18,
+        borderRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -225,34 +251,36 @@ const styles = StyleSheet.create({
     },
     welcomeCard: {
         width: '100%',
-        borderRadius: 28,
+        borderRadius: 20,
     },
     welcomeBody: {
         alignItems: 'center',
         padding: 28,
-        gap: 16,
+        gap: 14,
     },
     welcomeIconCircle: {
-        width: 88,
-        height: 88,
-        borderRadius: 44,
+        width: 80,
+        height: 80,
+        borderRadius: 20,
         justifyContent: 'center',
         alignItems: 'center',
     },
     welcomeTitle: {
-        fontSize: 26,
-        fontWeight: '900',
+        fontSize: 24,
+        fontWeight: '800',
         textAlign: 'center',
+        letterSpacing: -0.3,
     },
     welcomeDesc: {
         fontSize: 15,
         textAlign: 'center',
         lineHeight: 22,
+        fontWeight: '400',
     },
     welcomeBtn: {
         width: '100%',
-        height: 52,
-        borderRadius: 14,
+        height: 50,
+        borderRadius: 12,
         marginTop: 4,
     },
 });

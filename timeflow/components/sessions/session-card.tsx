@@ -65,17 +65,25 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
     const clientColor = client?.color || accent;
 
     return (
-        <View style={[styles.card, { backgroundColor: surface }]}>
-            {/* Client indicator bar */}
+        <View style={[styles.card, {
+            backgroundColor: surface,
+            borderColor: muted + '20',
+            borderWidth: 1,
+        }]}>
+            {/* Client color accent bar */}
             {client && (
                 <View style={[styles.clientBar, { backgroundColor: clientColor }]} />
             )}
 
             <View style={styles.cardContent}>
-                {/* Top row: client name + menu */}
+                {/* Top row: client chip + menu */}
                 <View style={styles.topRow}>
                     {client ? (
-                        <View style={[styles.clientChip, { backgroundColor: clientColor + '20' }]}>
+                        <View style={[styles.clientChip, {
+                            backgroundColor: clientColor + '12',
+                            borderColor: clientColor + '30',
+                            borderWidth: 1,
+                        }]}>
                             <View style={[styles.clientDot, { backgroundColor: clientColor }]} />
                             <AppText style={[styles.clientName, { color: clientColor }]}>
                                 {client.name}
@@ -90,10 +98,14 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
                 {/* Amount */}
                 <AppText style={[styles.amount, { color: foreground }]}>{amountStr}</AppText>
 
-                {/* Duration chip + time range */}
+                {/* Meta row: duration + time range */}
                 <View style={styles.metaRow}>
-                    <View style={[styles.durationChip, { backgroundColor: accent + '15' }]}>
-                        <Icon name="time-outline" color={accent} size={13} />
+                    <View style={[styles.durationChip, {
+                        backgroundColor: accent + '12',
+                        borderColor: accent + '25',
+                        borderWidth: 1,
+                    }]}>
+                        <Icon name="time-outline" color={accent} size={12} />
                         <AppText style={[styles.durationText, { color: accent }]}>{duration}</AppText>
                     </View>
                     <AppText style={[styles.timeRange, { color: muted }]}>
@@ -103,7 +115,7 @@ const SessionCard = ({ item, foreground, muted, isFading, deleteSession }: Sessi
 
                 {/* Rate */}
                 <AppText style={[styles.rate, { color: muted }]}>
-                    {formattedRate}/hr{client?.defaultRate === item.rate ? '' : ''}
+                    {formattedRate}/hr
                 </AppText>
             </View>
 

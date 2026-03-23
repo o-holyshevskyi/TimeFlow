@@ -17,6 +17,8 @@ type SessionHeaderProps = {
 const SessionHeader = ({ showBack = false }: SessionHeaderProps) => {
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
+    const surface = useThemeColor('surface');
+    const accent = useThemeColor('accent');
     const { isPro, isChecking } = useUserStatus();
     const { sessions, isLoading } = useSessions();
 
@@ -29,18 +31,28 @@ const SessionHeader = ({ showBack = false }: SessionHeaderProps) => {
     };
 
     return (
-        <View style={styles.headerContainer}>
-            <View style={styles.titleRow}>
-                <AppText style={[styles.titleText, { color: foreground }]}>Sessions</AppText>
-                {!isPro && (
-                    <AppText style={[styles.countLabel, { color: muted }]}>
-                        Showing last 5
-                    </AppText>
-                )}
+        <View>
+            <View style={styles.headerContainer}>
+                <View style={styles.titleRow}>
+                    <AppText style={[styles.titleText, { color: foreground }]}>Sessions</AppText>
+                    {!isPro && (
+                        <AppText style={[styles.countLabel, { color: muted }]}>
+                            Showing last 5
+                        </AppText>
+                    )}
+                </View>
+                <Pressable
+                    onPress={handleExport}
+                    style={[styles.exportButton, {
+                        backgroundColor: surface,
+                        borderColor: muted + '25',
+                        borderWidth: 1,
+                    }]}
+                >
+                    <Icon name="share-outline" color={muted} size={17} />
+                </Pressable>
             </View>
-            <Pressable onPress={handleExport} style={styles.exportButton}>
-                <Icon name="share-outline" color={muted} size={20} />
-            </Pressable>
+            <View style={[styles.headerDivider, { backgroundColor: muted + '15', marginHorizontal: Layout.spacing * 4 }]} />
         </View>
     );
 };
@@ -73,23 +85,31 @@ const styles = StyleSheet.create({
         justifyContent: 'space-between',
         alignItems: 'center',
         paddingHorizontal: Layout.spacing * 4,
-        paddingVertical: Layout.spacing * 2,
+        paddingTop: Layout.spacing * 2,
+        paddingBottom: Layout.spacing * 2,
+    },
+    headerDivider: {
+        height: 1,
     },
     titleRow: {
         flexDirection: 'column',
         gap: 2,
     },
     titleText: {
-        fontSize: 28,
+        fontSize: 26,
         fontWeight: '800',
-        letterSpacing: -0.5,
+        letterSpacing: -0.3,
     },
     countLabel: {
         fontSize: 12,
-        fontWeight: '500',
+        fontWeight: '400',
     },
     exportButton: {
-        padding: 8,
+        width: 34,
+        height: 34,
+        borderRadius: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
     },
 });
 

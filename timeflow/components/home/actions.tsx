@@ -4,7 +4,6 @@ import { Client, useClients } from "@/hooks/use-clients";
 import { useSettings } from "@/hooks/use-settings";
 import { BlurView } from "expo-blur";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import * as StoreReview from 'expo-store-review';
 import { Select, Toast, useThemeColor, useToast } from "heroui-native";
@@ -26,64 +25,24 @@ export const triggerReview = async () => {
 };
 
 // ─────────────────────────────────────────────
-// Circular icon button (music-player style)
+// Primary solid button (e.g. Start, Resume)
 // ─────────────────────────────────────────────
-const CircleBtn = ({
+const PrimaryBtn = ({
     icon,
-    color,
     label,
     onPress,
-    large = false,
+    disabled,
+    color,
+    textColor = 'white',
+    flex = 1,
 }: {
     icon: string;
-    color: string;
     label: string;
     onPress: () => void;
-    large?: boolean;
-}) => {
-    const size = large ? 90 : 76;
-    const iconSize = large ? 32 : 26;
-    return (
-        <Pressable
-            onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                onPress();
-            }}
-            style={({ pressed }) => [
-                styles.circleBtn,
-                {
-                    width: size,
-                    height: size,
-                    borderRadius: size / 2,
-                    borderColor: color,
-                    backgroundColor: color + '18',
-                    opacity: pressed ? 0.7 : 1,
-                },
-            ]}
-        >
-            <Icon name={icon as any} color={color} size={iconSize} />
-            <AppText style={[styles.circleBtnLabel, { color }]}>{label}</AppText>
-        </Pressable>
-    );
-};
-
-// ─────────────────────────────────────────────
-// Full-width pill start button (uses gradient)
-// ─────────────────────────────────────────────
-const PillStartBtn = ({
-    accent,
-    foreground,
-    onPress,
-    disabled,
-    label = 'Start Tracking',
-    icon = 'play',
-}: {
-    accent: string;
-    foreground: string;
-    onPress: () => void;
     disabled?: boolean;
-    label?: string;
-    icon?: string;
+    color: string;
+    textColor?: string;
+    flex?: number;
 }) => (
     <Pressable
         onPress={() => {
@@ -92,17 +51,44 @@ const PillStartBtn = ({
                 onPress();
             }
         }}
-        style={({ pressed }) => [{ width: CARD_WIDTH, opacity: (disabled || pressed) ? 0.6 : 1 }]}
+        style={({ pressed }) => [
+            styles.primaryBtn,
+            { backgroundColor: color, flex, opacity: (disabled || pressed) ? 0.65 : 1 },
+        ]}
     >
-        <LinearGradient
-            colors={[accent, accent + 'BB']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.pillGradient}
-        >
-            <Icon name={icon as any} color={foreground} size={22} />
-            <AppText style={[styles.pillLabel, { color: foreground }]}>{label}</AppText>
-        </LinearGradient>
+        <Icon name={icon as any} color={textColor} size={20} />
+        <AppText style={[styles.primaryBtnLabel, { color: textColor }]}>{label}</AppText>
+    </Pressable>
+);
+
+// ─────────────────────────────────────────────
+// Outline button (e.g. Pause, Stop secondary)
+// ─────────────────────────────────────────────
+const OutlineBtn = ({
+    icon,
+    label,
+    onPress,
+    color,
+    flex = 1,
+}: {
+    icon: string;
+    label: string;
+    onPress: () => void;
+    color: string;
+    flex?: number;
+}) => (
+    <Pressable
+        onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            onPress();
+        }}
+        style={({ pressed }) => [
+            styles.outlineBtn,
+            { borderColor: color, backgroundColor: color + '10', flex, opacity: pressed ? 0.65 : 1 },
+        ]}
+    >
+        <Icon name={icon as any} color={color} size={20} />
+        <AppText style={[styles.outlineBtnLabel, { color }]}>{label}</AppText>
     </Pressable>
 );
 
@@ -124,6 +110,7 @@ const Actions = () => {
     const accent = useThemeColor('accent');
     const warning = useThemeColor('warning');
     const danger = useThemeColor('danger');
+    const surface = useThemeColor('surface');
 
     useEffect(() => {
         if (clients.length > 0 && !selectedClient) {
@@ -139,7 +126,7 @@ const Actions = () => {
                 <Toast
                     variant="default"
                     placement="top"
-                    style={{ backgroundColor: background, borderColor: accent }}
+                    style={{ backgroundColor: background, borderColor: muted + '30' }}
                     className="border-1 p-5"
                     {...props}
                 >
@@ -152,7 +139,7 @@ const Actions = () => {
                 </Toast>
             ),
         });
-    }, [toast, background, accent]);
+    }, [toast, background, muted]);
 
     const handleStart = useCallback((overrideClientId?: string) => {
         startTimer(overrideClientId || selectedClient?.id);
@@ -179,12 +166,11 @@ const Actions = () => {
     if (!settings?.currency) {
         return (
             <View style={styles.center}>
-                <PillStartBtn
-                    accent={accent}
-                    foreground={foreground}
-                    onPress={() => router.push('/cards/settings')}
+                <PrimaryBtn
+                    icon="settings-outline"
                     label="Set Hourly Rate"
-                    icon="time-outline"
+                    color={accent}
+                    onPress={() => router.push('/cards/settings')}
                 />
             </View>
         );
@@ -194,12 +180,10 @@ const Actions = () => {
     if (isTracking && !isPaused) {
         return (
             <View style={styles.center}>
-                <AppText style={[styles.actionHint, { color: muted }]}>
-                    Session in progress
-                </AppText>
-                <View style={styles.circleRow}>
-                    <CircleBtn icon="pause" color={warning} label="Pause" onPress={handlePause} />
-                    <CircleBtn icon="stop" color={danger} label="Stop" onPress={handleStop} large />
+                <AppText style={[styles.actionHint, { color: muted }]}>Session in progress</AppText>
+                <View style={styles.buttonRow}>
+                    <OutlineBtn icon="pause" color={warning} label="Pause" onPress={handlePause} />
+                    <PrimaryBtn icon="stop" color={danger} label="Stop" onPress={handleStop} />
                 </View>
             </View>
         );
@@ -209,12 +193,10 @@ const Actions = () => {
     if (isPaused) {
         return (
             <View style={styles.center}>
-                <AppText style={[styles.actionHint, { color: muted }]}>
-                    Session paused
-                </AppText>
-                <View style={styles.circleRow}>
-                    <CircleBtn icon="play" color={accent} label="Resume" onPress={handleResume} large />
-                    <CircleBtn icon="stop" color={danger} label="Stop" onPress={handleStop} />
+                <AppText style={[styles.actionHint, { color: muted }]}>Session paused</AppText>
+                <View style={styles.buttonRow}>
+                    <PrimaryBtn icon="play" color={accent} label="Resume" onPress={handleResume} />
+                    <OutlineBtn icon="stop" color={danger} label="Stop" onPress={handleStop} />
                 </View>
             </View>
         );
@@ -224,11 +206,13 @@ const Actions = () => {
     if (clients.length === 0) {
         return (
             <View style={styles.center}>
-                <PillStartBtn
-                    accent={accent}
-                    foreground={foreground}
-                    onPress={() => handleStart()}
+                <PrimaryBtn
+                    icon="play"
+                    label="Start Tracking"
+                    color={accent}
                     disabled={!settings?.currency}
+                    onPress={() => handleStart()}
+                    flex={0}
                 />
             </View>
         );
@@ -254,12 +238,20 @@ const Actions = () => {
                 }}
             >
                 <Select.Trigger style={{ width: CARD_WIDTH }} asChild>
-                    <PillStartBtn
-                        accent={accent}
-                        foreground={foreground}
-                        onPress={() => setIsOpen(true)}
-                        disabled={!settings?.currency}
-                    />
+                    <Pressable
+                        onPress={() => {
+                            if (!settings?.currency) return;
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            setIsOpen(true);
+                        }}
+                        style={({ pressed }) => [
+                            styles.startBtn,
+                            { backgroundColor: accent, width: CARD_WIDTH, opacity: pressed ? 0.8 : 1 },
+                        ]}
+                    >
+                        <Icon name="play" color="white" size={20} />
+                        <AppText style={styles.startBtnLabel}>Start Tracking</AppText>
+                    </Pressable>
                 </Select.Trigger>
 
                 <Select.Portal>
@@ -284,8 +276,8 @@ const Actions = () => {
                                             <Select.Item key={cl.id} value={cl.id} label={cl.name}>
                                                 <View style={{ flexDirection: 'row', gap: 14, alignItems: 'center', justifyContent: 'space-between' }}>
                                                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                                                        <View style={{ backgroundColor: cl.color || accent, width: 40, height: 40, borderRadius: 20, justifyContent: 'center', alignItems: 'center' }}>
-                                                            <AppText style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>
+                                                        <View style={{ backgroundColor: cl.color || accent, width: 40, height: 40, borderRadius: 12, justifyContent: 'center', alignItems: 'center' }}>
+                                                            <AppText style={{ fontSize: 18, fontWeight: 'bold', color: 'white' }}>
                                                                 {cl.name.charAt(0).toUpperCase()}
                                                             </AppText>
                                                         </View>
@@ -313,44 +305,64 @@ const styles = StyleSheet.create({
     center: {
         alignItems: 'center',
         gap: Layout.spacing * 3,
+        paddingHorizontal: Layout.spacing * 3,
     },
-    circleRow: {
+    buttonRow: {
         flexDirection: 'row',
-        gap: 28,
-        justifyContent: 'center',
-        alignItems: 'center',
+        gap: 12,
+        width: CARD_WIDTH,
     },
-    circleBtn: {
+    primaryBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+        borderRadius: 14,
+        minWidth: 120,
+    },
+    primaryBtnLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        letterSpacing: 0.1,
+    },
+    outlineBtn: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        gap: 10,
+        paddingVertical: 16,
+        paddingHorizontal: 24,
+        borderRadius: 14,
         borderWidth: 1.5,
-        justifyContent: 'center',
-        alignItems: 'center',
-        gap: 4,
+        minWidth: 120,
     },
-    circleBtnLabel: {
-        fontSize: 10,
-        fontWeight: '700',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
+    outlineBtnLabel: {
+        fontSize: 16,
+        fontWeight: '600',
+        letterSpacing: 0.1,
     },
-    pillGradient: {
+    startBtn: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         gap: 10,
         paddingVertical: 18,
-        paddingHorizontal: 24,
-        borderRadius: 9999,
+        paddingHorizontal: 28,
+        borderRadius: 14,
     },
-    pillLabel: {
-        fontSize: 18,
+    startBtnLabel: {
+        fontSize: 17,
         fontWeight: '700',
-        letterSpacing: 0.2,
+        color: 'white',
+        letterSpacing: 0.1,
     },
     actionHint: {
         fontSize: 12,
         fontWeight: '500',
         textTransform: 'uppercase',
-        letterSpacing: 1,
+        letterSpacing: 1.2,
     },
 });
 

@@ -4,23 +4,24 @@ import { MotiView } from 'moti';
 import { StyleSheet, TextProps, View } from "react-native";
 import { AppText } from "../ui/app-text";
 
-const TEXT_SIZE = 80;
+const TEXT_SIZE = 72;
 const LINE_HEIGHT = TEXT_SIZE * 1.15;
 
 const Timer = () => {
     const muted = useThemeColor('muted');
+    const foreground = useThemeColor('foreground');
+    const surface = useThemeColor('surface');
     const accent = useThemeColor('accent');
     const { hours, minutes, seconds } = useTimer();
 
     return (
-        /* Glow ring around the whole timer */
-        <View style={[styles.glowRing, {
-            shadowColor: accent,
-            shadowOffset: { width: 0, height: 0 },
-            shadowOpacity: 0.35,
-            shadowRadius: 40,
-            elevation: 20,
+        <View style={[styles.timerShell, {
+            backgroundColor: surface,
+            borderColor: muted + '20',
+            borderWidth: 1,
         }]}>
+            {/* Thin top accent line */}
+            <View style={[styles.accentBar, { backgroundColor: accent }]} />
             <View style={styles.timerContainer}>
                 <TimeBox value={hours} label="HRS" mutedColor={muted} />
                 <AppText style={[styles.colon, { color: muted }]}>:</AppText>
@@ -90,7 +91,7 @@ const Tick = ({ children, fontSize, style, ...rest }: TextProps & { fontSize: nu
             fontSize,
             lineHeight: LINE_HEIGHT,
             fontVariant: ['tabular-nums'],
-            fontWeight: '900',
+            fontWeight: '800',
             textAlign: 'center',
             minWidth: fontSize * 0.6,
         }]}
@@ -100,16 +101,23 @@ const Tick = ({ children, fontSize, style, ...rest }: TextProps & { fontSize: nu
 );
 
 const styles = StyleSheet.create({
-    glowRing: {
-        paddingHorizontal: 24,
-        paddingVertical: 20,
-        borderRadius: 40,
+    timerShell: {
+        borderRadius: 24,
+        overflow: 'hidden',
+        alignSelf: 'center',
+    },
+    accentBar: {
+        height: 3,
+        width: '100%',
     },
     timerContainer: {
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'center',
         gap: 4,
+        paddingHorizontal: 28,
+        paddingVertical: 20,
+        paddingTop: 18,
     },
     tickerRow: {
         flexDirection: 'row',
@@ -117,11 +125,11 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
     },
     colon: {
-        fontSize: TEXT_SIZE * 0.55,
-        fontWeight: '200',
+        fontSize: TEXT_SIZE * 0.5,
+        fontWeight: '300',
         lineHeight: LINE_HEIGHT,
-        marginBottom: 28,
-        opacity: 0.4,
+        marginBottom: 24,
+        opacity: 0.35,
     },
     timeItem: {
         gap: 8,
@@ -129,11 +137,11 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     timeItemDescription: {
-        fontSize: 11,
+        fontSize: 10,
         fontWeight: '600',
         textTransform: 'uppercase',
-        letterSpacing: 1.5,
-        opacity: 0.5,
+        letterSpacing: 2,
+        opacity: 0.45,
     },
 });
 
