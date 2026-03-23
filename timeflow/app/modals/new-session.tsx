@@ -7,16 +7,16 @@ import { DurationInput } from "@/components/ui/duration-input";
 import { EarningsInput } from "@/components/ui/earnings-input";
 import HourlyRateInput from "@/components/ui/hourly-rate";
 import { Layout } from "@/constants/layout";
-import { useClients } from "@/hooks/use-clients"; // 🔥 IMPORT
+import { useClients } from "@/hooks/use-clients";
 import { useSessions } from "@/hooks/use-sessions";
 import { useSettings } from "@/hooks/use-settings";
 import { router } from "expo-router";
 import { Button, Toast, useThemeColor, useToast } from "heroui-native";
 import { useEffect, useMemo, useState } from "react";
-import { Dimensions, View } from "react-native";
+import { Dimensions, StyleSheet, View } from "react-native";
 import BaseModal from "./base-modal";
 
-const WIDTH = Dimensions.get('window').width * .9;
+const WIDTH = Dimensions.get('window').width - Layout.spacing * 8;
 
 export default function NewSessionModal() {
     const [startTime, setStartTime] = useState<Date>(new Date());
@@ -34,8 +34,10 @@ export default function NewSessionModal() {
     const { clients } = useClients();
 
     const foreground = useThemeColor('foreground');
+    const muted = useThemeColor('muted');
     const danger = useThemeColor('danger');
     const accent = useThemeColor('accent');
+    const surface = useThemeColor('surface');
     const background = useThemeColor('background');
 
     useEffect(() => {
@@ -54,9 +56,7 @@ export default function NewSessionModal() {
                 if (settings?.rate) setRate(settings.rate);
             }
         } else {
-            if (settings?.rate) {
-                setRate(settings.rate);
-            }
+            if (settings?.rate) setRate(settings.rate);
         }
     }, [clientId, clients, settings]);
 
@@ -83,7 +83,6 @@ export default function NewSessionModal() {
 
     const handleSave = async () => {
         if (!rate || !currency) return;
-        
         const success = await addManualSession(
             startTime.getTime(),
             endTime.getTime(),
@@ -91,15 +90,14 @@ export default function NewSessionModal() {
             currency,
             clientId
         );
-
         if (success) {
             router.back();
             toast.show({
                 component: (props) => (
-                    <Toast 
-                        variant="default" 
-                        placement="top" 
-                        style={{ backgroundColor: background, borderColor: accent }}
+                    <Toast
+                        variant="default"
+                        placement="top"
+                        style={{ backgroundColor: background, borderColor: muted + '30' }}
                         className="border-1 p-5" {...props}
                     >
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -116,34 +114,113 @@ export default function NewSessionModal() {
         }
     };
 
-    return <BaseModal>
-        <DateTimeSelect value={startTime} label="Start Time" onDateChange={setStartTime} />
-        <DateTimeSelect value={endTime} label="End Time" onDateChange={setEndTime} />
-        {clients.length > 0 && (
-            <View style={{ width: WIDTH }}>
-                <ClientSelect 
-                    selectedClientId={clientId} 
-                    onClientSelect={setClientId} 
-                />
+    return (
+        <BaseModal>
+            {/* Time section */}
+            <View style={styles.section}>
+                <AppText style={[styles.sectionLabel, { color: muted }]}>TIME</AppText>
+                <View style={[styles.sectionCard, { backgroundColor: surface, borderColor: muted + '20', borderWidth: 1 }]}>
+                    <DateTimeSelect value={startTime} label="Start Time" onDateChange={setStartTime} />
+                    <View style={[styles.divider, { backgroundColor: muted + '15' }]} />
+                    <DateTimeSelect value={endTime} label="End Time" onDateChange={setEndTime} />
+                </View>
             </View>
-        )}
-        <View style={{ flexDirection: "row", gap: Layout.spacing * 2 }}>
-            <HourlyRateInput rate={rate} setRate={setRate} />
-            <View style={{flex: 1}}>
-                <CurrencySelect initialCurrency={currency} onCurrencySelect={setCurrency} />
+
+            {/* Client section */}
+            {clients.length > 0 && (
+                <View style={styles.section}>
+                    <AppText style={[styles.sectionLabel, { color: muted }]}>CLIENT</AppText>
+                    <View style={[styles.sectionCard, { backgroundColor: surface, borderColor: muted + '20', borderWidth: 1 }]}>
+                        <ClientSelect selectedClientId={clientId} onClientSelect={setClientId} />
+                    </View>
+                </View>
+            )}
+
+            {/* Rate section */}
+            <View style={styles.section}>
+                <AppText style={[styles.sectionLabel, { color: muted }]}>RATE</AppText>
+                <View style={[styles.sectionCard, { backgroundColor: surface, borderColor: muted + '20', borderWidth: 1 }]}>
+                    <View style={styles.rateRow}>
+                        <View style={{ flex: 1 }}>
+                            <HourlyRateInput rate={rate} setRate={setRate} />
+                        </View>
+                        <View style={{ flex: 1 }}>
+                            <CurrencySelect initialCurrency={currency} onCurrencySelect={setCurrency} />
+                        </View>
+                    </View>
+                </View>
             </View>
-        </View>
-        <View style={{ flexDirection: "row", gap: Layout.spacing * 2 }}>
-            <DurationInput duration={duration} />
-            <View style={{ flex: 2 }}>
-                <EarningsInput amount={amount} />
+
+            {/* Summary section */}
+            <View style={styles.section}>
+                <AppText style={[styles.sectionLabel, { color: muted }]}>SUMMARY</AppText>
+                <View style={[styles.sectionCard, { backgroundColor: surface, borderColor: muted + '20', borderWidth: 1 }]}>
+                    <View style={styles.summaryRow}>
+                        <DurationInput duration={duration} />
+                        <View style={{ flex: 2 }}>
+                            <EarningsInput amount={amount} />
+                        </View>
+                    </View>
+                </View>
             </View>
-        </View>
-        <Button isDisabled={!canSave} style={{ width: WIDTH, marginTop: Layout.spacing * 5 }} onPress={handleSave}>
-            <Button.Label style={{ color: foreground, fontSize: 22, fontWeight: '700' }}>Save New Session</Button.Label>
-        </Button>
-        {saveError && 
-            <AppText style={{ color: danger, fontSize: 16, fontWeight: '600' }}>{saveError}</AppText>
-        }
-    </BaseModal>
+
+            {/* Save button */}
+            <View style={styles.saveContainer}>
+                {saveError && (
+                    <AppText style={[styles.errorText, { color: danger }]}>{saveError}</AppText>
+                )}
+                <Button
+                    isDisabled={!canSave}
+                    onPress={handleSave}
+                    style={[styles.saveBtn, { backgroundColor: canSave ? accent : muted + '40' }]}
+                >
+                    <Button.Label style={{ color: 'white', fontSize: 16, fontWeight: '700' }}>
+                        Save Session
+                    </Button.Label>
+                </Button>
+            </View>
+        </BaseModal>
+    );
 }
+
+const styles = StyleSheet.create({
+    section: {
+        gap: 6,
+    },
+    sectionLabel: {
+        fontSize: 11,
+        fontWeight: '600',
+        letterSpacing: 1.5,
+        textTransform: 'uppercase',
+        marginLeft: 2,
+    },
+    sectionCard: {
+        borderRadius: 16,
+        overflow: 'hidden',
+    },
+    divider: {
+        height: 1,
+    },
+    rateRow: {
+        flexDirection: 'row',
+        gap: Layout.spacing * 2,
+        padding: 4,
+    },
+    summaryRow: {
+        flexDirection: 'row',
+        gap: Layout.spacing * 2,
+    },
+    saveContainer: {
+        gap: 10,
+        marginTop: Layout.spacing * 2,
+    },
+    errorText: {
+        fontSize: 13,
+        fontWeight: '500',
+        textAlign: 'center',
+    },
+    saveBtn: {
+        height: 52,
+        borderRadius: 14,
+    },
+});

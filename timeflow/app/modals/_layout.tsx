@@ -2,53 +2,47 @@ import { Stack } from "expo-router";
 import { useThemeColor } from "heroui-native";
 
 export default function ModalsLayout() {
-    return <Stack
-        screenOptions={{
-            contentStyle: {
-                backgroundColor: useThemeColor('background'),
-            },
-            headerStyle: {
-                backgroundColor: useThemeColor('background'),
-            },
-            headerTitleStyle: {
-                color: useThemeColor('foreground'),
-            }
-        }}
-    >
-        <Stack.Screen
-            name="new-session"
-            options={{
-                presentation: 'modal',
-                headerTitle: 'Add New Session',
+    const background = useThemeColor('background');
+    const foreground = useThemeColor('foreground');
+    const muted = useThemeColor('muted');
+    const surface = useThemeColor('surface');
+
+    return (
+        <Stack
+            screenOptions={{
+                contentStyle: { backgroundColor: background },
+                headerStyle: {
+                    backgroundColor: surface,
+                },
+                headerTitleStyle: {
+                    color: foreground,
+                    fontSize: 17,
+                    fontWeight: '700',
+                },
+                headerTintColor: foreground,
+                headerShadowVisible: false,
             }}
-        />
-        <Stack.Screen
-            name="edit-session"
-            options={{
-                presentation: 'modal',
-                headerTitle: 'Edit Session',
-            }}
-        />
-        <Stack.Screen
-            name="new-client"
-            options={{
-                presentation: 'modal',
-                headerTitle: 'Add New Client',
-            }}
-        />
-        <Stack.Screen
-            name="invoice-config"
-            options={{
-                presentation: 'modal',
-                headerTitle: 'Invoice Configuration',
-            }}
-        />
-        <Stack.Screen
-            name="edit-client"
-            options={{
-                presentation: 'modal',
-                headerTitle: 'Edit Client',
-            }}
-        />
-    </Stack>
+        >
+            <Stack.Screen
+                name="new-session"
+                options={{ presentation: 'modal', headerTitle: 'Add Session' }}
+            />
+            <Stack.Screen
+                name="edit-session"
+                options={{ presentation: 'modal', headerTitle: 'Edit Session' }}
+            />
+            <Stack.Screen
+                name="new-client"
+                options={{ presentation: 'modal', headerTitle: 'Add Client' }}
+            />
+            <Stack.Screen
+                name="invoice-config"
+                options={{ presentation: 'modal', headerTitle: 'Invoice' }}
+            />
+            <Stack.Screen
+                name="edit-client"
+                options={{ presentation: 'modal', headerTitle: 'Edit Client' }}
+            />
+        </Stack>
+    );
 }

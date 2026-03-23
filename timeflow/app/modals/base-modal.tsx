@@ -1,26 +1,44 @@
 import { Layout } from "@/constants/layout";
-import { StyleSheet, View } from "react-native";
+import { useThemeColor } from "heroui-native";
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, View } from "react-native";
 
 const BaseModal = ({ children }: { children: React.ReactNode }) => {
-    return <View style={styles.container}>
-        <View style={styles.content}>
-            {children}
-        </View>
-    </View>
-}
+    const background = useThemeColor('background');
+    const muted = useThemeColor('muted');
+
+    return (
+        <KeyboardAvoidingView
+            style={[styles.root, { backgroundColor: background }]}
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            keyboardVerticalOffset={80}
+        >
+            {/* Thin top divider to distinguish from the header */}
+            <View style={[styles.topDivider, { backgroundColor: muted + '15' }]} />
+            <ScrollView
+                contentContainerStyle={styles.scrollContent}
+                keyboardShouldPersistTaps="handled"
+                showsVerticalScrollIndicator={false}
+            >
+                {children}
+            </ScrollView>
+        </KeyboardAvoidingView>
+    );
+};
 
 const styles = StyleSheet.create({
-    container: {
-        justifyContent: 'center', 
-        alignItems: 'center',
+    root: {
+        flex: 1,
     },
-    content: {
-        padding: Layout.spacing * 4, 
-        gap: Layout.spacing * 4, 
-        flexDirection: 'column', 
-        justifyContent: 'center', 
-        alignItems: 'center' 
-    }
+    topDivider: {
+        height: 1,
+    },
+    scrollContent: {
+        padding: Layout.spacing * 4,
+        gap: Layout.spacing * 4,
+        flexDirection: 'column',
+        alignItems: 'stretch',
+        paddingBottom: Layout.spacing * 10,
+    },
 });
 
 export default BaseModal;

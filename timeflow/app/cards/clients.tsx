@@ -12,7 +12,7 @@ import { BlurView } from "expo-blur";
 import * as Haptics from 'expo-haptics';
 import { router } from "expo-router";
 import { push } from "expo-router/build/global-state/routing";
-import { Button, Card, Popover, PopoverTriggerRef, Spinner, Toast, useThemeColor, useToast } from "heroui-native";
+import { Button, Popover, PopoverTriggerRef, Spinner, Toast, useThemeColor, useToast } from "heroui-native";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Dimensions, FlatList, Pressable, StyleSheet, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
@@ -32,18 +32,16 @@ export default function Clients() {
     const muted = useThemeColor('muted');
     const accent = useThemeColor('accent');
     const foreground = useThemeColor('foreground');
+    const surface = useThemeColor('surface');
 
     const handleAddClient = () => {
         if (isPro || clients.length < 3) {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Rigid);
             push('/modals/new-client');
         } else {
-            showToast(
-                '✨ PRO Feature Locked', 
-                'Free version is limited to 3 clients. Upgrade to PRO for unlimited clients!'
-            );
+            showToast('✨ PRO Feature', 'Free version is limited to 3 clients. Upgrade for unlimited clients.');
         }
-    }
+    };
 
     useEffect(() => {
         if (!isPro && clients.length >= 3) setShowGetProLabel(true);
@@ -53,83 +51,80 @@ export default function Clients() {
 
     const renderItem = ({ item }: { item: Client }) => {
         const sessionsCount = sessions.filter(s => s.clientId === item.id).length;
+        const clientColor = item.color || accent;
+        const rateDisplay = item.defaultRate && item.defaultRate !== '0'
+            ? `${formatCurrency({ amount: parseFloat(item.defaultRate || '0'), code: settings?.currency || 'USD' })[0]}/hr`
+            : 'Global rate';
 
         return (
-            <Card style={[styles.card, item.isDefault && { borderColor: accent, borderWidth: 1 }, { backgroundColor: accent + '20' }]}>
-                <Card.Body style={{ flexDirection: 'column', gap: Layout.spacing * 2 }}>
-                    <View style={{ flexDirection: 'row', alignItems: 'center', gap: Layout.spacing, justifyContent: 'space-between' }}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between", gap: Layout.spacing }}>
-                            <View style={{ 
-                                width: 14, 
-                                height: 14, 
-                                borderRadius: 999, 
-                                backgroundColor: item.color || accent + '20' 
-                            }} />
-                            <AppText style={{ 
-                                color: item.color || accent + '20', 
-                                fontSize: 28, 
-                                fontWeight: '700',
-                                textTransform: 'uppercase',
-                                letterSpacing: 0.5
-                            }}>
-                                {item.name}
+            <View style={[styles.card, { backgroundColor: surface, borderColor: muted + '20', borderWidth: 1 }]}>
+                {/* Left color bar */}
+                <View style={[styles.colorBar, { backgroundColor: clientColor }]} />
+
+                <View style={styles.cardContent}>
+                    {/* Avatar + info row */}
+                    <View style={styles.cardRow}>
+                        <View style={[styles.avatar, { backgroundColor: clientColor + '20', borderColor: clientColor + '40', borderWidth: 1 }]}>
+                            <AppText style={[styles.avatarText, { color: clientColor }]}>
+                                {item.name.charAt(0).toUpperCase()}
                             </AppText>
                         </View>
-                        <ClientItemPopoverOptions 
-                            item={item} 
-                            deleteClient={deleteClient} 
+
+                        <View style={styles.clientInfo}>
+                            <View style={styles.nameRow}>
+                                <AppText style={[styles.clientName, { color: foreground }]}>{item.name}</AppText>
+                                {item.isDefault && (
+                                    <View style={[styles.defaultBadge, { backgroundColor: accent + '15', borderColor: accent + '35', borderWidth: 1 }]}>
+                                        <AppText style={[styles.defaultBadgeText, { color: accent }]}>Default</AppText>
+                                    </View>
+                                )}
+                            </View>
+                            <AppText style={[styles.clientMeta, { color: muted }]}>
+                                {rateDisplay} · {sessionsCount === 0 ? 'No sessions' : `${sessionsCount} session${sessionsCount !== 1 ? 's' : ''}`}
+                            </AppText>
+                        </View>
+
+                        <ClientItemPopoverOptions
+                            item={item}
+                            deleteClient={deleteClient}
                             hasSessions={sessionsCount > 0}
                             unlinkClientFromSessions={unlinkClientFromSessions}
-                            deleteSessionsByClientId={deleteSessionsByClientId} 
+                            deleteSessionsByClientId={deleteSessionsByClientId}
                         />
                     </View>
-                    
-                    <AppText style={[styles.rate, { color: muted }]}>
-                    {item.defaultRate && item.defaultRate !== '0' ? 
-                            `${formatCurrency({ amount: parseFloat(item.defaultRate || '0'), code: settings?.currency || 'USD' })[0]} / hr` : 
-                            'Global Rate'}
-                    </AppText>
-
-                    <View style={[styles.cardBody]}>
-                        <AppText style={[styles.rate, { color: muted }]}>{sessionsCount > 0 ? 
-                            `Total sessions: ${sessionsCount}` : 
-                            'No saved sessions for this client'}</AppText>
-                    </View>
-                </Card.Body>
-            </Card>
-        );
-    }
-
-    return <SafeAreaView style={[styles.container]}>
-        <ClientHeader />
-        <FlatList
-            data={clients}
-            renderItem={renderItem}
-            keyExtractor={item => item.id}
-            contentContainerStyle={styles.listContent}
-            ListEmptyComponent={
-                <View style={{ marginTop: HEIGHT, justifyContent: 'center', alignItems: 'center', alignSelf: 'center' }}>
-                    <Icon name="briefcase-outline" color={muted} />
-                    <AppText style={{ color: muted, marginTop: Layout.spacing * 2, fontSize: 18, textAlign: 'center' }}>
-                        No saved clients. Click + button to save the first client.
-                    </AppText>
                 </View>
-            }
-        />
-        <View
-            style={{ 
-                position: 'absolute',
-                bottom: 0,
-                right: 0,
-                margin: Layout.spacing * 5,
-            }}
-        >
-            {showGetProLabel && <GetProLabel left={15} top={-5} />}
-            <Button isIconOnly variant="primary" size="lg" onPress={handleAddClient}>
-                <Icon name="add-outline" color={foreground} />
-            </Button>
-        </View>
-    </SafeAreaView>
+            </View>
+        );
+    };
+
+    return (
+        <SafeAreaView style={styles.container}>
+            <ClientHeader />
+            <FlatList
+                data={clients}
+                renderItem={renderItem}
+                keyExtractor={item => item.id}
+                contentContainerStyle={styles.listContent}
+                ListEmptyComponent={
+                    <View style={styles.emptyState}>
+                        <View style={[styles.emptyIconBox, { backgroundColor: muted + '15' }]}>
+                            <Icon name="briefcase-outline" color={muted} size={28} />
+                        </View>
+                        <AppText style={[styles.emptyTitle, { color: foreground }]}>No clients yet</AppText>
+                        <AppText style={[styles.emptySubtitle, { color: muted }]}>
+                            Tap + to add your first client
+                        </AppText>
+                    </View>
+                }
+            />
+            <View style={styles.fabContainer}>
+                {showGetProLabel && <GetProLabel left={15} top={-5} />}
+                <Button isIconOnly variant="primary" size="lg" onPress={handleAddClient}>
+                    <Icon name="add-outline" color={foreground} />
+                </Button>
+            </View>
+        </SafeAreaView>
+    );
 }
 
 type ClientItemPopoverOptionsProps = {
@@ -138,59 +133,51 @@ type ClientItemPopoverOptionsProps = {
     deleteClient: (id: string) => void;
     unlinkClientFromSessions: (id: string) => void;
     deleteSessionsByClientId: (id: string) => void;
-}
+};
 
-const ClientItemPopoverOptions = ({ 
-    item, 
-    hasSessions, 
-    deleteClient, 
-    unlinkClientFromSessions, 
-    deleteSessionsByClientId 
+const ClientItemPopoverOptions = ({
+    item,
+    hasSessions,
+    deleteClient,
+    unlinkClientFromSessions,
+    deleteSessionsByClientId,
 }: ClientItemPopoverOptionsProps) => {
     const muted = useThemeColor('muted');
     const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
     const accent = useThemeColor('accent');
+    const danger = useThemeColor('danger');
 
     const popoverRef = useRef<PopoverTriggerRef>(null);
-
     const { toast } = useToast();
     const { isPro } = useUserStatus();
     const { showToast: showPremiumToast } = usePremiumToast();
 
-    const popoverTrigger = () => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
-        popoverRef.current?.open();
-    }
-
     const showToast = (label: string) => {
         toast.show({
             component: (props) => (
-                <Toast 
-                    variant="default" 
+                <Toast
+                    variant="default"
                     placement="top"
-                    style={{ backgroundColor: background, borderColor: accent }} 
-                    className="border-1 p-5" {...props}>
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <View>
-                            <Toast.Label style={{ fontSize: 22 }}>{label}</Toast.Label>
-                            <Toast.Description style={{ fontSize: 16 }}>Your client has been deleted.</Toast.Description>
-                        </View>
+                    style={{ backgroundColor: background, borderColor: muted + '30' }}
+                    className="border-1 p-5" {...props}
+                >
+                    <View>
+                        <Toast.Label style={{ fontSize: 22 }}>{label}</Toast.Label>
+                        <Toast.Description style={{ fontSize: 16 }}>Your client has been deleted.</Toast.Description>
                     </View>
                 </Toast>
             ),
         });
-    }
+    };
 
     const handleDelete = () => {
         popoverRef.current?.close();
         if (!hasSessions) {
             Alert.alert("Delete Client", "Are you sure you want to delete this client?", [
                 { text: "Cancel", style: "cancel" },
-                { 
-                    text: "Delete", 
-                    style: "destructive", 
-                    onPress: () => {
+                {
+                    text: "Delete", style: "destructive", onPress: () => {
                         deleteClient(item.id);
                         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
                         showToast('Client Deleted');
@@ -199,72 +186,59 @@ const ClientItemPopoverOptions = ({
             ]);
             return;
         }
-
-            Alert.alert(
-            "Client has active sessions",
-            `This client is linked to active sessions. How do you want to proceed?`,
-            [
-                { text: "Cancel", style: "cancel" },
-                {
-                    text: "Delete Client Only",
-                    onPress: () => {
-                        unlinkClientFromSessions(item.id); 
-                        
-                        deleteClient(item.id);
-                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-                        showToast('Client deleted, history kept');
-                    }
-                },
-                {
-                    text: "Delete Everything",
-                    style: "destructive",
-                    onPress: () => {
-                        deleteSessionsByClientId(item.id);
-                        
-                        deleteClient(item.id);
-                        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-                        showToast('Client and history deleted');
-                    }
+        Alert.alert("Client has sessions", "This client is linked to sessions. How do you want to proceed?", [
+            { text: "Cancel", style: "cancel" },
+            {
+                text: "Delete Client Only", onPress: () => {
+                    unlinkClientFromSessions(item.id);
+                    deleteClient(item.id);
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+                    showToast('Client deleted, history kept');
                 }
-            ]
-        );
-    }
+            },
+            {
+                text: "Delete Everything", style: "destructive", onPress: () => {
+                    deleteSessionsByClientId(item.id);
+                    deleteClient(item.id);
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                    showToast('Client and history deleted');
+                }
+            }
+        ]);
+    };
 
     const handleViewSessions = () => {
         popoverRef.current?.close();
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
         router.navigate('/cards/sessions-list');
-    }
+    };
 
     const handleEdit = () => {
         popoverRef.current?.close();
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-        router.push({ 
-            pathname: '/modals/edit-client', 
-            params: { id: item.id } }
-        );
-    }    
+        router.push({ pathname: '/modals/edit-client', params: { id: item.id } });
+    };
 
     const handleCreateInvoice = async () => {
         popoverRef.current?.close();
         if (!isPro) {
-            showPremiumToast('✨ PRO Feature Locked', 'Generate Invoice requires PRO. Upgrade to unlock!');        
-            
+            showPremiumToast('✨ PRO Feature', 'Generate Invoice requires PRO. Upgrade to unlock!');
             return;
         }
-        
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-        router.push({ 
-            pathname: '/modals/invoice-config', 
-            params: { id: item.id } 
-        });
+        router.push({ pathname: '/modals/invoice-config', params: { id: item.id } });
     };
 
     return (
         <Popover>
             <Popover.Trigger ref={popoverRef} asChild>
-                <Pressable onPress={popoverTrigger}>
-                    <Icon name="ellipsis-horizontal-outline" color={muted} />
+                <Pressable
+                    onPress={() => {
+                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
+                        popoverRef.current?.open();
+                    }}
+                    style={styles.menuBtn}
+                >
+                    <Icon name="ellipsis-horizontal" color={muted} size={18} />
                 </Pressable>
             </Popover.Trigger>
             <Popover.Portal>
@@ -272,82 +246,49 @@ const ClientItemPopoverOptions = ({
                 <BlurView
                     intensity={25}
                     tint="dark"
-                    style={{
-                        ...StyleSheet.absoluteFillObject,
-                        borderTopLeftRadius: 20,
-                        borderTopRightRadius: 20,
-                        overflow: 'hidden',
-                    }}
+                    style={{ ...StyleSheet.absoluteFillObject, borderTopLeftRadius: 20, borderTopRightRadius: 20, overflow: 'hidden' }}
                 >
-                    <Popover.Content 
-                        backgroundStyle={{ 
-                            backgroundColor: background, 
-                            borderTopLeftRadius: Layout.borderRadius,
-                            borderTopRightRadius: Layout.borderRadius, 
-                        }}
+                    <Popover.Content
+                        backgroundStyle={{ backgroundColor: background, borderTopLeftRadius: Layout.borderRadius, borderTopRightRadius: Layout.borderRadius }}
                         presentation='bottom-sheet'
                         snapPoints={['60%']}
                     >
-                        <View style={{ paddingHorizontal: Layout.spacing }}>
+                        <View style={styles.popoverContent}>
                             <Button
-                                style={{ 
-                                    backgroundColor: 'transparent', 
-                                    marginTop: Layout.spacing * 2,
-                                    borderColor: accent,
-                                    borderWidth: 1,
-                                    borderRadius: 9999,
-                                    paddingHorizontal: Layout.spacing * 3,
-                                    paddingVertical: Layout.spacing / 1.5, 
-                                }}
+                                variant="tertiary"
+                                style={{ backgroundColor: 'transparent', borderColor: accent, borderWidth: 1, borderRadius: 14 }}
                                 onPress={handleEdit}
                             >
                                 <Icon name="pencil-outline" color={accent} />
-                                <Button.Label style={{ color: accent, fontSize: 18, fontWeight: '700' }}>
-                                    Edit Client
-                                </Button.Label>
+                                <Button.Label style={{ color: accent, fontSize: 16, fontWeight: '600' }}>Edit Client</Button.Label>
                             </Button>
-                            {hasSessions && <Button
-                                style={{ 
-                                    backgroundColor: 'transparent', 
-                                    marginTop: Layout.spacing * 2,
-                                    borderColor: accent,
-                                    borderWidth: 1,
-                                    borderRadius: 9999,
-                                    paddingHorizontal: Layout.spacing * 3,
-                                    paddingVertical: Layout.spacing / 1.5, 
-                                }}
-                                onPress={handleCreateInvoice}
-                            >
-                                <Icon name="document-text-outline" color={accent} />
-                                <Button.Label style={{ color: accent, fontSize: 18, fontWeight: '700' }}>Create Invoice</Button.Label>
-                            </Button>}
-                            {hasSessions && <Button 
-                                variant="tertiary" 
-                                style={{ 
-                                    backgroundColor: 'transparent', 
-                                    marginTop: Layout.spacing * 2,
-                                    borderColor: accent,
-                                    borderWidth: 1,
-                                    borderRadius: 9999,
-                                    paddingHorizontal: Layout.spacing * 3,
-                                    paddingVertical: Layout.spacing / 1.5, 
-                                }}
-                                onPress={handleViewSessions}
-                            >
-                                <Icon name="list-outline" color={accent} />
-                                <Button.Label style={{ color: accent, fontSize: 18, fontWeight: '700' }}>
-                                    View Sessions
-                                </Button.Label>
-                            </Button>}
-                            <Button 
-                                variant="destructive" 
-                                style={{ marginTop: Layout.spacing * 2 }} 
+                            {hasSessions && (
+                                <Button
+                                    variant="tertiary"
+                                    style={{ backgroundColor: 'transparent', borderColor: accent, borderWidth: 1, borderRadius: 14 }}
+                                    onPress={handleCreateInvoice}
+                                >
+                                    <Icon name="document-text-outline" color={accent} />
+                                    <Button.Label style={{ color: accent, fontSize: 16, fontWeight: '600' }}>Create Invoice</Button.Label>
+                                </Button>
+                            )}
+                            {hasSessions && (
+                                <Button
+                                    variant="tertiary"
+                                    style={{ backgroundColor: 'transparent', borderColor: accent, borderWidth: 1, borderRadius: 14 }}
+                                    onPress={handleViewSessions}
+                                >
+                                    <Icon name="list-outline" color={accent} />
+                                    <Button.Label style={{ color: accent, fontSize: 16, fontWeight: '600' }}>View Sessions</Button.Label>
+                                </Button>
+                            )}
+                            <Button
+                                variant="destructive"
+                                style={{ borderRadius: 14 }}
                                 onPress={handleDelete}
                             >
                                 <Icon name="trash-outline" color={foreground} />
-                                <Button.Label style={{ fontSize: 18, fontWeight: '700' }}>
-                                    Delete Client
-                                </Button.Label>
+                                <Button.Label style={{ fontSize: 16, fontWeight: '600' }}>Delete Client</Button.Label>
                             </Button>
                         </View>
                     </Popover.Content>
@@ -355,75 +296,105 @@ const ClientItemPopoverOptions = ({
             </Popover.Portal>
         </Popover>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: Layout.spacing * 3
-    },
-    header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: Layout.spacing,
-    },
-    headerTitle: {
-        fontSize: 20,
-        fontWeight: '700',
     },
     listContent: {
-        paddingHorizontal: Layout.spacing * 2,
+        paddingHorizontal: Layout.spacing * 4,
+        paddingTop: Layout.spacing * 2,
         paddingBottom: 100,
+        gap: Layout.spacing * 2,
     },
-    clientRow: {
+    card: {
+        borderRadius: 16,
         flexDirection: 'row',
-        justifyContent: 'space-between',
+        overflow: 'hidden',
+    },
+    colorBar: {
+        width: 4,
+    },
+    cardContent: {
+        flex: 1,
+        padding: 14,
+    },
+    cardRow: {
+        flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: 16,
-        padding: Layout.spacing
+        gap: 12,
     },
-    clientName: {
+    avatar: {
+        width: 44,
+        height: 44,
+        borderRadius: 12,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    avatarText: {
         fontSize: 18,
-        fontWeight: '600',
-        marginBottom: 4,
+        fontWeight: '700',
     },
-    clientDetails: {
-        fontSize: 14,
+    clientInfo: {
+        flex: 1,
+        gap: 3,
     },
-    emptyState: {
-        marginTop: 100,
+    nameRow: {
+        flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
     },
-    fab: {
-        position: 'absolute',
-        bottom: 40,
-        right: 20,
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+    clientName: {
+        fontSize: 16,
+        fontWeight: '700',
+    },
+    defaultBadge: {
+        paddingHorizontal: 7,
+        paddingVertical: 2,
+        borderRadius: 20,
+    },
+    defaultBadgeText: {
+        fontSize: 10,
+        fontWeight: '600',
+        letterSpacing: 0.3,
+    },
+    clientMeta: {
+        fontSize: 13,
+        fontWeight: '400',
+    },
+    menuBtn: {
+        padding: 6,
+    },
+    emptyState: {
+        marginTop: HEIGHT * 0.6,
+        alignItems: 'center',
+        gap: 10,
+    },
+    emptyIconBox: {
+        width: 64,
+        height: 64,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
-        shadowColor: "#000",
-        shadowOffset: {
-            width: 0,
-            height: 4,
-        },
-        shadowOpacity: 0.30,
-        shadowRadius: 4.65,
-        elevation: 8,
+        marginBottom: 4,
     },
-    card: {
-        marginTop: Layout.spacing * 2,
-        borderRadius: Layout.borderRadius
+    emptyTitle: {
+        fontSize: 18,
+        fontWeight: '700',
     },
-    cardBody: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center'
+    emptySubtitle: {
+        fontSize: 14,
     },
-    rate: {
-        fontSize: 22
+    fabContainer: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        margin: Layout.spacing * 5,
+    },
+    popoverContent: {
+        paddingHorizontal: Layout.spacing * 2,
+        paddingTop: Layout.spacing * 2,
+        gap: Layout.spacing * 2,
     },
 });
