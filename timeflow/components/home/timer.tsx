@@ -91,9 +91,9 @@ const Tick = ({ children, fontSize, style, ...rest }: TextProps & { fontSize: nu
             fontSize,
             lineHeight: LINE_HEIGHT,
             fontVariant: ['tabular-nums'],
+            fontFamily: 'System',
             fontWeight: '800',
             textAlign: 'center',
-            width: fontSize * 0.6,
         }]}
     >
         {children}
