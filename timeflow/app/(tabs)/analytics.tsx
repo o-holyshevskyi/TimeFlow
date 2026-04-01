@@ -6,7 +6,6 @@ import { RecentHistory } from "@/components/analytics/recent-history";
 import { SummaryCards } from "@/components/analytics/summary-cards";
 import { WorkHeatmap } from "@/components/analytics/work-heatmap";
 import { AppText } from "@/components/ui/app-text";
-import { Layout } from "@/constants/layout";
 import { useSessions } from "@/hooks/use-sessions";
 import { useUserStatus } from "@/hooks/user-status";
 import { useThemeColor } from "heroui-native";
@@ -17,16 +16,17 @@ import { SafeAreaView } from "react-native-safe-area-context";
 export default function AnalyticsTab() {
     const { sessions } = useSessions();
     const { isChecking, isPro } = useUserStatus();
+    const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
 
     if (isChecking) return null;
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
             <View style={styles.header}>
                 <AppText style={[styles.title, { color: foreground }]}>Analytics</AppText>
-                <View style={[styles.headerDivider, { backgroundColor: muted + '15' }]} />
+                <View style={[styles.headerDivider, { backgroundColor: muted + '20' }]} />
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
@@ -60,23 +60,23 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        paddingHorizontal: Layout.spacing * 4,
-        paddingTop: Layout.spacing * 2,
+        paddingHorizontal: 24,
+        paddingTop: 16,
         paddingBottom: 0,
-        gap: Layout.spacing * 2,
+        gap: 8,
     },
     headerDivider: {
-        height: 1,
+        height: StyleSheet.hairlineWidth,
     },
     title: {
-        fontSize: 26,
-        fontWeight: '800',
+        fontSize: 28,
+        fontWeight: '700',
         letterSpacing: -0.3,
     },
     content: {
-        paddingHorizontal: Layout.spacing * 3,
-        paddingVertical: Layout.spacing * 2,
-        gap: Layout.spacing * 5,
-        paddingBottom: Layout.spacing * 8,
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        gap: 24,
+        paddingBottom: 120,
     },
 });

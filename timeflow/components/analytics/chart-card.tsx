@@ -1,10 +1,9 @@
-import { Layout } from "@/constants/layout";
 import { Session } from "@/hooks/use-sessions";
 import { useSettings } from "@/hooks/use-settings";
 import * as Haptics from 'expo-haptics';
-import { Button, Card, useThemeColor } from "heroui-native";
+import { useThemeColor } from "heroui-native";
 import { useMemo, useState } from "react";
-import { StyleSheet, TouchableOpacity, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { formatCurrency } from "react-native-format-currency";
 import { BarChart, } from "react-native-gifted-charts";
 import { AppText } from "../ui/app-text";
@@ -23,6 +22,7 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
     const muted = useThemeColor('muted');
     const foreground = useThemeColor('foreground');
     const accent = useThemeColor('accent');
+    const surface = useThemeColor('surface');
     
     const { startDate, finishDate, titleDate } = useMemo(() => {
         const now = new Date();
@@ -164,126 +164,181 @@ const ChartCard = ({ sessions, isPro }: { sessions: Session[], isPro: boolean })
     }
 
     return (
-        <Card style={[styles.card, { backgroundColor: accent + '20' }]}>
-            <Card.Header style={{ flexDirection: 'column', gap: Layout.spacing, paddingHorizontal: Layout.spacing * 2 }}>
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                    <AppText style={{ fontSize: 16, fontWeight: '600', color: muted }}>Earnings</AppText>
-                    <View style={{ flexDirection: 'row', backgroundColor: accent + '10', borderRadius: 8, padding: 2 }}>
+        <View style={[styles.card, { backgroundColor: surface, borderColor: muted + '20' }]}>
+            {/* Header */}
+            <View style={styles.cardHeader}>
+                <View style={styles.headerTop}>
+                    <AppText style={[styles.cardLabel, { color: muted }]}>Earnings</AppText>
+                    <View style={[styles.segmented, { backgroundColor: muted + '12' }]}>
                         {(['week', 'month'] as PeriodType[]).map((p) => (
-                            <TouchableOpacity 
-                                key={p} 
+                            <Pressable
+                                key={p}
                                 onPress={() => handlePeriodChange(p)}
-                                style={{
-                                    paddingVertical: 4,
-                                    paddingHorizontal: 12,
-                                    borderRadius: 6,
-                                    backgroundColor: period === p ? accent + '30' : 'transparent'
-                                }}
+                                style={[styles.segment, period === p && { backgroundColor: surface }]}
                             >
-                                <AppText style={{ 
-                                    color: period === p ? foreground : muted, 
-                                    fontWeight: period === p ? '700' : '400',
-                                    fontSize: 12,
-                                    textTransform: 'capitalize'
-                                }}>
-                                    {p}
+                                <AppText style={[styles.segmentLabel, {
+                                    color: period === p ? foreground : muted,
+                                    fontWeight: period === p ? '600' : '400',
+                                }]}>
+                                    {p === 'week' ? 'Week' : 'Month'}
                                 </AppText>
-                            </TouchableOpacity>
+                            </Pressable>
                         ))}
                     </View>
                 </View>
-                <View style={{ flexDirection: "row", gap: Layout.spacing, alignItems: 'flex-end' }}>
-                    <AppText style={{ fontSize: 26, fontWeight: '900', color: foreground }}>{formattedAmount[0]}</AppText>
-                    <AppText style={{ fontSize: 16, color: muted, marginBottom: 4 }}>Total</AppText>
+                <View style={styles.amountRow}>
+                    <AppText style={[styles.totalAmount, { color: foreground }]}>{formattedAmount[0]}</AppText>
+                    <AppText style={[styles.totalLabel, { color: muted }]}>total</AppText>
                 </View>
-            </Card.Header>
+            </View>
 
-            <Card.Body style={{ marginTop: Layout.spacing }}>
-                <View style={{ alignItems: 'center' }}>
-                    {sessions.length === 0 ? 
-                        <AppText 
-                            style={{ 
-                                height: 200, 
-                                color: muted, 
-                                marginTop: Layout.spacing * 2, 
-                                fontSize: 18, 
-                                textAlign: 'center', 
-                            }}>
+            {/* Chart */}
+            <View style={styles.chartArea}>
+                {sessions.length === 0 ? (
+                    <View style={styles.emptyChart}>
+                        <AppText style={[styles.emptyText, { color: muted }]}>
                             No saved data. Start the first session.
-                        </AppText> :
-                            totalMoney === 0 ?
-                            <AppText 
-                                style={{ 
-                                    height: 200, 
-                                    color: muted, 
-                                    marginTop: Layout.spacing * 2, 
-                                    fontSize: 18, 
-                                    textAlign: 'center', 
-                                }}>
-                                No saved activity for selected period.
-                            </AppText> :
-                            <BarChart
-                                key={period}
-                                data={barData}
-                                height={200}
-                                maxValue={maxValue > 0 ? maxValue * 1.15 : 100}
-                                barWidth={barWidth}
-                                spacing={spacing}
-                                initialSpacing={5}
-                                endSpacing={5}
-                                barBorderRadius={9999}
-                                frontColor={accent}
-                                hideRules={true}
-                                yAxisThickness={0}
-                                xAxisThickness={0}
-                                hideYAxisText={true}
-                                yAxisLabelWidth={0}
-                                disableScroll={true}
-                                xAxisLabelTextStyle={{
-                                    color: foreground,
-                                    fontSize: 18, 
-                                    fontWeight: '700',
-                                    textAlign: 'center',
-                                    marginTop: 4,
-                                    width: 30,
-                                    alignSelf: 'center'
-                                }}
-                            />
-                    }
-                </View>
-            </Card.Body>
+                        </AppText>
+                    </View>
+                ) : totalMoney === 0 ? (
+                    <View style={styles.emptyChart}>
+                        <AppText style={[styles.emptyText, { color: muted }]}>
+                            No activity for selected period.
+                        </AppText>
+                    </View>
+                ) : (
+                    <BarChart
+                        key={period}
+                        data={barData}
+                        height={180}
+                        maxValue={maxValue > 0 ? maxValue * 1.15 : 100}
+                        barWidth={barWidth}
+                        spacing={spacing}
+                        initialSpacing={5}
+                        endSpacing={5}
+                        barBorderRadius={9999}
+                        frontColor={accent}
+                        hideRules={true}
+                        yAxisThickness={0}
+                        xAxisThickness={0}
+                        hideYAxisText={true}
+                        yAxisLabelWidth={0}
+                        disableScroll={true}
+                        xAxisLabelTextStyle={{
+                            color: muted,
+                            fontSize: 11,
+                            fontWeight: '500',
+                            textAlign: 'center',
+                            marginTop: 4,
+                            width: 24,
+                        }}
+                    />
+                )}
+            </View>
 
-            <Card.Footer style={styles.footer}>
-                <Button isIconOnly variant="ghost" onPress={handlePrev}>
-                    <Icon name="chevron-back-outline" color={foreground} />
-                </Button>
-                
-                <AppText style={{ fontSize: 16, fontWeight: '600', color: foreground }}>
-                    {titleDate}
-                </AppText>
-
-                <Button isIconOnly variant="ghost" onPress={handleNext}>
-                    <Icon name="chevron-forward-outline" color={foreground} />
-                </Button>
-            </Card.Footer>
-        </Card>
+            {/* Footer nav */}
+            <View style={[styles.footer, { borderTopColor: muted + '15' }]}>
+                <Pressable onPress={handlePrev} style={styles.navBtn} hitSlop={8}>
+                    <Icon name="chevron-back-outline" color={muted} size={18} />
+                </Pressable>
+                <AppText style={[styles.dateLabel, { color: foreground }]}>{titleDate}</AppText>
+                <Pressable onPress={handleNext} style={styles.navBtn} hitSlop={8}>
+                    <Icon name="chevron-forward-outline" color={muted} size={18} />
+                </Pressable>
+            </View>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     card: {
-        paddingVertical: Layout.spacing * 3,
-        minWidth: 150,
-        borderRadius: Layout.borderRadius,
+        borderRadius: 16,
+        borderWidth: 1,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 12,
+    },
+    cardHeader: {
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        paddingBottom: 8,
+        gap: 8,
+    },
+    headerTop: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+    },
+    cardLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+        textTransform: 'uppercase',
+        letterSpacing: 0.6,
+    },
+    segmented: {
+        flexDirection: 'row',
+        borderRadius: 8,
+        padding: 2,
+        gap: 2,
+    },
+    segment: {
+        paddingVertical: 4,
+        paddingHorizontal: 12,
+        borderRadius: 6,
+    },
+    segmentLabel: {
+        fontSize: 12,
+    },
+    amountRow: {
+        flexDirection: 'row',
+        alignItems: 'flex-end',
+        gap: 6,
+    },
+    totalAmount: {
+        fontSize: 28,
+        fontWeight: '700',
+        letterSpacing: -0.5,
+        fontVariant: ['tabular-nums'],
+    },
+    totalLabel: {
+        fontSize: 14,
+        marginBottom: 3,
+    },
+    chartArea: {
+        paddingHorizontal: 8,
+        paddingBottom: 8,
+        alignItems: 'center',
+    },
+    emptyChart: {
+        height: 180,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 24,
+    },
+    emptyText: {
+        fontSize: 14,
+        textAlign: 'center',
     },
     footer: {
-        flexDirection: 'row', 
-        gap: Layout.spacing * 2, 
-        justifyContent: 'space-between', // Changed to space-between for better alignment
+        flexDirection: 'row',
+        justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: Layout.spacing * 2,
-        marginTop: Layout.spacing
-    }
+        paddingHorizontal: 16,
+        paddingVertical: 12,
+        borderTopWidth: StyleSheet.hairlineWidth,
+    },
+    navBtn: {
+        width: 32,
+        height: 32,
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    dateLabel: {
+        fontSize: 13,
+        fontWeight: '600',
+    },
 });
 
 export default ChartCard;

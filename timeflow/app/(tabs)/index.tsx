@@ -3,7 +3,6 @@ import Actions from '@/components/home/actions';
 import MainContent from '@/components/home/content';
 import { AppText } from '@/components/ui/app-text';
 import { Icon } from '@/components/ui/icon';
-import { Layout } from '@/constants/layout';
 import { useTimer } from '@/contexts/timer-context';
 import { useUserStatus } from '@/hooks/user-status';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -12,23 +11,21 @@ import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
 import { Button, Card, useThemeColor } from 'heroui-native';
 import { useEffect, useMemo, useState } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
-import Animated, { Easing, FadeInDown, FadeInLeft, FadeInUp } from "react-native-reanimated";
+import { Modal, Platform, Pressable, StyleSheet, View } from 'react-native';
+import Animated, { FadeIn, FadeInDown, FadeInUp } from 'react-native-reanimated';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useUniwind } from 'uniwind';
 
 function getGreeting(): string {
-    const hour = new Date().getHours();
-    if (hour < 12) return 'Good morning';
-    if (hour < 17) return 'Good afternoon';
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
     return 'Good evening';
 }
 
 function getFormattedDate(): string {
     return new Date().toLocaleDateString('en-US', {
-        weekday: 'long',
-        month: 'short',
-        day: 'numeric',
+        weekday: 'long', month: 'long', day: 'numeric',
     });
 }
 
@@ -38,21 +35,17 @@ export default function TimerTab() {
     const muted = useThemeColor('muted');
     const accent = useThemeColor('accent');
     const surface = useThemeColor('surface');
-
     const { theme } = useUniwind();
-
     const { isPro, isChecking } = useUserStatus();
     const { isTracking, isPaused } = useTimer();
     const [showWelcome, setShowWelcome] = useState(false);
 
     useEffect(() => {
-        const checkFirstProTime = async () => {
-            if (isPro && !isChecking) {
-                const hasSeen = await AsyncStorage.getItem('has_seen_pro_welcome');
-                if (!hasSeen) setShowWelcome(true);
-            }
-        };
-        checkFirstProTime();
+        if (isPro && !isChecking) {
+            AsyncStorage.getItem('has_seen_pro_welcome').then(v => {
+                if (!v) setShowWelcome(true);
+            });
+        }
     }, [isPro, isChecking]);
 
     const handleCloseWelcome = async () => {
@@ -60,39 +53,33 @@ export default function TimerTab() {
         await AsyncStorage.setItem('has_seen_pro_welcome', 'true');
     };
 
-    const handleAddSession = () => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-        router.push('/modals/new-session');
-    };
-
     const statusLabel = useMemo(() => {
         if (isTracking && !isPaused) return { text: 'Tracking', color: accent };
-        if (isPaused) return { text: 'Paused', color: '#eab308' };
+        if (isPaused) return { text: 'Paused', color: '#F59E0B' };
         return null;
     }, [isTracking, isPaused, accent]);
 
     const isLightTheme = theme === 'light' || theme === 'nord';
+    const blurTint = isLightTheme ? 'systemThinMaterialLight' : 'systemThinMaterialDark';
 
     return (
         <View style={[styles.root, { backgroundColor: background }]}>
-            <SafeAreaView style={styles.container}>
-                {/* Top bar */}
-                <Animated.View
-                    style={styles.topBar}
-                    entering={FadeInUp.delay(150).easing(Easing.ease).duration(500)}
-                >
-                    <View style={styles.topBarLeft}>
+            <SafeAreaView style={styles.safeArea}>
+
+                {/* ── Header ── */}
+                <Animated.View entering={FadeInUp.duration(400)} style={styles.header}>
+                    <View style={styles.headerLeft}>
                         <AppText style={[styles.greeting, { color: foreground }]}>
                             {getGreeting()}
                         </AppText>
-                        <View style={styles.dateRow}>
-                            <AppText style={[styles.dateText, { color: muted }]}>
+                        <View style={styles.subRow}>
+                            <AppText style={[styles.dateLabel, { color: muted }]}>
                                 {getFormattedDate()}
                             </AppText>
                             {statusLabel && (
-                                <View style={[styles.statusChip, {
-                                    backgroundColor: statusLabel.color + '15',
-                                    borderColor: statusLabel.color + '40',
+                                <View style={[styles.statusPill, {
+                                    backgroundColor: statusLabel.color + '18',
+                                    borderColor: statusLabel.color + '50',
                                 }]}>
                                     <View style={[styles.statusDot, { backgroundColor: statusLabel.color }]} />
                                     <AppText style={[styles.statusText, { color: statusLabel.color }]}>
@@ -103,68 +90,64 @@ export default function TimerTab() {
                         </View>
                     </View>
                     <Pressable
-                        onPress={handleAddSession}
-                        style={[styles.addButton, {
+                        onPress={() => {
+                            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                            router.push('/modals/new-session');
+                        }}
+                        style={({ pressed }) => [styles.addBtn, {
                             backgroundColor: surface,
-                            borderColor: muted + '30',
-                            borderWidth: 1,
+                            opacity: pressed ? 0.6 : 1,
+                            shadowColor: '#000',
+                            shadowOffset: { width: 0, height: 2 },
+                            shadowOpacity: 0.08,
+                            shadowRadius: 8,
                         }]}
                     >
-                        <Icon name="add-outline" color={foreground} size={18} />
+                        <Icon name="add" color={foreground} size={20} />
                     </Pressable>
                 </Animated.View>
 
-                {/* Thin accent divider */}
-                <View style={[styles.headerDivider, { backgroundColor: muted + '15' }]} />
+                <View style={[styles.hairline, { backgroundColor: 'rgba(84,84,88,0.2)' }]} />
 
-                {/* Timer + earnings */}
-                <Animated.View
-                    style={{ flex: 1 }}
-                    entering={FadeInLeft.delay(250).easing(Easing.ease).duration(600).damping(80)}
-                >
+                {/* ── Timer + Earnings ── */}
+                <Animated.View entering={FadeIn.delay(100).duration(500)} style={styles.centerContent}>
                     <MainContent />
                 </Animated.View>
 
                 <AdBanner isPro={!isChecking && isPro} />
 
-                {/* Action buttons */}
-                <Animated.View
-                    entering={FadeInDown.delay(250).easing(Easing.ease).duration(600).damping(80)}
-                    style={styles.actionsWrapper}
-                >
+                {/* ── Actions ── */}
+                <Animated.View entering={FadeInDown.delay(100).duration(400)} style={styles.actionsArea}>
                     <Actions />
                 </Animated.View>
+
             </SafeAreaView>
 
-            {/* PRO welcome modal */}
-            <Modal visible={showWelcome} animationType="fade" transparent={true}>
-                <BlurView
-                    intensity={30}
-                    tint={isLightTheme ? 'systemThinMaterialLight' : 'systemThinMaterialDark'}
-                    style={[styles.overlay]}
-                >
+            {/* ── PRO Welcome Modal ── */}
+            <Modal visible={showWelcome} animationType="slide" transparent presentationStyle="overFullScreen">
+                <BlurView intensity={40} tint={blurTint} style={styles.overlay}>
                     <Card style={[styles.welcomeCard, {
-                        backgroundColor: background,
-                        borderColor: muted + '30',
-                        borderWidth: 1,
+                        backgroundColor: surface,
+                        shadowColor: '#000',
+                        shadowOffset: { width: 0, height: 16 },
+                        shadowOpacity: 0.24,
+                        shadowRadius: 32,
                     }]}>
                         <Card.Body style={styles.welcomeBody}>
-                            <View style={[styles.welcomeIconCircle, { backgroundColor: accent + '15', borderColor: accent + '30', borderWidth: 1 }]}>
-                                <Icon name="ribbon" size={40} color={accent} />
+                            <View style={[styles.welcomeIconWrap, { backgroundColor: accent + '18' }]}>
+                                <Icon name="ribbon" size={32} color={accent} />
                             </View>
                             <AppText style={[styles.welcomeTitle, { color: foreground }]}>
                                 You're PRO
                             </AppText>
-                            <AppText style={[styles.welcomeDesc, { color: muted }]}>
-                                Lifetime access is active. Unlimited invoices, clients, and analytics — all yours.
+                            <AppText style={[styles.welcomeBody2, { color: muted }]}>
+                                Lifetime access active. Unlimited invoices, clients, and analytics.
                             </AppText>
                             <Button
                                 onPress={handleCloseWelcome}
                                 style={[styles.welcomeBtn, { backgroundColor: accent }]}
                             >
-                                <Button.Label style={{ color: 'white', fontWeight: '600', fontSize: 16 }}>
-                                    Let's Go
-                                </Button.Label>
+                                <Button.Label style={styles.welcomeBtnLabel}>Let's Go</Button.Label>
                             </Button>
                         </Card.Body>
                     </Card>
@@ -175,112 +158,91 @@ export default function TimerTab() {
 }
 
 const styles = StyleSheet.create({
-    root: {
-        flex: 1,
-    },
-    container: {
-        flex: 1,
-        flexDirection: 'column',
-        justifyContent: 'space-between',
-    },
-    topBar: {
+    root: { flex: 1 },
+    safeArea: { flex: 1, justifyContent: 'space-between' },
+    header: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        paddingHorizontal: Layout.spacing * 4,
-        paddingTop: Layout.spacing * 2,
-        paddingBottom: Layout.spacing * 2,
+        paddingHorizontal: 24,
+        paddingTop: 16,
+        paddingBottom: 16,
     },
-    topBarLeft: {
-        gap: 4,
-    },
-    headerDivider: {
-        height: 1,
-        marginHorizontal: Layout.spacing * 4,
-        marginBottom: Layout.spacing,
-    },
+    headerLeft: { gap: 4 },
     greeting: {
-        fontSize: 20,
-        fontWeight: '700',
-        letterSpacing: -0.2,
+        fontFamily: 'System',
+        fontSize: 22,
+        fontWeight: Platform.OS === 'ios' ? '700' : 'bold',
+        letterSpacing: -0.3,
     },
-    dateRow: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 8,
-        marginTop: 2,
-    },
-    dateText: {
+    subRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    dateLabel: {
+        fontFamily: 'System',
         fontSize: 13,
         fontWeight: '400',
     },
-    statusChip: {
+    statusPill: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 5,
         paddingHorizontal: 8,
         paddingVertical: 3,
-        borderRadius: 20,
-        borderWidth: 1,
+        borderRadius: 8,
+        borderWidth: StyleSheet.hairlineWidth,
     },
-    statusDot: {
-        width: 6,
-        height: 6,
-        borderRadius: 3,
-    },
+    statusDot: { width: 6, height: 6, borderRadius: 3 },
     statusText: {
-        fontSize: 11,
+        fontFamily: 'System',
+        fontSize: 12,
         fontWeight: '600',
-        letterSpacing: 0.2,
     },
-    addButton: {
-        width: 36,
-        height: 36,
-        borderRadius: 10,
+    addBtn: {
+        width: 40,
+        height: 40,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
     },
-    actionsWrapper: {
-        paddingBottom: Layout.spacing * 4,
-    },
+    hairline: { height: StyleSheet.hairlineWidth, marginHorizontal: 24 },
+    centerContent: { flex: 1 },
+    actionsArea: { paddingBottom: 32, paddingHorizontal: 24 },
     overlay: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 24,
+        justifyContent: 'flex-end',
+        padding: 16,
+        paddingBottom: 48,
     },
-    welcomeCard: {
-        width: '100%',
-        borderRadius: 20,
-    },
-    welcomeBody: {
-        alignItems: 'center',
-        padding: 28,
-        gap: 14,
-    },
-    welcomeIconCircle: {
-        width: 80,
-        height: 80,
-        borderRadius: 20,
+    welcomeCard: { borderRadius: 24, overflow: 'hidden' },
+    welcomeBody: { alignItems: 'center', padding: 32, gap: 16 },
+    welcomeIconWrap: {
+        width: 64,
+        height: 64,
+        borderRadius: 16,
         justifyContent: 'center',
         alignItems: 'center',
     },
     welcomeTitle: {
-        fontSize: 24,
-        fontWeight: '800',
-        textAlign: 'center',
-        letterSpacing: -0.3,
+        fontFamily: 'System',
+        fontSize: 28,
+        fontWeight: '700',
+        letterSpacing: -0.5,
     },
-    welcomeDesc: {
+    welcomeBody2: {
+        fontFamily: 'System',
         fontSize: 15,
         textAlign: 'center',
         lineHeight: 22,
-        fontWeight: '400',
     },
     welcomeBtn: {
         width: '100%',
-        height: 50,
-        borderRadius: 12,
-        marginTop: 4,
+        height: 56,
+        borderRadius: 16,
+        marginTop: 8,
+    },
+    welcomeBtnLabel: {
+        fontFamily: 'System',
+        color: 'white',
+        fontWeight: '600',
+        fontSize: 17,
     },
 });

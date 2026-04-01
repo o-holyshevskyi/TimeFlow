@@ -1,12 +1,11 @@
 import { Icon } from '@/components/ui/icon';
-import { useThemeColor } from 'heroui-native';
 import { Tabs } from 'expo-router';
-import { Platform } from 'react-native';
+import { useThemeColor } from 'heroui-native';
+import { Platform, StyleSheet } from 'react-native';
 
 export default function TabsLayout() {
     const accent = useThemeColor('accent');
     const muted = useThemeColor('muted');
-    const background = useThemeColor('background');
     const surface = useThemeColor('surface');
 
     return (
@@ -17,18 +16,18 @@ export default function TabsLayout() {
                 tabBarInactiveTintColor: muted,
                 tabBarStyle: {
                     backgroundColor: surface,
-                    borderTopWidth: 1,
-                    borderTopColor: muted + '25',
+                    borderTopWidth: StyleSheet.hairlineWidth,
+                    borderTopColor: 'rgba(84,84,88,0.4)',
+                    height: Platform.OS === 'ios' ? 88 : 64,
+                    paddingBottom: Platform.OS === 'ios' ? 32 : 8,
+                    paddingTop: 8,
                     elevation: 0,
-                    shadowOpacity: 0,
-                    height: Platform.OS === 'ios' ? 85 : 65,
-                    paddingBottom: Platform.OS === 'ios' ? 25 : 10,
-                    paddingTop: 10,
                 },
                 tabBarLabelStyle: {
-                    fontSize: 11,
+                    fontFamily: 'System',
+                    fontSize: 10,
                     fontWeight: '500',
-                    letterSpacing: 0.2,
+                    letterSpacing: 0.1,
                 },
             }}
         >
@@ -37,7 +36,7 @@ export default function TabsLayout() {
                 options={{
                     title: 'Timer',
                     tabBarIcon: ({ color, focused }) => (
-                        <Icon name={focused ? 'time' : 'time-outline'} color={color} />
+                        <Icon name={focused ? 'time' : 'time-outline'} color={color} size={24} />
                     ),
                 }}
             />
@@ -46,7 +45,7 @@ export default function TabsLayout() {
                 options={{
                     title: 'Sessions',
                     tabBarIcon: ({ color, focused }) => (
-                        <Icon name={focused ? 'calendar' : 'calendar-outline'} color={color} />
+                        <Icon name={focused ? 'calendar' : 'calendar-outline'} color={color} size={24} />
                     ),
                 }}
             />
@@ -55,7 +54,7 @@ export default function TabsLayout() {
                 options={{
                     title: 'Analytics',
                     tabBarIcon: ({ color, focused }) => (
-                        <Icon name={focused ? 'stats-chart' : 'stats-chart-outline'} color={color} />
+                        <Icon name={focused ? 'stats-chart' : 'stats-chart-outline'} color={color} size={24} />
                     ),
                 }}
             />
@@ -64,7 +63,7 @@ export default function TabsLayout() {
                 options={{
                     title: 'Settings',
                     tabBarIcon: ({ color, focused }) => (
-                        <Icon name={focused ? 'settings' : 'settings-outline'} color={color} />
+                        <Icon name={focused ? 'settings' : 'settings-outline'} color={color} size={24} />
                     ),
                 }}
             />

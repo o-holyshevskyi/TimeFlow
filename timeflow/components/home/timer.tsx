@@ -93,7 +93,7 @@ const Tick = ({ children, fontSize, style, ...rest }: TextProps & { fontSize: nu
             fontVariant: ['tabular-nums'],
             fontWeight: '800',
             textAlign: 'center',
-            minWidth: fontSize * 0.6,
+            width: fontSize * 0.6,
         }]}
     >
         {children}
@@ -105,6 +105,10 @@ const styles = StyleSheet.create({
         borderRadius: 24,
         overflow: 'hidden',
         alignSelf: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 16,
     },
     accentBar: {
         height: 3,
@@ -114,10 +118,10 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'flex-end',
         justifyContent: 'center',
-        gap: 4,
-        paddingHorizontal: 28,
-        paddingVertical: 20,
-        paddingTop: 18,
+        gap: 8,
+        paddingHorizontal: 24,
+        paddingVertical: 24,
+        paddingTop: 16,
     },
     tickerRow: {
         flexDirection: 'row',

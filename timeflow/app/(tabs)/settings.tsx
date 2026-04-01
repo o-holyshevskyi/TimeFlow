@@ -7,13 +7,13 @@ import SettingsCard from "@/components/settings/settings-card";
 import ThemesCard from "@/components/settings/themes-card";
 import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
-import { Layout } from "@/constants/layout";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function SettingsTab() {
+    const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
     const surface = useThemeColor('surface');
@@ -24,10 +24,10 @@ export default function SettingsTab() {
     };
 
     return (
-        <SafeAreaView style={styles.container}>
+        <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
             <View style={styles.header}>
                 <AppText style={[styles.title, { color: foreground }]}>Settings</AppText>
-                <View style={[styles.headerDivider, { backgroundColor: muted + '15' }]} />
+                <View style={[styles.headerDivider, { backgroundColor: muted + '20' }]} />
             </View>
             <ScrollView showsVerticalScrollIndicator={false}>
                 <View style={styles.content}>
@@ -48,7 +48,7 @@ export default function SettingsTab() {
                             onPress={handleManageClients}
                             style={({ pressed }) => [styles.row, { backgroundColor: surface, opacity: pressed ? 0.7 : 1 }]}
                         >
-                            <View style={[styles.iconBox, { backgroundColor: accent + '20' }]}>
+                            <View style={[styles.iconBox, { backgroundColor: accent + '18' }]}>
                                 <Icon name="briefcase-outline" color={accent} size={18} />
                             </View>
                             <View style={{ flex: 1, gap: 2 }}>
@@ -75,7 +75,7 @@ export default function SettingsTab() {
 
                 </View>
                 <PrivacyLink />
-                <View style={{ height: Layout.spacing * 8 }} />
+                <View style={{ height: 120 }} />
             </ScrollView>
         </SafeAreaView>
     );
@@ -86,28 +86,28 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     header: {
-        paddingHorizontal: Layout.spacing * 4,
-        paddingTop: Layout.spacing * 2,
+        paddingHorizontal: 24,
+        paddingTop: 16,
         paddingBottom: 0,
-        gap: Layout.spacing * 2,
+        gap: 8,
     },
     headerDivider: {
-        height: 1,
+        height: StyleSheet.hairlineWidth,
     },
     title: {
-        fontSize: 26,
-        fontWeight: '800',
+        fontSize: 28,
+        fontWeight: '700',
         letterSpacing: -0.3,
     },
     content: {
-        paddingHorizontal: Layout.spacing * 3,
-        paddingBottom: Layout.spacing * 4,
-        gap: Layout.spacing * 5,
+        paddingHorizontal: 16,
+        paddingTop: 16,
+        gap: 32,
     },
     sectionLabel: {
         fontSize: 12,
-        fontWeight: '700',
-        letterSpacing: 1,
+        fontWeight: '600',
+        letterSpacing: 0.8,
         textTransform: 'uppercase',
         marginBottom: 8,
         marginLeft: 4,
@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     iconBox: {
         width: 36,
         height: 36,
-        borderRadius: 10,
+        borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
     },
@@ -131,6 +131,6 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     rowSubtitle: {
-        fontSize: 12,
+        fontSize: 13,
     },
 });

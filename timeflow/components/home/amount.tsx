@@ -111,14 +111,18 @@ const EarnedAmount = () => {
 const styles = StyleSheet.create({
     wrapper: {
         alignItems: 'center',
-        gap: Layout.spacing * 2,
+        gap: 16,
     },
     card: {
         width: CARD_WIDTH,
-        borderRadius: 20,
-        paddingVertical: 20,
+        borderRadius: 16,
+        paddingVertical: 16,
         paddingHorizontal: 24,
-        gap: 12,
+        gap: 8,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 12,
     },
     labelRow: {
         flexDirection: 'row',
@@ -166,9 +170,9 @@ const styles = StyleSheet.create({
         fontWeight: '600',
     },
     limitWarning: {
-        paddingVertical: 10,
+        paddingVertical: 8,
         paddingHorizontal: 16,
-        borderRadius: 12,
+        borderRadius: 8,
         alignItems: 'center',
     },
     limitWarningText: {

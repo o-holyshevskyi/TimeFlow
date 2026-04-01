@@ -128,7 +128,7 @@ const SummaryCard = ({ title, value, icon, percent, subText, accentColor, isBlur
                 <View style={[styles.accentBar, { backgroundColor: accentColor }]} />
 
                 {/* Icon + title row */}
-                <View style={[styles.cardTop, { marginTop: 10 }]}>
+                <View style={styles.cardTop}>
                     <View style={[styles.iconBox, { backgroundColor: accentColor + '18' }]}>
                         <Icon name={icon as any} color={accentColor} size={15} />
                     </View>
@@ -183,15 +183,19 @@ const styles = StyleSheet.create({
     card: {
         width: 160,
         borderRadius: 16,
-        paddingHorizontal: 14,
-        paddingBottom: 14,
+        paddingHorizontal: 16,
+        paddingBottom: 16,
         paddingTop: 0,
         gap: 8,
         overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
     },
     accentBar: {
         height: 3,
-        marginHorizontal: -14,
+        marginHorizontal: -16,
         borderTopLeftRadius: 16,
         borderTopRightRadius: 16,
     },
@@ -199,6 +203,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         gap: 8,
+        marginTop: 8,
     },
     iconBox: {
         width: 28,

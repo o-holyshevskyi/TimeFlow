@@ -1,4 +1,4 @@
 export const Layout = {
-    spacing: 5,
-    borderRadius: 32,
+    spacing: 8,
+    borderRadius: 16,
 }

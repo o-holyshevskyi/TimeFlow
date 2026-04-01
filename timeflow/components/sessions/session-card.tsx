@@ -230,6 +230,10 @@ const styles = StyleSheet.create({
         borderRadius: 16,
         overflow: 'hidden',
         flexDirection: 'row',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.06,
+        shadowRadius: 8,
     },
     clientBar: {
         width: 4,
