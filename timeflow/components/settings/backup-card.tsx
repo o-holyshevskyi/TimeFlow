@@ -1,4 +1,3 @@
-import { Layout } from "@/constants/layout";
 import { useDataBackup } from "@/hooks/use-data-backup";
 import { Spinner, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback } from "react";
@@ -101,39 +100,41 @@ const BackupCard = () => {
 
 const styles = StyleSheet.create({
     sectionLabel: {
-        fontSize: 12,
-        fontWeight: '700',
-        letterSpacing: 1,
+        fontSize: 13,
+        fontWeight: '400',
         textTransform: 'uppercase',
+        letterSpacing: 0.5,
         marginBottom: 8,
-        marginLeft: 4,
+        marginLeft: 16,
     },
     section: {
-        borderRadius: 16,
+        borderRadius: 10,
         overflow: 'hidden',
     },
     row: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
-        padding: 16,
+        paddingHorizontal: 16,
+        minHeight: 44,
+        paddingVertical: 10,
     },
     iconBox: {
         width: 36,
         height: 36,
-        borderRadius: 10,
+        borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
     },
     rowTitle: {
-        fontSize: 15,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: '400',
     },
     rowSubtitle: {
-        fontSize: 12,
+        fontSize: 13,
     },
     divider: {
-        height: 1,
+        height: StyleSheet.hairlineWidth,
     },
 });
 

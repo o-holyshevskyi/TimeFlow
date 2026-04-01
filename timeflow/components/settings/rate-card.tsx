@@ -1,6 +1,5 @@
 import { AppText } from '@/components/ui/app-text';
 import { Icon } from '@/components/ui/icon';
-import { Layout } from '@/constants/layout';
 import * as StoreReview from 'expo-store-review';
 import { useThemeColor } from 'heroui-native';
 import { Linking, Pressable, StyleSheet, View } from 'react-native';
@@ -38,32 +37,34 @@ export default function RateCard() {
 
 const styles = StyleSheet.create({
     sectionLabel: {
-        fontSize: 12,
-        fontWeight: '700',
-        letterSpacing: 1,
+        fontSize: 13,
+        fontWeight: '400',
         textTransform: 'uppercase',
+        letterSpacing: 0.5,
         marginBottom: 8,
-        marginLeft: 4,
+        marginLeft: 16,
     },
     row: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
-        padding: 16,
-        borderRadius: 16,
+        paddingHorizontal: 16,
+        minHeight: 44,
+        paddingVertical: 10,
+        borderRadius: 10,
     },
     iconBox: {
         width: 36,
         height: 36,
-        borderRadius: 10,
+        borderRadius: 8,
         justifyContent: 'center',
         alignItems: 'center',
     },
     rowTitle: {
-        fontSize: 15,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: '400',
     },
     rowSubtitle: {
-        fontSize: 12,
+        fontSize: 13,
     },
 });

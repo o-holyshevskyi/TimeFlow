@@ -105,19 +105,21 @@ const styles = StyleSheet.create({
         gap: 32,
     },
     sectionLabel: {
-        fontSize: 12,
-        fontWeight: '600',
-        letterSpacing: 0.8,
+        fontSize: 13,
+        fontWeight: '400',
         textTransform: 'uppercase',
+        letterSpacing: 0.5,
         marginBottom: 8,
-        marginLeft: 4,
+        marginLeft: 16,
     },
     row: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 12,
-        padding: 16,
-        borderRadius: 16,
+        paddingHorizontal: 16,
+        minHeight: 44,
+        paddingVertical: 10,
+        borderRadius: 10,
     },
     iconBox: {
         width: 36,
@@ -127,8 +129,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     rowTitle: {
-        fontSize: 15,
-        fontWeight: '600',
+        fontSize: 17,
+        fontWeight: '400',
     },
     rowSubtitle: {
         fontSize: 13,

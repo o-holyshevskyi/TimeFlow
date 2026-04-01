@@ -1,26 +1,23 @@
-import { Layout } from "@/constants/layout";
 import { useTimer } from "@/contexts/timer-context";
 import { useSettings } from "@/hooks/use-settings";
-import { Button, Toast, useThemeColor, useToast } from "heroui-native";
-import { useCallback, useEffect, useState } from "react";
+import { useThemeColor } from "heroui-native";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Keyboard, StyleSheet, View } from "react-native";
 import { AppText } from "../ui/app-text";
 import HourlyRateInput from "../ui/hourly-rate";
 import CurrencySelect from "./currency-select";
 
 const SettingsCard = () => {
-    const foreground = useThemeColor('foreground');
     const muted = useThemeColor('muted');
-    const accent = useThemeColor('accent');
     const surface = useThemeColor('surface');
-    const background = useThemeColor('background');
 
     const [rate, setRate] = useState<undefined | string>(undefined);
     const [currency, setCurrency] = useState<undefined | string>(undefined);
 
     const { settings, saveSettings } = useSettings();
-    const { toast } = useToast();
     const { isTracking } = useTimer();
+
+    const autoSaveTimer = useRef<ReturnType<typeof setTimeout>>();
 
     useEffect(() => {
         if (settings) {
@@ -29,33 +26,29 @@ const SettingsCard = () => {
         }
     }, [settings]);
 
-    const showToast = useCallback(() => {
-        toast.show({
-            component: (props) => (
-                <Toast
-                    variant="default"
-                    placement="top"
-                    style={{ backgroundColor: background, borderColor: accent }}
-                    className="border-1 p-5"
-                    {...props}
-                >
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                        <View>
-                            <Toast.Label style={{ fontSize: 22 }}>Settings saved!</Toast.Label>
-                            <Toast.Description style={{ fontSize: 16 }}>Your preferences were updated</Toast.Description>
-                        </View>
-                        <Toast.Close />
-                    </View>
-                </Toast>
-            ),
-        });
-    }, [toast, background, accent]);
+    const triggerSave = useCallback((newRate: string | undefined, newCurrency: string | undefined) => {
+        clearTimeout(autoSaveTimer.current);
+        autoSaveTimer.current = setTimeout(() => {
+            if (!isTracking && newRate && newCurrency) {
+                saveSettings({
+                    rate: newRate,
+                    currency: newCurrency,
+                    notificationsEnabled: settings?.notificationsEnabled ?? true,
+                });
+                Keyboard.dismiss();
+            }
+        }, 600);
+    }, [isTracking, saveSettings, settings?.notificationsEnabled]);
 
-    const handleSaveRate = useCallback(async () => {
-        await saveSettings({ currency, rate, notificationsEnabled: settings?.notificationsEnabled ?? true });
-        showToast();
-        Keyboard.dismiss();
-    }, [currency, rate, saveSettings, showToast, settings]);
+    const handleRateChange = (newRate: string) => {
+        setRate(newRate);
+        triggerSave(newRate, currency);
+    };
+
+    const handleCurrencyChange = (newCurrency: string) => {
+        setCurrency(newCurrency);
+        triggerSave(rate, newCurrency);
+    };
 
     return (
         <View>
@@ -63,31 +56,12 @@ const SettingsCard = () => {
             <View style={[styles.section, { backgroundColor: surface }]}>
                 <View style={styles.inputRow}>
                     <View style={{ flex: 1 }}>
-                        <HourlyRateInput rate={rate} setRate={setRate} />
+                        <HourlyRateInput rate={rate} setRate={handleRateChange} />
                     </View>
                     <View style={{ flex: 1 }}>
-                        <CurrencySelect initialCurrency={currency} onCurrencySelect={setCurrency} />
+                        <CurrencySelect initialCurrency={currency} onCurrencySelect={handleCurrencyChange} />
                     </View>
                 </View>
-                <View style={[styles.divider, { backgroundColor: muted + '20' }]} />
-                <Button
-                    isDisabled={isTracking}
-                    onPress={handleSaveRate}
-                    feedbackVariant="ripple"
-                    size="lg"
-                    style={{ borderRadius: 12, backgroundColor: accent }}
-                    animation={{
-                        ripple: {
-                            backgroundColor: { value: foreground },
-                            opacity: { value: [0, 0.3, 0] },
-                        },
-                        scale: { value: 1.02 }
-                    }}
-                >
-                    <Button.Label style={{ fontSize: 16, fontWeight: '600', color: foreground }}>
-                        Save Rate
-                    </Button.Label>
-                </Button>
             </View>
         </View>
     );
@@ -95,24 +69,21 @@ const SettingsCard = () => {
 
 const styles = StyleSheet.create({
     sectionLabel: {
-        fontSize: 12,
-        fontWeight: '700',
-        letterSpacing: 1,
+        fontSize: 13,
+        fontWeight: '400',
         textTransform: 'uppercase',
+        letterSpacing: 0.5,
         marginBottom: 8,
-        marginLeft: 4,
+        marginLeft: 16,
     },
     section: {
-        borderRadius: 16,
+        borderRadius: 10,
+        overflow: 'hidden',
         padding: 16,
-        gap: 12,
     },
     inputRow: {
         flexDirection: 'row',
-        gap: Layout.spacing * 2,
-    },
-    divider: {
-        height: 1,
+        gap: 16,
     },
 });
 
