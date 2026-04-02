@@ -2,7 +2,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useThemeColor } from "heroui-native";
-import { ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+import { Platform, PlatformColor, ScrollView, StyleSheet, TouchableOpacity, View } from "react-native";
+
+const CELL_BG: any = Platform.OS === 'ios'
+    ? PlatformColor('secondarySystemGroupedBackground')
+    : undefined;
 import { Uniwind, useUniwind } from "uniwind";
 import { AppText } from "../ui/app-text";
 
@@ -30,7 +34,7 @@ export default function ThemesCard() {
     };
 
     return (
-        <View style={[styles.card, { backgroundColor: surface }]}>
+        <View style={[styles.card, { backgroundColor: CELL_BG ?? surface }]}>
             <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}

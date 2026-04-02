@@ -1,47 +1,54 @@
 import { Stack } from "expo-router";
 import { useThemeColor } from "heroui-native";
+import { Platform, PlatformColor } from "react-native";
 
 export default function ModalsLayout() {
-    const background = useThemeColor('background');
     const foreground = useThemeColor('foreground');
-    const muted = useThemeColor('muted');
+    const background = useThemeColor('background');
     const surface = useThemeColor('surface');
+
+    const sheetBg = Platform.OS === 'ios'
+        ? PlatformColor('systemGroupedBackground')
+        : background;
+
+    const headerBg = Platform.OS === 'ios'
+        ? PlatformColor('secondarySystemGroupedBackground')
+        : surface;
 
     return (
         <Stack
             screenOptions={{
-                contentStyle: { backgroundColor: background },
-                headerStyle: {
-                    backgroundColor: surface,
-                },
+                contentStyle: { backgroundColor: sheetBg as any },
+                headerStyle: { backgroundColor: headerBg as any },
                 headerTitleStyle: {
                     color: foreground,
                     fontSize: 17,
-                    fontWeight: '700',
+                    fontWeight: '600',
                 },
                 headerTintColor: foreground,
                 headerShadowVisible: false,
+                gestureEnabled: true,
             }}
         >
             <Stack.Screen
                 name="new-session"
-                options={{ presentation: 'modal', headerTitle: 'Add Session' }}
+                options={{ presentation: 'formSheet', headerTitle: 'Add Session' }}
             />
             <Stack.Screen
                 name="edit-session"
-                options={{ presentation: 'modal', headerTitle: 'Edit Session' }}
+                options={{ presentation: 'formSheet', headerTitle: 'Edit Session' }}
             />
             <Stack.Screen
                 name="new-client"
-                options={{ presentation: 'modal', headerTitle: 'Add Client' }}
+                options={{ presentation: 'formSheet', headerTitle: 'Add Client' }}
             />
             <Stack.Screen
                 name="invoice-config"
-                options={{ presentation: 'modal', headerTitle: 'Invoice' }}
+                options={{ presentation: 'formSheet', headerTitle: 'Invoice' }}
             />
             <Stack.Screen
                 name="edit-client"
-                options={{ presentation: 'modal', headerTitle: 'Edit Client' }}
+                options={{ presentation: 'formSheet', headerTitle: 'Edit Client' }}
             />
         </Stack>
     );

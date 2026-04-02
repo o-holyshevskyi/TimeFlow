@@ -3,7 +3,11 @@ import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Button, Spinner, Toast, useThemeColor, useToast } from "heroui-native";
 import { useEffect, useState } from "react";
-import { Alert, StyleSheet, View } from "react-native";
+import { Alert, Platform, PlatformColor, StyleSheet, View } from "react-native";
+
+const CELL_BG: any = Platform.OS === 'ios'
+    ? PlatformColor('secondarySystemGroupedBackground')
+    : undefined;
 import Purchases, { PACKAGE_TYPE, PurchasesPackage } from "react-native-purchases";
 import { useUniwind } from "uniwind";
 import { AppText } from "../ui/app-text";
@@ -96,7 +100,7 @@ const PremiumCard = ({ handleSuccess }: { handleSuccess?: () => void }) => {
         return (
             <View>
                 <AppText style={[styles.sectionLabel, { color: muted }]}>SUBSCRIPTION</AppText>
-                <View style={[styles.section, { backgroundColor: surface }]}>
+                <View style={[styles.section, { backgroundColor: CELL_BG ?? surface }]}>
                     <View style={styles.proRow}>
                         <View style={[styles.iconBox, { backgroundColor: accent + '20' }]}>
                             <Icon name="checkmark-circle" color={accent} size={18} />
@@ -123,7 +127,7 @@ const PremiumCard = ({ handleSuccess }: { handleSuccess?: () => void }) => {
     return (
         <View>
             <AppText style={[styles.sectionLabel, { color: muted }]}>GO PRO</AppText>
-            <View style={[styles.premiumContainer, { backgroundColor: surface }]}>
+            <View style={[styles.premiumContainer, { backgroundColor: CELL_BG ?? surface }]}>
                 {/* Header */}
                 <View style={styles.premiumHeader}>
                     <LinearGradient

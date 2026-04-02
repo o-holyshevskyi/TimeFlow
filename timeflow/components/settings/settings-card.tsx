@@ -2,7 +2,11 @@ import { useTimer } from "@/contexts/timer-context";
 import { useSettings } from "@/hooks/use-settings";
 import { useThemeColor } from "heroui-native";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Keyboard, StyleSheet, View } from "react-native";
+import { Keyboard, Platform, PlatformColor, StyleSheet, View } from "react-native";
+
+const CELL_BG: any = Platform.OS === 'ios'
+    ? PlatformColor('secondarySystemGroupedBackground')
+    : undefined;
 import { AppText } from "../ui/app-text";
 import HourlyRateInput from "../ui/hourly-rate";
 import CurrencySelect from "./currency-select";
@@ -53,7 +57,7 @@ const SettingsCard = () => {
     return (
         <View>
             <AppText style={[styles.sectionLabel, { color: muted }]}>HOURLY RATE</AppText>
-            <View style={[styles.section, { backgroundColor: surface }]}>
+            <View style={[styles.section, { backgroundColor: CELL_BG ?? surface }]}>
                 <View style={styles.inputRow}>
                     <View style={{ flex: 1 }}>
                         <HourlyRateInput rate={rate} setRate={handleRateChange} />

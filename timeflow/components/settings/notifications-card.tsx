@@ -2,7 +2,11 @@ import { useSettings } from "@/hooks/use-settings";
 import * as Notifications from 'expo-notifications';
 import { Switch, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback, useEffect, useState } from "react";
-import { Linking, StyleSheet, View } from "react-native";
+import { Linking, Platform, PlatformColor, StyleSheet, View } from "react-native";
+
+const CELL_BG: any = Platform.OS === 'ios'
+    ? PlatformColor('secondarySystemGroupedBackground')
+    : undefined;
 import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
@@ -71,7 +75,7 @@ const NotificationsCard = () => {
     return (
         <View>
             <AppText style={[styles.sectionLabel, { color: muted }]}>NOTIFICATIONS</AppText>
-            <View style={[styles.section, { backgroundColor: surface }]}>
+            <View style={[styles.section, { backgroundColor: CELL_BG ?? surface }]}>
                 <View style={styles.row}>
                     <View style={[styles.iconBox, { backgroundColor: '#f97316' + '20' }]}>
                         <Icon name="notifications-outline" color="#f97316" size={18} />

@@ -2,7 +2,11 @@ import { AppText } from '@/components/ui/app-text';
 import { Icon } from '@/components/ui/icon';
 import * as StoreReview from 'expo-store-review';
 import { useThemeColor } from 'heroui-native';
-import { Linking, Pressable, StyleSheet, View } from 'react-native';
+import { Linking, Platform, PlatformColor, Pressable, StyleSheet, View } from 'react-native';
+
+const CELL_BG: any = Platform.OS === 'ios'
+    ? PlatformColor('secondarySystemGroupedBackground')
+    : undefined;
 
 export default function RateCard() {
     const foreground = useThemeColor('foreground');
@@ -20,7 +24,7 @@ export default function RateCard() {
             <AppText style={[styles.sectionLabel, { color: muted }]}>FEEDBACK</AppText>
             <Pressable
                 onPress={handleRate}
-                style={({ pressed }) => [styles.row, { backgroundColor: surface, opacity: pressed ? 0.7 : 1 }]}
+                style={({ pressed }) => [styles.row, { backgroundColor: CELL_BG ?? surface, opacity: pressed ? 0.7 : 1 }]}
             >
                 <View style={[styles.iconBox, { backgroundColor: warning + '25' }]}>
                     <Icon name="star" size={18} color={warning} />

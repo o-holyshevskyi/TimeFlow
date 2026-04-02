@@ -1,7 +1,11 @@
 import { useDataBackup } from "@/hooks/use-data-backup";
 import { Spinner, Toast, useThemeColor, useToast } from "heroui-native";
 import { useCallback } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Platform, PlatformColor, Pressable, StyleSheet, View } from "react-native";
+
+const CELL_BG: any = Platform.OS === 'ios'
+    ? PlatformColor('secondarySystemGroupedBackground')
+    : undefined;
 import { AppText } from "../ui/app-text";
 import { Icon } from "../ui/icon";
 
@@ -50,7 +54,7 @@ const BackupCard = () => {
     return (
         <View>
             <AppText style={[styles.sectionLabel, { color: muted }]}>DATA & BACKUP</AppText>
-            <View style={[styles.section, { backgroundColor: surface }]}>
+            <View style={[styles.section, { backgroundColor: CELL_BG ?? surface }]}>
                 <Pressable
                     onPress={handleCreateBackup}
                     disabled={isLoading}

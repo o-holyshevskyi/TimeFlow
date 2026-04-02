@@ -9,8 +9,16 @@ import { AppText } from "@/components/ui/app-text";
 import { Icon } from "@/components/ui/icon";
 import { router } from "expo-router";
 import { useThemeColor } from "heroui-native";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Platform, PlatformColor, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+
+const GROUPED_BG: any = Platform.OS === 'ios'
+    ? PlatformColor('systemGroupedBackground')
+    : undefined;
+
+const CELL_BG: any = Platform.OS === 'ios'
+    ? PlatformColor('secondarySystemGroupedBackground')
+    : undefined;
 
 export default function SettingsTab() {
     const background = useThemeColor('background');
@@ -24,17 +32,20 @@ export default function SettingsTab() {
     };
 
     return (
-        <SafeAreaView style={[styles.container, { backgroundColor: background }]}>
+        <SafeAreaView style={[styles.container, { backgroundColor: GROUPED_BG ?? background }]}>
             <View style={styles.header}>
                 <AppText style={[styles.title, { color: foreground }]}>Settings</AppText>
                 <View style={[styles.headerDivider, { backgroundColor: muted + '20' }]} />
             </View>
-            <ScrollView showsVerticalScrollIndicator={false}>
+            <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{ paddingBottom: 120 }}
+            >
                 <View style={styles.content}>
 
                     {/* Appearance */}
                     <View>
-                        <AppText style={[styles.sectionLabel, { color: muted }]}>APPEARANCE</AppText>
+                        <AppText style={[styles.sectionLabel, { color: muted }]}>Appearance</AppText>
                         <ThemesCard />
                     </View>
 
@@ -43,10 +54,10 @@ export default function SettingsTab() {
 
                     {/* Clients shortcut */}
                     <View>
-                        <AppText style={[styles.sectionLabel, { color: muted }]}>CLIENTS</AppText>
+                        <AppText style={[styles.sectionLabel, { color: muted }]}>Clients</AppText>
                         <Pressable
                             onPress={handleManageClients}
-                            style={({ pressed }) => [styles.row, { backgroundColor: surface, opacity: pressed ? 0.7 : 1 }]}
+                            style={({ pressed }) => [styles.row, { backgroundColor: CELL_BG ?? surface, opacity: pressed ? 0.7 : 1 }]}
                         >
                             <View style={[styles.iconBox, { backgroundColor: accent + '18' }]}>
                                 <Icon name="briefcase-outline" color={accent} size={18} />
@@ -75,7 +86,6 @@ export default function SettingsTab() {
 
                 </View>
                 <PrivacyLink />
-                <View style={{ height: 120 }} />
             </ScrollView>
         </SafeAreaView>
     );
@@ -107,8 +117,7 @@ const styles = StyleSheet.create({
     sectionLabel: {
         fontSize: 13,
         fontWeight: '400',
-        textTransform: 'uppercase',
-        letterSpacing: 0.5,
+        letterSpacing: 0,
         marginBottom: 8,
         marginLeft: 16,
     },
